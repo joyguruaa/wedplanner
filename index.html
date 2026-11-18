@@ -212,7 +212,7 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
         <div class="sub" id="brandSub">২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া</div>
       </div>
     </div>
-    <button class="icon-btn" id="themeBtn" title="Theme">🌙</button>
+    <div style="display:flex;gap:8px"><button class="icon-btn" id="syncBtn" title="GitHub sync">☁️</button><button class="icon-btn" id="themeBtn" title="Theme">🌙</button></div>
   </div>
   <div class="countdown" id="countdown"></div>
 </header>
@@ -290,6 +290,31 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
       <h2>Budget</h2>
       <p class="hint">Total amount you plan to spend.</p>
       <label class="f"><span>Budget (₹)</span><input type="number" id="budget" inputmode="numeric"></label>
+    </div>
+    <div class="card" id="syncCard">
+      <div class="head"><h2>☁️ Auto-save to GitHub</h2><span class="pill" id="syPill">Off</span></div>
+      <p class="hint">Every change (quotes, payments, screenshots, shopping, logo) saves automatically to a <b>private</b> GitHub repo, so all your devices show the same data.</p>
+      <details class="sec" id="syHelp"><summary><span>One-time setup (5 min)</span></summary><div style="padding:12px 14px;font-size:14px">
+        <ol style="margin:0;padding-left:18px;line-height:1.6">
+          <li>On github.com (as <b>joyguruaa</b>) create a new repository named <b>wedplanner-data</b>. Choose <b>Private</b>. Don't add any files.</li>
+          <li>Go to <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+          <li>Repository access: <b>Only select repositories → wedplanner-data</b>. Permissions → Repository permissions → <b>Contents: Read and write</b>. Expiration: a date after the wedding.</li>
+          <li>Generate, copy the token, paste it below and tap <b>Connect</b>.</li>
+          <li>Do step 4 on every phone/laptop you use, with the same token.</li>
+        </ol>
+        <p class="muted" style="margin:10px 0 0">The token stays only on this device; it is never put into the website or the data. Anyone holding it can read and change your data, so share it only with family members you trust.</p>
+      </div></details>
+      <div class="fgrid" style="margin-top:12px">
+        <label class="f"><span>GitHub username</span><input id="syOwner" placeholder="joyguruaa" autocapitalize="off" autocorrect="off"></label>
+        <label class="f"><span>Data repository (private)</span><input id="syRepo" placeholder="wedplanner-data" autocapitalize="off" autocorrect="off"></label>
+        <label class="f full"><span>Access token</span><input id="syToken" type="password" placeholder="github_pat_…" autocapitalize="off" autocorrect="off"></label>
+      </div>
+      <div class="tools" style="margin-top:12px">
+        <button class="btn" id="syConnect">🔗 Connect</button>
+        <button class="btn soft" id="syNow">⟳ Sync now</button>
+        <button class="btn line" id="syOff">Disconnect</button>
+      </div>
+      <p class="muted" id="syStatus" style="margin:10px 0 0"></p>
     </div>
     <div class="card">
       <h2>Logo & banner</h2>
@@ -446,8 +471,9 @@ function migrate(){
   if(!S.items.some(i=>i.g==='makeup'))S.items.push(...mkItems(MAKEUP_ITEMS,'makeup'));
 }
 migrate();
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){toast('⚠️ Storage full — download a backup and remove some old screenshots');return false;}};
-save();
+const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){toast('⚠️ Storage full — download a backup and remove some old screenshots');return false;}};
+const save=()=>{S.updatedAt=Date.now();const ok=saveLocal();if(typeof markDirty==='function')markDirty();return ok;};
+saveLocal();
 
 /* ================= HELPERS ================= */
 const UI={sl:null,sf:'all',qg:'dec',tab:'home',payFilter:'All',paySearch:'',qSearch:{dec:'',evt:''},open:{}};
@@ -498,7 +524,7 @@ document.addEventListener('change',async e=>{
   catch(err){toast('Could not read that image');}
 });
 document.addEventListener('click',e=>{if(e.target.dataset&&e.target.dataset.proofdel!==undefined){$('proofBox').parentElement.outerHTML=proofField('');}});
-function viewProof(pid){const p=S.payments.find(x=>x.id===pid);if(!p||!p.img)return;$('viewImg').src=p.img;$('viewDl').href=p.img;$('viewDl').download=`payment-${p.date||''}-${p.amt}.jpg`;$('viewer').showModal();}
+function viewProof(pid){const p=S.payments.find(x=>x.id===pid);const im=p&&imgOf(p);if(!im)return;$('viewImg').src=im;$('viewDl').href=im;$('viewDl').download=`payment-${p.date||''}-${p.amt}.jpg`;$('viewer').showModal();}
 $('viewClose').onclick=()=>$('viewer').close();
 
 /* ================= SHEET (dialog forms) ================= */
@@ -525,10 +551,10 @@ function sheetTerms(vid){const v=S.vendors.find(x=>x.id===vid),t=S.terms[vid]||{
 function sheetBooking(pre={},editId=null){const b=editId?S.bookings.find(x=>x.id===editId):pre;
   openSheet(editId?'Edit booking':'New booking',field('name','Vendor / purpose','text',b.name||'',{full:1,req:1,ph:'e.g. Photographer – Rahul Studio'})+field('cat','Category','select',b.cat||'Misc',{options:allCats()})+field('amt','Agreed amount (₹)','number',b.amt||'',{req:1})+field('phone','Phone','tel',b.phone||'')+field('due','Balance due by','date',b.due||'')+field('note','Note','text',b.note||'',{full:1}),
   d=>{const o={name:d.name.trim(),cat:d.cat,amt:+d.amt||0,phone:d.phone.trim(),due:d.due,note:d.note};if(editId)Object.assign(b,o);else S.bookings.push({id:uid(),...o});save();render();toast(editId?'Booking updated':'Booking added');});}
-function sheetPayment(toId='',editId=null){const p=editId?S.payments.find(x=>x.id===editId):{date:today(),to:toId,mode:'UPI'};
+function sheetPayment(toId='',editId=null){const p=editId?S.payments.find(x=>x.id===editId):{date:today(),to:toId,mode:'UPI'};const shownImg=imgOf(p);
   const bk=S.bookings.find(b=>b.id===(p.to||toId));
-  openSheet(editId?'Edit payment':'Record payment',field('amt','Amount (₹)','number',p.amt||(bk?Math.max(0,bk.amt-paidFor(bk.id)):''),{req:1})+field('date','Date','date',p.date||today())+field('to','Paid to','select',p.to||toId,{full:1,options:[{v:'',t:'— Other (no booking) —'},...S.bookings.map(b=>({v:b.id,t:`${b.name} (due ${inr(Math.max(0,b.amt-paidFor(b.id)))})`}))]})+field('cat','Category (if no booking)','select',p.cat||'Misc',{options:allCats()})+field('mode','Mode','select',p.mode||'UPI',{options:MODES})+field('by','Paid by','text',p.by||'',{ph:'Who paid'})+field('note','Note','text',p.note||'',{full:1,ph:'advance, groceries, saree…'})+proofField(p.img||''),
-  d=>{const b=S.bookings.find(x=>x.id===d.to);const o={date:d.date,to:d.to,cat:b?b.cat:d.cat,amt:+d.amt||0,mode:d.mode,by:d.by.trim(),note:d.note.trim(),img:d.img||''};if(!o.amt){toast('Enter amount');return false;}
+  openSheet(editId?'Edit payment':'Record payment',field('amt','Amount (₹)','number',p.amt||(bk?Math.max(0,bk.amt-paidFor(bk.id)):''),{req:1})+field('date','Date','date',p.date||today())+field('to','Paid to','select',p.to||toId,{full:1,options:[{v:'',t:'— Other (no booking) —'},...S.bookings.map(b=>({v:b.id,t:`${b.name} (due ${inr(Math.max(0,b.amt-paidFor(b.id)))})`}))]})+field('cat','Category (if no booking)','select',p.cat||'Misc',{options:allCats()})+field('mode','Mode','select',p.mode||'UPI',{options:MODES})+field('by','Paid by','text',p.by||'',{ph:'Who paid'})+field('note','Note','text',p.note||'',{full:1,ph:'advance, groceries, saree…'})+proofField(shownImg),
+  d=>{const b=S.bookings.find(x=>x.id===d.to);const o={date:d.date,to:d.to,cat:b?b.cat:d.cat,amt:+d.amt||0,mode:d.mode,by:d.by.trim(),note:d.note.trim()};if((d.img||'')===shownImg){o.img=p.img||'';o.imgRef=p.imgRef||'';}else{o.img=d.img||'';o.imgRef='';}if(!o.amt){toast('Enter amount');return false;}
     if(editId)Object.assign(p,o);else S.payments.push({id:uid(),...o});if(!save()){if(!editId)S.payments.pop();return false;}render();toast('Payment saved ✓');});}
 function sheetItem(g){const secs=[...new Set(itemsFor(g).map(i=>i.sec))];
   openSheet('Add item',`<datalist id="secs">${secs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>`+field('name','Item name','text','',{full:1,req:1})+field('sec','Section','text','অন্যান্য',{full:1,list:'secs'}),
@@ -565,8 +591,8 @@ function renderHome(){
   const rec=[...S.payments].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
   $('recentList').innerHTML=rec.length?rec.map(payRow).join(''):`<div class="empty"><b>💸</b>No payments yet.</div>`;
 }
-function payRow(p){const b=S.bookings.find(x=>x.id===p.to);const nm=b?b.name:(p.note||p.cat);
-  return`<div class="item">${p.img?`<button class="thumbbtn" data-view="${p.id}" title="View proof"><img src="${p.img}" alt=""></button>`:`<div class="av" style="background:${colorFor(p.cat)}">${esc(initials(nm))}</div>`}<div class="grow"><div class="nm">${esc(nm)}</div><div class="meta">${p.img?'📎 ':''}${fmtDate(p.date)} · ${esc(p.mode)}${p.by?` · ${esc(p.by)}`:''}${b&&p.note?` · ${esc(p.note)}`:''}</div></div><div class="amt">${inr(p.amt)}<br><button class="x" data-editpay="${p.id}" title="Edit">✎</button><button class="x" data-delpay="${p.id}" title="Delete">✕</button></div></div>`;}
+function payRow(p){const b=S.bookings.find(x=>x.id===p.to);const nm=b?b.name:(p.note||p.cat);const im=imgOf(p);
+  return`<div class="item">${im?`<button class="thumbbtn" data-view="${p.id}" title="View proof"><img src="${im}" alt=""></button>`:`<div class="av" style="background:${colorFor(p.cat)}">${esc(initials(nm))}</div>`}<div class="grow"><div class="nm">${esc(nm)}</div><div class="meta">${p.img||p.imgRef?'📎 ':''}${fmtDate(p.date)} · ${esc(p.mode)}${p.by?` · ${esc(p.by)}`:''}${b&&p.note?` · ${esc(p.note)}`:''}</div></div><div class="amt">${inr(p.amt)}<br><button class="x" data-editpay="${p.id}" title="Edit">✎</button><button class="x" data-delpay="${p.id}" title="Delete">✕</button></div></div>`;}
 
 /* ================= QUOTES ================= */
 function renderQuotes(){
@@ -667,7 +693,7 @@ function renderPay(){
   if(!cats.includes(UI.payFilter))UI.payFilter='All';
   $('payChips').innerHTML=cats.map(c=>`<button class="chip ${c===UI.payFilter?'on':''}" data-chip="${esc(c)}">${esc(c)}</button>`).join('');
   const s=UI.paySearch.toLowerCase();
-  const list=[...S.payments].filter(p=>UI.payFilter==='All'||(UI.payFilter==='📎 With proof'?!!p.img:UI.payFilter==='⚠️ No proof'?!p.img:p.cat===UI.payFilter)).filter(p=>{if(!s)return true;const b=S.bookings.find(x=>x.id===p.to);return[b?.name,p.note,p.by,p.cat,p.mode].join(' ').toLowerCase().includes(s);}).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const list=[...S.payments].filter(p=>UI.payFilter==='All'||(UI.payFilter==='📎 With proof'?!!(p.img||p.imgRef):UI.payFilter==='⚠️ No proof'?!(p.img||p.imgRef):p.cat===UI.payFilter)).filter(p=>{if(!s)return true;const b=S.bookings.find(x=>x.id===p.to);return[b?.name,p.note,p.by,p.cat,p.mode].join(' ').toLowerCase().includes(s);}).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const tot=list.reduce((a,p)=>a+p.amt,0);
   $('payList').innerHTML=list.length?list.map(payRow).join('')+`<div class="item" style="background:var(--surface2)"><div class="grow"><b>Total${UI.payFilter!=='All'?` · ${esc(UI.payFilter)}`:''}</b></div><div class="amt">${inr(tot)}</div></div>`:`<div class="empty"><b>🧾</b>No payments found.</div>`;
 }
@@ -737,7 +763,7 @@ const csv=rows=>'﻿'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}
 $('expJson').onclick=()=>{download(`wedding-backup-${today()}.json`,JSON.stringify(S,null,1),'application/json');toast('Backup downloaded');};
 $('impBtn').onclick=()=>$('impFile').click();
 $('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.items)throw 0;S=d;migrate();save();render();toast('Backup restored ✓');}catch(err){toast('Not a valid backup file');}};r.readAsText(f);};
-$('expPay').onclick=()=>download('wedding-payments.csv',csv([['Date','Paid to','Category','Amount','Mode','Paid by','Note','Proof attached'],...S.payments.map(p=>{const b=S.bookings.find(x=>x.id===p.to);return[p.date,b?b.name:'',p.cat,p.amt,p.mode,p.by,p.note,p.img?'Yes':'No'];})]),'text/csv');
+$('expPay').onclick=()=>download('wedding-payments.csv',csv([['Date','Paid to','Category','Amount','Mode','Paid by','Note','Proof attached'],...S.payments.map(p=>{const b=S.bookings.find(x=>x.id===p.to);return[p.date,b?b.name:'',p.cat,p.amt,p.mode,p.by,p.note,p.img||p.imgRef?'Yes':'No'];})]),'text/csv');
 $('expQuote').onclick=()=>{const rows=[];S.groups.forEach(gr=>{const V=S.vendors.filter(v=>v.group===gr.id);rows.push([gr.title,'Section','Item','In total',...V.map(v=>v.name)]);itemsFor(gr.id).forEach(it=>rows.push(['',it.sec,it.name,it.skip?'No':'Yes',...V.map(v=>(S.quotes[v.id]||{})[it.id]||'')]));rows.push(['','','Total','',...V.map(v=>vendorTotal(v.id))]);rows.push([]);});download('wedding-quotations.csv',csv(rows),'text/csv');};
 $('expShop').onclick=()=>download('wedding-shopping.csv',csv([['List','Item','Quantity','Shop','Who buys','Estimate','Actual','Bought'],...S.shop.items.map(i=>[listOf(i).title,i.name,i.qty,i.shop,i.by,i.est,i.act,i.done?'Yes':'No'])]),'text/csv');
 $('reset').onclick=()=>ask('Delete ALL data? Download a backup first if unsure.','Yes, delete everything').then(()=>{S=fresh();UI.qg='dec';save();render();toast('Reset done');});
@@ -750,7 +776,8 @@ function probe(src,key){const im=new Image();im.onload=()=>{REPO[key]=src;applyB
 probe('logo.png','logo');probe('banner.jpg','banner');
 function applyBrand(){
   const B=S.brand||{};
-  const logo=B.logo||REPO.logo||DEFAULT_LOGO, banner=B.banner||REPO.banner||'';
+  if(B.logoRef&&!B.logo)loadRef(B.logoRef);if(B.bannerRef&&!B.banner)loadRef(B.bannerRef);
+  const logo=B.logo||IMG[B.logoRef]||REPO.logo||DEFAULT_LOGO, banner=B.banner||IMG[B.bannerRef]||REPO.banner||'';
   $('logoImg').src=logo;$('favicon').href=logo;
   $('brandTitle').textContent=B.title||DEFAULT_TITLE;$('brandSub').textContent=B.sub||DEFAULT_SUB;
   document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
@@ -762,18 +789,123 @@ function applyBrand(){
   $('bTitle').placeholder=DEFAULT_TITLE;$('bSub').placeholder=DEFAULT_SUB;
 }
 async function setBrandImg(key,file,max,q){
-  if(!file)return;try{S.brand=S.brand||{};S.brand[key]=await compressImage(file,max,q);if(!save()){delete S.brand[key];return;}applyBrand();toast(key==='logo'?'Logo updated':'Banner updated');}catch(e){toast('Could not read that image');}
+  if(!file)return;try{S.brand=S.brand||{};S.brand[key]=await compressImage(file,max,q);delete S.brand[key+'Ref'];if(!save()){delete S.brand[key];return;}applyBrand();toast(key==='logo'?'Logo updated':'Banner updated');}catch(e){toast('Could not read that image');}
 }
 $('upLogo').onchange=e=>setBrandImg('logo',e.target.files[0],400,.85);
 $('upBanner').onchange=e=>setBrandImg('banner',e.target.files[0],1600,.75);
-$('rmLogo').onclick=()=>{if(S.brand)delete S.brand.logo;save();applyBrand();toast('Logo removed');};
-$('rmBanner').onclick=()=>{if(S.brand)delete S.brand.banner;save();applyBrand();toast('Banner removed');};
+$('rmLogo').onclick=()=>{if(S.brand){delete S.brand.logo;delete S.brand.logoRef;}save();applyBrand();toast('Logo removed');};
+$('rmBanner').onclick=()=>{if(S.brand){delete S.brand.banner;delete S.brand.bannerRef;}save();applyBrand();toast('Banner removed');};
 $('bTitle').oninput=e=>{S.brand=S.brand||{};S.brand.title=e.target.value.trim();save();applyBrand();};
 $('bSub').oninput=e=>{S.brand=S.brand||{};S.brand.sub=e.target.value.trim();save();applyBrand();};
+
+/* ================= GITHUB SYNC ================= */
+const SYNC_KEY=KEY+'-sync';
+let SY={owner:'',repo:'',token:'',sha:null,dirty:false,last:0};
+try{Object.assign(SY,JSON.parse(localStorage.getItem(SYNC_KEY))||{});}catch(e){}
+let syReady=false,syBusy=false,syAgain=false,syTimer=null,syConflicts=0;
+const IMG={},LOADING={};
+const saveSync=()=>{try{localStorage.setItem(SYNC_KEY,JSON.stringify(SY));}catch(e){}};
+const syOn=()=>!!(SY.token&&SY.owner&&SY.repo);
+function imgOf(p){if(!p)return'';if(p.img)return p.img;if(p.imgRef){if(IMG[p.imgRef])return IMG[p.imgRef];loadRef(p.imgRef);}return'';}
+function b64enc(str){const bytes=typeof str==='string'?new TextEncoder().encode(str):str;let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(bin);}
+function b64dec(b){const bin=atob(b.replace(/\s/g,''));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)));}
+function gh(method,path,body,raw){
+  const url=`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${encodeURIComponent(SY.repo)}`+(path?`/contents/${path}`:'')+(method==='GET'?`${path?'?':'?'}t=${Date.now()}`:'');
+  return fetch(url,{method,cache:'no-store',headers:{Authorization:'Bearer '+SY.token,Accept:raw?'application/vnd.github.raw':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
+}
+function loadRef(ref){
+  if(!ref||IMG[ref]||LOADING[ref]||!syOn())return;
+  LOADING[ref]=gh('GET',ref,null,true).then(r=>r.ok?r.blob():null).then(b=>{if(b){IMG[ref]=URL.createObjectURL(b);renderPay();renderHome();applyBrand();}}).catch(()=>{}).finally(()=>{setTimeout(()=>{if(!IMG[ref])delete LOADING[ref];},30000);});
+}
+function setSyncStatus(state,msg){
+  const btn=$('syncBtn'),pill=$('syPill'),st=$('syStatus');
+  const map={off:['☁️','Off',''],sync:['🔄','Syncing…','gold'],ok:['✅','Saved','ok'],err:['⚠️','Error','due'],wait:['🕓','Pending','gold']};
+  const [ic,label,cls]=map[state]||map.off;
+  btn.textContent=ic;btn.style.opacity=state==='off'?.6:1;btn.title='GitHub sync: '+label;
+  pill.textContent=label;pill.className='pill '+cls;
+  st.textContent=msg||(state==='ok'&&SY.last?`Last saved to GitHub: ${new Date(SY.last).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:state==='off'?'Not connected — data is saved on this device only.':'');
+}
+function hasUserData(){return S.vendors.length||S.bookings.length||S.payments.length||Object.keys(S.quotes).length||S.shop.items.some(i=>i.est||i.act||i.done)||(S.brand&&Object.keys(S.brand).length);}
+function stripped(){const c=JSON.parse(JSON.stringify(S));c.payments.forEach(p=>{p.img='';});if(c.brand){delete c.brand.logo;delete c.brand.banner;}return c;}
+function mergeVal(r,l){
+  const isRecs=a=>Array.isArray(a)&&a.every(x=>x&&typeof x==='object'&&'id' in x);
+  if(Array.isArray(r)&&Array.isArray(l)){if(isRecs(r)&&isRecs(l)){const m=new Map(r.map(x=>[x.id,x]));l.forEach(x=>m.set(x.id,m.has(x.id)?mergeVal(m.get(x.id),x):x));return[...m.values()];}return l;}
+  if(r&&l&&typeof r==='object'&&typeof l==='object'){const o={...r};for(const k in l)o[k]=(k in r)?mergeVal(r[k],l[k]):l[k];return o;}
+  return l===undefined?r:l;
+}
+function markDirty(){if(!syOn())return;SY.dirty=true;saveSync();setSyncStatus('wait');clearTimeout(syTimer);syTimer=setTimeout(syPush,1500);}
+async function uploadImages(){
+  for(const p of S.payments){if(p.img&&!p.imgRef){const ref=`img/${p.date||'nodate'}-${uid()}.jpg`;const r=await gh('PUT',ref,{message:'Add payment proof',content:p.img.split(',')[1]});if(!r.ok)throw new Error('image upload '+r.status);p.imgRef=ref;}}
+  const B=S.brand||{};
+  for(const k of['logo','banner']){if(B[k]&&!B[k+'Ref']){const ref=`img/${k}-${uid()}.jpg`;const r=await gh('PUT',ref,{message:'Add '+k,content:B[k].split(',')[1]});if(!r.ok)throw new Error(k+' upload '+r.status);B[k+'Ref']=ref;}}
+  saveLocal();
+}
+async function syPush(){
+  if(!syOn()||!syReady)return;
+  if(syBusy){syAgain=true;return;}
+  syBusy=true;setSyncStatus('sync');
+  try{
+    await uploadImages();
+    const body={message:'Update wedding data',content:b64enc(JSON.stringify(stripped()))};if(SY.sha)body.sha=SY.sha;
+    const r=await gh('PUT','data.json',body);
+    if(r.status===409||r.status===422){syBusy=false;if(++syConflicts>3){setSyncStatus('err','Could not save — data changed on another device. Tap “Sync now”.');return;}await syPull();return;}
+    if(!r.ok)throw new Error(r.status===401?'Token invalid or expired':r.status===403||r.status===404?'No access to the data repo — check token permissions':'GitHub error '+r.status);
+    const j=await r.json();SY.sha=j.content.sha;SY.dirty=false;SY.last=Date.now();syConflicts=0;saveSync();setSyncStatus('ok');
+  }catch(e){setSyncStatus('err',(e.message||e)+' — will retry when you make the next change or tap “Sync now”.');}
+  syBusy=false;if(syAgain){syAgain=false;syPush();}
+}
+async function syPull(){
+  if(!syOn())return;
+  setSyncStatus('sync');
+  try{
+    const r=await gh('GET','data.json');
+    if(r.status===404){syReady=true;SY.sha=null;SY.dirty=true;saveSync();return syPush();}
+    if(!r.ok)throw new Error(r.status===401?'Token invalid or expired':'Cannot read data ('+r.status+')');
+    const meta=await r.json();
+    if(meta.sha===SY.sha){syReady=true;return SY.dirty?syPush():setSyncStatus('ok');}
+    const text=meta.content?b64dec(meta.content):await (await gh('GET','data.json',null,true)).text();
+    const remote=JSON.parse(text);
+    if(SY.dirty){S=mergeVal(remote,S);}
+    else{const keep={};S.payments.forEach(p=>{if(p.img&&p.imgRef)keep[p.imgRef]=p.img;});const ob=S.brand||{};
+      S=remote;S.payments.forEach(p=>{if(!p.img&&keep[p.imgRef])p.img=keep[p.imgRef];});
+      if(S.brand){['logo','banner'].forEach(k=>{if(!S.brand[k]&&ob[k]&&ob[k+'Ref']===S.brand[k+'Ref'])S.brand[k]=ob[k];});}}
+    migrate();SY.sha=meta.sha;syReady=true;saveLocal();saveSync();render();
+    if(SY.dirty)syPush();else{SY.last=SY.last||Date.now();setSyncStatus('ok');}
+  }catch(e){setSyncStatus('err',(e.message||e));}
+}
+async function syConnect(){
+  SY.owner=$('syOwner').value.trim()||'joyguruaa';SY.repo=$('syRepo').value.trim()||'wedplanner-data';
+  const tok=$('syToken').value.trim();if(tok)SY.token=tok;
+  if(!SY.token)return toast('Paste your access token first');
+  setSyncStatus('sync','Checking access…');
+  try{
+    const r=await gh('GET','');
+    if(r.status===401)throw new Error('Token not accepted — check you copied it fully');
+    if(r.status===404||r.status===403)throw new Error(`Repo ${SY.owner}/${SY.repo} not found, or the token doesn't have access to it`);
+    const info=await r.json();
+    if(!info.private){SY.token='';saveSync();throw new Error('This repo is PUBLIC — anyone could read your payments. Make it private (Settings → General → Danger Zone → Change visibility) and connect again.');}
+    SY.sha=null;syReady=false;saveSync();$('syToken').value='';
+    const m=await gh('GET','data.json');
+    if(m.status===404){syReady=true;SY.dirty=true;saveSync();toast('Connected — uploading your data');return syPush();}
+    const meta=await m.json();
+    if(hasUserData()){
+      openSheet('Data already on GitHub',`<p class="full" style="margin:0 0 6px">GitHub already has wedding data, and this device has its own data too. Which should be kept?</p>`+field('mode','Keep','select','github',{full:1,options:[{v:'github',t:'Data from GitHub (replace this device)'},{v:'device',t:'Data from this device (replace GitHub)'},{v:'merge',t:'Combine both'}]}),
+        d=>{if(d.mode==='device'){SY.sha=meta.sha;syReady=true;SY.dirty=true;saveSync();syPush();}else{SY.dirty=d.mode==='merge';saveSync();syPull();}toast('Connected ✓');},'Continue');
+    }else{SY.dirty=false;saveSync();await syPull();toast('Connected — loaded data from GitHub ✓');}
+  }catch(e){setSyncStatus('err',e.message||String(e));}
+}
+$('syConnect').onclick=syConnect;
+$('syNow').onclick=()=>{if(!syOn())return toast('Connect first');syConflicts=0;syPull();};
+$('syOff').onclick=()=>ask('Disconnect this device from GitHub? Your data stays on this device and on GitHub.','Disconnect').then(()=>{SY={owner:SY.owner,repo:SY.repo,token:'',sha:null,dirty:false,last:0};saveSync();syReady=false;setSyncStatus('off');toast('Disconnected');});
+$('syncBtn').onclick=()=>{document.querySelector('#nav [data-tab="more"]').click();setTimeout(()=>$('syncCard').scrollIntoView({behavior:'smooth'}),100);};
+$('syOwner').value=SY.owner||'joyguruaa';$('syRepo').value=SY.repo||'wedplanner-data';
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&syOn()&&!syBusy)syPull();});
+setInterval(()=>{if(document.visibilityState==='visible'&&syOn()&&!syBusy&&!SY.dirty)syPull();},60000);
 
 /* ================= RENDER ================= */
 function render(){applyBrand();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
 render();
+if(syOn())syPull();else setSyncStatus('off');
 </script>
 </body>
 </html>
