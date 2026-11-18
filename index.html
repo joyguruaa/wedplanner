@@ -199,6 +199,62 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
   nav.bottom{top:auto;max-width:620px;margin:0 auto 14px;border-radius:20px;border:1px solid var(--line);left:0;right:0;bottom:0}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 }
+
+/* ===== responsive ===== */
+html{-webkit-text-size-adjust:100%}
+.kv{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kv div{min-width:0}
+.kv strong{display:block;font-size:clamp(15px,4.2vw,20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.top h1{font-size:clamp(20px,5.5vw,30px);line-height:1.15}
+.top .sub{font-size:clamp(12px,3.4vw,15px)}
+.item .grow,.vcard{min-width:0}
+@media(max-width:600px){
+  main{padding:0 10px}
+  .card{padding:14px;border-radius:16px}
+  .hero{grid-template-columns:104px minmax(0,1fr);gap:12px}
+  .ring .c b{font-size:20px}
+  .kv{gap:8px}.kv div{padding:8px 10px}
+  .cd{min-width:0;flex:1;padding:8px 6px}.cd b{font-size:18px}
+  .countdown{max-width:340px;margin-left:0}
+  .stick{min-width:128px;max-width:150px;font-size:13px}
+  .cell{width:80px}
+  .sitem .prices{width:100%;padding-left:32px}
+  .sitem .prices>div{flex:1}.sitem .prices .cell{width:100%}
+  .vgrid{grid-template-columns:1fr}
+  .item{padding:10px}
+  .head{flex-wrap:wrap}
+  label.f input,label.f select,label.f textarea,.search,.cell{font-size:16px}
+  .sumgrid strong{font-size:14px}
+  nav.bottom button{font-size:10.5px;padding:6px 2px}
+  .icon-btn{width:38px;height:38px}
+  .logo{width:48px;height:48px;flex-basis:48px}
+}
+@media(max-width:380px){
+  .hero{grid-template-columns:1fr}
+  .ring{max-width:140px;margin:0 auto}
+  .fgrid{grid-template-columns:1fr}
+}
+@media(min-width:900px){
+  main{max-width:1200px;padding:0 24px}
+  .top-row,.countdown{max-width:1200px}
+  .top{padding-left:24px;padding-right:24px}
+  .hero{grid-template-columns:200px 1fr;gap:28px}
+  .kv{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .kv strong{font-size:22px}
+  #tab-pay.on,#tab-more.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  #tab-pay .card,#tab-more .card{margin-bottom:0}
+  #shopBody .list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .vgrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+  dialog{max-width:620px}
+  .stick{min-width:260px;max-width:340px}
+  body{padding-bottom:110px}
+}
+a.btn{text-decoration:none}
+@media(min-width:900px){.qchips,#shopChips{flex-wrap:wrap;overflow:visible}}
+@media(min-width:1300px){
+  #shopBody .list{grid-template-columns:1fr 1fr 1fr}
+}
 @media print{nav.bottom,.fab,.top .icon-btn,.tools,.x,.btn{display:none!important}section.tab{display:block!important}body{padding:0}}
 </style>
 </head>
@@ -904,11 +960,27 @@ async function showPair(){
   if(!syOn())return toast('Connect this device first');
   const link=pairLink();
   openSheet('📱 Add another device',`<div class="full"><div class="qrbox" id="qr"></div>
-    <p style="margin:0 0 10px;text-align:center"><b>Scan this with the other phone's camera</b> and open the link. It connects automatically, once, and stays connected.</p>
-    <div class="tools" style="justify-content:center"><button type="button" class="btn sm soft" id="pairCopy">📋 Copy link</button><a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('WedPlanner – open this on your phone to connect: '+link)}">🟢 Send on WhatsApp</a></div>
+    <p style="margin:0 0 10px;text-align:center"><b>Scan this with the other phone's camera</b> and open the link (or download / share the QR image). It connects automatically, once, and stays connected.</p>
+    <div class="tools" style="justify-content:center"><a class="btn sm" id="pairDl" download="wedplanner-connect-qr.png" style="display:none">⬇ Download QR</a><button type="button" class="btn sm soft" id="pairShare" style="display:none">📤 Share QR</button><button type="button" class="btn sm soft" id="pairCopy">📋 Copy link</button><a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('WedPlanner – open this on your phone to connect: '+link)}">🟢 Send on WhatsApp</a></div>
     <p class="muted" style="margin:10px 0 0;text-align:center">⚠️ This link contains your access key. Send it only to yourself or trusted family. Anyone with it can see and edit the wedding data.</p></div>`,()=>{},'Done');
   $('pairCopy').onclick=async()=>{try{await navigator.clipboard.writeText(link);toast('Link copied');}catch(e){prompt('Copy this link',link);}};
-  try{await loadQRLib();new QRCode($('qr'),{text:link,width:230,height:230,correctLevel:QRCode.CorrectLevel.L});}
+  try{await loadQRLib();new QRCode($('qr'),{text:link,width:230,height:230,correctLevel:QRCode.CorrectLevel.L});
+    setTimeout(()=>{
+      const src=$('qr').querySelector('canvas');if(!src)return;
+      const c=document.createElement('canvas'),W=340,H=420;c.width=W;c.height=H;const x=c.getContext('2d');
+      x.fillStyle='#fff';x.fillRect(0,0,W,H);
+      x.fillStyle='#9f1d22';x.fillRect(0,0,W,58);
+      x.fillStyle='#fff';x.font='bold 22px Inter, system-ui, sans-serif';x.textAlign='center';x.fillText((S.brand&&S.brand.title)||'WedPlanner',W/2,37);
+      x.drawImage(src,(W-260)/2,78,260,260);
+      x.fillStyle='#1f1a17';x.font='600 16px Inter, system-ui, sans-serif';x.fillText('Scan to connect this device',W/2,368);
+      x.fillStyle='#7d6f63';x.font='12px Inter, system-ui, sans-serif';x.fillText('Private — share only with family',W/2,392);
+      const url=c.toDataURL('image/png');
+      const dl=$('pairDl');dl.href=url;dl.style.display='';
+      c.toBlob(b=>{const file=new File([b],'wedplanner-connect-qr.png',{type:'image/png'});
+        if(navigator.canShare&&navigator.canShare({files:[file]})){const sh=$('pairShare');sh.style.display='';sh.onclick=async()=>{try{await navigator.share({files:[file],title:'WedPlanner connect QR'});}catch(e){}};}
+      });
+    },60);
+  }
   catch(e){$('qr').innerHTML='<div class="muted" style="max-width:230px;text-align:center">Could not load the QR code — use “Copy link” or WhatsApp instead.</div>';}
 }
 $('syPair').onclick=showPair;
