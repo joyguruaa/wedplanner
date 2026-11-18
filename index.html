@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#9f1d22">
 <title>বিয়ের হিসাব — Wedding Planner</title>
+<link rel="icon" id="favicon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,6 +33,16 @@ a{color:inherit}
 .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1;max-width:1100px;margin:0 auto}
 .top h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
 .top .sub{opacity:.85;font-size:13px;margin-top:2px}
+.top.has-banner{background:linear-gradient(180deg,rgba(40,8,10,.35) 0%,rgba(70,12,16,.78) 100%),var(--banner) center/cover no-repeat}
+.top.has-banner::after{display:none}
+.top.has-banner{padding-top:28px;padding-bottom:72px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);box-shadow:0 4px 14px rgba(0,0,0,.25);background:#fff;flex:0 0 54px}
+@media(min-width:700px){.logo{width:68px;height:68px;flex-basis:68px}.top h1{font-size:26px}}
+.top h1,.top .sub{text-shadow:0 1px 6px rgba(0,0,0,.25)}
+.bprev{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:12px}
+.bprev .bimg{height:120px;background:var(--surface2) center/cover no-repeat;display:flex;align-items:flex-end;padding:10px;gap:10px;color:#fff}
+.bprev .bimg img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fff}
 .icon-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;width:40px;height:40px;display:grid;place-items:center;font-size:18px;backdrop-filter:blur(6px)}
 .countdown{display:flex;gap:8px;margin:16px auto 0;position:relative;z-index:1;max-width:1100px}
 .cd{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:8px 12px;text-align:center;min-width:64px;backdrop-filter:blur(6px)}
@@ -191,11 +203,14 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
 </head>
 <body>
 
-<header class="top">
+<header class="top" id="top">
   <div class="top-row">
-    <div>
-      <h1>💍 বিয়ের হিসাব</h1>
-      <div class="sub">২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া</div>
+    <div class="brand">
+      <img class="logo" id="logoImg" alt="Logo">
+      <div>
+        <h1 id="brandTitle">বিয়ের হিসাব</h1>
+        <div class="sub" id="brandSub">২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া</div>
+      </div>
     </div>
     <button class="icon-btn" id="themeBtn" title="Theme">🌙</button>
   </div>
@@ -275,6 +290,21 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
       <h2>Budget</h2>
       <p class="hint">Total amount you plan to spend.</p>
       <label class="f"><span>Budget (₹)</span><input type="number" id="budget" inputmode="numeric"></label>
+    </div>
+    <div class="card">
+      <h2>Logo & banner</h2>
+      <p class="hint">Uploads here show on this device only (and go into your backup). To show them for everyone on the website, add <b>logo.png</b> and <b>banner.jpg</b> to the GitHub repo next to index.html.</p>
+      <div class="bprev"><div class="bimg" id="bPrev"></div></div>
+      <div class="tools" style="margin-bottom:12px">
+        <label class="btn sm" style="cursor:pointer">🖼 Logo<input type="file" accept="image/*" id="upLogo" hidden></label>
+        <label class="btn sm" style="cursor:pointer">🏞 Banner photo<input type="file" accept="image/*" id="upBanner" hidden></label>
+        <button class="btn sm line" id="rmLogo">Remove logo</button>
+        <button class="btn sm line" id="rmBanner">Remove banner</button>
+      </div>
+      <div class="fgrid">
+        <label class="f full"><span>Title</span><input id="bTitle" placeholder="e.g. হারাধন ❤ ___ র বিয়ে"></label>
+        <label class="f full"><span>Subtitle</span><input id="bSub"></label>
+      </div>
     </div>
     <div class="card">
       <h2>Backup & export</h2>
@@ -712,8 +742,37 @@ $('expQuote').onclick=()=>{const rows=[];S.groups.forEach(gr=>{const V=S.vendors
 $('expShop').onclick=()=>download('wedding-shopping.csv',csv([['List','Item','Quantity','Shop','Who buys','Estimate','Actual','Bought'],...S.shop.items.map(i=>[listOf(i).title,i.name,i.qty,i.shop,i.by,i.est,i.act,i.done?'Yes':'No'])]),'text/csv');
 $('reset').onclick=()=>ask('Delete ALL data? Download a backup first if unsure.','Yes, delete everything').then(()=>{S=fresh();UI.qg='dec';save();render();toast('Reset done');});
 
+/* ================= BRANDING ================= */
+const DEFAULT_LOGO='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2410c"/><stop offset="1" stop-color="#7f1d1d"/></linearGradient></defs><circle cx="50" cy="50" r="50" fill="url(#g)"/><circle cx="40" cy="54" r="17" fill="none" stroke="#f5c76b" stroke-width="5"/><circle cx="60" cy="54" r="17" fill="none" stroke="#fde68a" stroke-width="5"/><path d="M60 22l5 7h-10z" fill="#fde68a"/><circle cx="60" cy="31" r="3" fill="#fff"/></svg>`);
+const DEFAULT_TITLE='বিয়ের হিসাব', DEFAULT_SUB='২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া';
+const REPO={logo:null,banner:null};
+function probe(src,key){const im=new Image();im.onload=()=>{REPO[key]=src;applyBrand();};im.src=src;}
+probe('logo.png','logo');probe('banner.jpg','banner');
+function applyBrand(){
+  const B=S.brand||{};
+  const logo=B.logo||REPO.logo||DEFAULT_LOGO, banner=B.banner||REPO.banner||'';
+  $('logoImg').src=logo;$('favicon').href=logo;
+  $('brandTitle').textContent=B.title||DEFAULT_TITLE;$('brandSub').textContent=B.sub||DEFAULT_SUB;
+  document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
+  const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}
+  $('bPrev').style.backgroundImage=banner?`linear-gradient(180deg,transparent,rgba(0,0,0,.55)),url("${banner}")`:'linear-gradient(135deg,#c2410c,#9f1d22)';
+  $('bPrev').innerHTML=`<img src="${logo}" alt=""><b style="text-shadow:0 1px 4px rgba(0,0,0,.4)">${esc(B.title||DEFAULT_TITLE)}</b>`;
+  if(document.activeElement!==$('bTitle'))$('bTitle').value=B.title||'';
+  if(document.activeElement!==$('bSub'))$('bSub').value=B.sub||'';
+  $('bTitle').placeholder=DEFAULT_TITLE;$('bSub').placeholder=DEFAULT_SUB;
+}
+async function setBrandImg(key,file,max,q){
+  if(!file)return;try{S.brand=S.brand||{};S.brand[key]=await compressImage(file,max,q);if(!save()){delete S.brand[key];return;}applyBrand();toast(key==='logo'?'Logo updated':'Banner updated');}catch(e){toast('Could not read that image');}
+}
+$('upLogo').onchange=e=>setBrandImg('logo',e.target.files[0],400,.85);
+$('upBanner').onchange=e=>setBrandImg('banner',e.target.files[0],1600,.75);
+$('rmLogo').onclick=()=>{if(S.brand)delete S.brand.logo;save();applyBrand();toast('Logo removed');};
+$('rmBanner').onclick=()=>{if(S.brand)delete S.brand.banner;save();applyBrand();toast('Banner removed');};
+$('bTitle').oninput=e=>{S.brand=S.brand||{};S.brand.title=e.target.value.trim();save();applyBrand();};
+$('bSub').oninput=e=>{S.brand=S.brand||{};S.brand.sub=e.target.value.trim();save();applyBrand();};
+
 /* ================= RENDER ================= */
-function render(){$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
+function render(){applyBrand();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
 render();
 </script>
 </body>
