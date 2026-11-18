@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#9f1d22">
+<title>বিয়ের হিসাব — Wedding Planner</title>
+<link rel="icon" id="favicon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf6f1;--surface:#ffffff;--surface2:#f5ede4;--ink:#1f1a17;--muted:#7d6f63;--line:#ece2d7;
+  --brand:#9f1d22;--brand-2:#c2410c;--gold:#d4a03a;--good:#15803d;--goodbg:#dcfce7;--bad:#dc2626;--badbg:#fee2e2;
+  --shadow:0 1px 2px rgba(60,30,10,.05),0 10px 30px rgba(60,30,10,.07);--r:18px;
+  --font:"Inter","Hind Siliguri",system-ui,-apple-system,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#121010;--surface:#1c1817;--surface2:#262120;--ink:#f4ede7;--muted:#a8998c;--line:#332b27;
+  --goodbg:#12301e;--badbg:#3b1515;--good:#4ade80;--bad:#f87171;--shadow:0 1px 0 rgba(255,255,255,.03);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button{font:inherit;cursor:pointer;color:inherit}
+a{color:inherit}
+
+/* header */
+.top{background:radial-gradient(120% 140% at 0% 0%,#c2410c 0%,#9f1d22 45%,#5c0f13 100%);color:#fff;padding:18px 18px 64px;position:relative;overflow:hidden}
+.top::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(212,160,58,.45),transparent 70%)}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1;max-width:1100px;margin:0 auto}
+.top h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.top .sub{opacity:.85;font-size:13px;margin-top:2px}
+.top.has-banner{background:linear-gradient(180deg,rgba(40,8,10,.35) 0%,rgba(70,12,16,.78) 100%),var(--banner) center/cover no-repeat}
+.top.has-banner::after{display:none}
+.top.has-banner{padding-top:28px;padding-bottom:72px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);box-shadow:0 4px 14px rgba(0,0,0,.25);background:#fff;flex:0 0 54px}
+@media(min-width:700px){.logo{width:68px;height:68px;flex-basis:68px}.top h1{font-size:26px}}
+.top h1,.top .sub{text-shadow:0 1px 6px rgba(0,0,0,.25)}
+.bprev{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:12px}
+.bprev .bimg{height:120px;background:var(--surface2) center/cover no-repeat;display:flex;align-items:flex-end;padding:10px;gap:10px;color:#fff}
+.bprev .bimg img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fff}
+.icon-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;width:40px;height:40px;display:grid;place-items:center;font-size:18px;backdrop-filter:blur(6px)}
+.countdown{display:flex;gap:8px;margin:16px auto 0;position:relative;z-index:1;max-width:1100px}
+.cd{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:8px 12px;text-align:center;min-width:64px;backdrop-filter:blur(6px)}
+.cd b{display:block;font-size:20px;font-weight:800}
+.cd span{font-size:11px;opacity:.85}
+
+main{max-width:1100px;margin:-44px auto 0;padding:0 14px;position:relative;z-index:2}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 4px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.card .hint{color:var(--muted);font-size:13px;margin:0 0 12px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.muted{color:var(--muted);font-size:13px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}
+@media(max-width:520px){.hero{grid-template-columns:120px 1fr;gap:12px}}
+.ring{position:relative;width:100%;aspect-ratio:1}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .c b{font-size:24px;font-weight:800;display:block}
+.ring .c span{font-size:11px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv div{background:var(--surface2);border-radius:14px;padding:10px 12px}
+.kv small{display:block;color:var(--muted);font-size:11.5px}
+.kv strong{font-size:17px;font-weight:700}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+
+/* bars */
+.bars .b{margin:10px 0}
+.bars .t{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+.track{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden;position:relative}
+.track i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.track .a{background:linear-gradient(90deg,var(--gold),#e9bf6a);opacity:.55}
+.track .p{background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+
+/* lists */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.av{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#fff;flex:0 0 40px;font-size:15px}
+.item .grow{flex:1;min-width:0}
+.item .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta{color:var(--muted);font-size:12.5px}
+.item .amt{font-weight:700;text-align:right;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600}
+.pill.ok{background:var(--goodbg);color:var(--good)}
+.pill.due{background:var(--badbg);color:var(--bad)}
+.pill.gold{background:rgba(212,160,58,.18);color:#a16207}
+[data-theme="dark"] .pill.gold{color:#fcd34d}
+
+/* buttons */
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:600;background:var(--brand);color:#fff;display:inline-flex;align-items:center;gap:6px;transition:transform .1s, filter .2s}
+.btn:active{transform:scale(.97)}
+.btn.soft{background:var(--surface2);color:var(--ink)}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.wa{background:#25d366;color:#05351a}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.x{background:none;border:0;color:var(--muted);font-size:15px;padding:4px 6px;border-radius:8px}
+.x:hover{color:var(--bad);background:var(--badbg)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.fab{position:fixed;right:18px;bottom:calc(92px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;border:0;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;font-size:28px;box-shadow:0 10px 30px rgba(159,29,34,.4);z-index:30;display:none}
+.fab.on{display:grid;place-items:center}
+
+/* vendor ranking */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.vcard{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--surface);position:relative}
+.vcard.win{border-color:var(--good);box-shadow:0 0 0 3px var(--goodbg)}
+.vcard .rank{position:absolute;top:12px;right:12px}
+.vcard .tot{font-size:22px;font-weight:800;margin:6px 0 2px;letter-spacing:-.02em}
+.vcard .act{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.best-mix{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(212,160,58,.18),rgba(194,65,12,.08));margin-top:12px;flex-wrap:wrap}
+
+/* comparison table */
+.search{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);font:inherit;color:var(--ink);margin-bottom:10px}
+details.sec{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden;background:var(--surface)}
+details.sec summary{list-style:none;padding:12px 14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--surface2)}
+details.sec summary::-webkit-details-marker{display:none}
+details.sec summary::after{content:"▾";transition:transform .2s;color:var(--muted)}
+details.sec[open] summary::after{transform:rotate(180deg)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.stick{position:sticky;left:0;background:var(--surface);z-index:1;min-width:170px;max-width:220px}
+td.num,th.num{text-align:right}
+.cell{width:96px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font:inherit;color:var(--ink);text-align:right}
+.cell:focus{outline:2px solid var(--gold);background:var(--surface)}
+.best .cell{background:var(--goodbg);border-color:var(--good);color:var(--good);font-weight:700}
+tr.off td{opacity:.5}
+.chk{width:18px;height:18px;accent-color:var(--brand)}
+.sumrow td{font-weight:700;background:var(--surface2)}
+
+/* nav */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:40}
+nav.bottom button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 8px;border-radius:12px;flex:1;max-width:110px}
+nav.bottom button i{font-style:normal;font-size:20px;line-height:1}
+nav.bottom button.on{color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,transparent);font-weight:600}
+[data-theme="dark"] nav.bottom button.on{color:#fca5a5}
+
+/* filters */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.qchips{padding:4px 2px 8px}.qchips .chip{box-shadow:var(--shadow);font-weight:500}.chip .n{opacity:.6;margin-left:2px}
+
+/* dialog */
+dialog{border:0;padding:0;border-radius:22px 22px 0 0;width:100%;max-width:560px;margin:auto auto 0;background:var(--surface);color:var(--ink);box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+@media(min-width:700px){dialog{border-radius:22px;margin:auto}}
+dialog::backdrop{background:rgba(20,10,5,.45);backdrop-filter:blur(3px)}
+dialog[open]{animation:up .25s ease}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.sheet{padding:18px}
+.sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
+.sheet h3{margin:0 0 14px;font-size:18px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid .full{grid-column:1/-1}
+label.f span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+label.f input,label.f select,label.f textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);font:inherit;color:var(--ink)}
+label.f input:focus,label.f select:focus{outline:2px solid var(--gold);background:var(--surface)}
+.sheet .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+.thumbbtn{border:0;padding:0;background:none;flex:0 0 40px;width:40px;height:40px;border-radius:12px;overflow:hidden;position:relative}
+.thumbbtn img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbbtn::after{content:"✓";position:absolute;right:2px;bottom:2px;background:var(--good);color:#fff;border-radius:6px;font-size:9px;padding:0 3px}
+.proof{border:1.5px dashed var(--line);border-radius:14px;padding:12px;text-align:center;background:var(--surface2)}
+.proof img{max-height:180px;max-width:100%;border-radius:10px;display:block;margin:0 auto 8px}
+.proof .pbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+dialog.viewer{background:#000;max-width:100%;width:100%;height:100%;max-height:100%;margin:0;border-radius:0;display:none;flex-direction:column}
+dialog.viewer[open]{display:flex}
+dialog.viewer img{flex:1;min-height:0;object-fit:contain;width:100%}
+dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px calc(12px + env(safe-area-inset-bottom))}
+.sitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);flex-wrap:wrap}
+.sitem.done{background:var(--surface2)}
+.sitem.done .nm{text-decoration:line-through;opacity:.6}
+.sitem .chk{width:22px;height:22px;flex:0 0 22px}
+.sitem .grow{flex:1 1 140px;min-width:0}
+.sitem .prices{display:flex;gap:6px;align-items:center}
+.sitem .prices .cell{width:84px}
+.sitem .prices small{font-size:10px;color:var(--muted);display:block;text-align:center}
+.sumgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sumgrid div{background:var(--surface2);border-radius:14px;padding:10px;text-align:center}
+.sumgrid small{display:block;color:var(--muted);font-size:11.5px}
+.sumgrid strong{font-size:16px}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.empty{text-align:center;padding:26px 10px;color:var(--muted)}
+.empty b{display:block;font-size:30px;margin-bottom:6px}
+
+@media(min-width:900px){
+  nav.bottom{top:auto;max-width:620px;margin:0 auto 14px;border-radius:20px;border:1px solid var(--line);left:0;right:0;bottom:0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+}
+@media print{nav.bottom,.fab,.top .icon-btn,.tools,.x,.btn{display:none!important}section.tab{display:block!important}body{padding:0}}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="top-row">
+    <div class="brand">
+      <img class="logo" id="logoImg" alt="Logo">
+      <div>
+        <h1 id="brandTitle">বিয়ের হিসাব</h1>
+        <div class="sub" id="brandSub">২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Theme">🌙</button>
+  </div>
+  <div class="countdown" id="countdown"></div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="tab on" id="tab-home">
+    <div class="card">
+      <div class="hero">
+        <div class="ring" id="ring"></div>
+        <div class="kv" id="kv"></div>
+      </div>
+      <div id="proj" class="best-mix" style="margin-top:14px"></div>
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="head"><h2>Spending by category</h2><span class="muted">gold = cost · red = paid</span></div>
+        <div class="bars" id="catBars"></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Payments due</h2></div>
+        <div class="list" id="dueList"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="head"><h2>Quotation snapshot</h2></div>
+        <div class="list" id="quoteSnap"></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Recent payments</h2></div>
+        <div class="list" id="recentList"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="head"><h2>Share with family</h2></div>
+      <p class="hint">Send a quick summary of budget, payments and dues on WhatsApp.</p>
+      <a class="btn wa" id="shareWa" target="_blank" rel="noopener">🟢 Share on WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- QUOTES -->
+  <section class="tab" id="tab-quotes">
+    <div class="chips qchips" id="qChips"></div>
+    <div id="qBody"></div>
+  </section>
+
+  <!-- SHOPPING -->
+  <section class="tab" id="tab-shop">
+    <div class="card">
+      <div class="head"><h2>🛍️ Shopping & purchases</h2></div>
+      <div class="sumgrid" id="shopSum"></div>
+    </div>
+    <div class="chips qchips" id="shopChips"></div>
+    <div id="shopBody"></div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section class="tab" id="tab-pay">
+    <div class="card">
+      <div class="head"><h2>Bookings</h2><button class="btn sm" data-act="addBooking">+ Booking</button></div>
+      <div class="list" id="bookList"></div>
+    </div>
+    <div class="card">
+      <div class="head"><h2>Payment history</h2><button class="btn sm" data-act="addPay">+ Payment</button></div>
+      <input class="search" id="paySearch" placeholder="🔍 Search payments…">
+      <div class="chips" id="payChips"></div>
+      <div class="list" id="payList"></div>
+    </div>
+  </section>
+
+  <!-- MORE -->
+  <section class="tab" id="tab-more">
+    <div class="card">
+      <h2>Budget</h2>
+      <p class="hint">Total amount you plan to spend.</p>
+      <label class="f"><span>Budget (₹)</span><input type="number" id="budget" inputmode="numeric"></label>
+    </div>
+    <div class="card">
+      <h2>Logo & banner</h2>
+      <p class="hint">Uploads here show on this device only (and go into your backup). To show them for everyone on the website, add <b>logo.png</b> and <b>banner.jpg</b> to the GitHub repo next to index.html.</p>
+      <div class="bprev"><div class="bimg" id="bPrev"></div></div>
+      <div class="tools" style="margin-bottom:12px">
+        <label class="btn sm" style="cursor:pointer">🖼 Logo<input type="file" accept="image/*" id="upLogo" hidden></label>
+        <label class="btn sm" style="cursor:pointer">🏞 Banner photo<input type="file" accept="image/*" id="upBanner" hidden></label>
+        <button class="btn sm line" id="rmLogo">Remove logo</button>
+        <button class="btn sm line" id="rmBanner">Remove banner</button>
+      </div>
+      <div class="fgrid">
+        <label class="f full"><span>Title</span><input id="bTitle" placeholder="e.g. হারাধন ❤ ___ র বিয়ে"></label>
+        <label class="f full"><span>Subtitle</span><input id="bSub"></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Backup & export</h2>
+      <p class="hint">Data is saved in this browser on this phone. Download a backup now and then, especially before changing phone or browser.</p>
+      <div class="tools">
+        <button class="btn" id="expJson">⬇ Backup</button>
+        <button class="btn soft" id="impBtn">⬆ Restore</button>
+        <input type="file" id="impFile" accept=".json" hidden>
+        <button class="btn soft" id="expPay">Payments CSV</button>
+        <button class="btn soft" id="expQuote">Quotations CSV</button>
+        <button class="btn soft" id="expShop">Shopping CSV</button>
+        <button class="btn soft" onclick="window.print()">🖨 Print / PDF</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Reset</h2>
+      <p class="hint">Deletes everything and starts again with the default item list.</p>
+      <button class="btn line" id="reset">Reset all data</button>
+    </div>
+  </section>
+</main>
+
+<button class="fab" id="fab">+</button>
+
+<nav class="bottom" id="nav">
+  <button data-tab="home" class="on"><i>🏠</i>Home</button>
+  <button data-tab="quotes"><i>🧾</i>Quotes</button>
+  <button data-tab="shop"><i>🛍️</i>Shopping</button>
+  <button data-tab="pay"><i>💸</i>Payments</button>
+  <button data-tab="more"><i>⚙️</i>More</button>
+</nav>
+
+<dialog id="dlg"><form class="sheet" id="sheet" method="dialog"></form></dialog>
+<dialog id="viewer" class="viewer"><img id="viewImg" alt="Payment proof"><div class="acts"><a class="btn soft" id="viewDl" download="payment-proof.jpg">⬇ Save</a><button class="btn" id="viewClose">Close</button></div></dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+const KEY='wedding-tracker-v2';
+const WEDDING=new Date('2027-01-25T00:00:00+05:30');
+const CATS=['Decoration','Event management','Cook / রাঁধুনি','Groceries / বাজার','Vegetables, fish & meat','Sweets','Gifts','Photo / Video','Makeup','Clothes','Jewellery','Tattva / তত্ত্ব','Transport','Invitation cards','Priest / Puja','Guest stay','Misc'];
+const CAT_COLORS=['#9f1d22','#c2410c','#d4a03a','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#4d7c0f','#2563eb','#9333ea','#b45309','#0f766e','#6b7280'];
+const MODES=['Cash','UPI','Bank','Cheque'];
+const DEFAULT_GROUPS=[
+ {id:'dec',title:'Decorator',cat:'Decoration',icon:'🎨',ph:'e.g. Maa Durga Decorators'},
+ {id:'evt',title:'Event management',cat:'Event management',icon:'🎪',ph:'e.g. Shubho Events'},
+ {id:'photo',title:'Photo & Video',cat:'Photo / Video',icon:'📸',ph:'e.g. Rahul Studio'},
+ {id:'makeup',title:'Makeup artist',cat:'Makeup',icon:'💄',ph:'e.g. Priya Makeover'}];
+const ICONS=['📝','👗','🚌','💍','🎁','🪔','💌','🍽️','🎵','🏠','🌸','🧾'];
+const PHOTO_ITEMS=[
+ ['ফটোগ্রাফি','আইবুড়োভাত (২৫ তারিখ)'],['ফটোগ্রাফি','গায়ে হলুদ (২৬ তারিখ)'],['ফটোগ্রাফি','বিয়ে — বরযাত্রী ও কনের বাড়ি (২৬ তারিখ রাত)'],['ফটোগ্রাফি','বৌভাত / রিসেপশন (২৭ তারিখ)'],['ফটোগ্রাফি','প্রি-ওয়েডিং শুট (ঐচ্ছিক)',1],
+ ['ভিডিও','ভিডিওগ্রাফি — সব অনুষ্ঠান'],['ভিডিও','সিনেমাটিক হাইলাইট ভিডিও (৩–৫ মিনিট)'],['ভিডিও','পুরো ভিডিও (ফুল লেংথ)'],['ভিডিও','ড্রোন শুট (ঐচ্ছিক)',1],
+ ['ডেলিভারি','অ্যালবাম (কত পাতা জেনে নিন)'],['ডেলিভারি','সব ছবি ও ভিডিওর ডিজিটাল কপি (পেনড্রাইভ / Google Drive)'],
+ ['অন্যান্য','যাতায়াত / থাকা খরচ'],['অন্যান্য','পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)',1]];
+const MAKEUP_ITEMS=[
+ ['কনের সাজ','বৌভাতের কনের মেকআপ + হেয়ারস্টাইল (২৭ তারিখ)'],['কনের সাজ','চন্দন সাজ / কনের সাজ'],['কনের সাজ','শাড়ি পরানো ও গয়না সেট করা'],['কনের সাজ','ফুলের সাজ (খোঁপা / মালা)'],['কনের সাজ','বিয়ের দিনের কনের মেকআপ (কনের বাড়ি করলে বাদ দিন)',1],
+ ['বরের সাজ','বরের সাজ — বিয়ের দিন (টোপর, চন্দন)'],['বরের সাজ','বরের সাজ — রিসেপশন'],
+ ['অন্যান্য','পরিবারের সদস্যদের মেকআপ (প্রতি জন × সংখ্যা)'],['অন্যান্য','ট্রায়াল মেকআপ',1],['অন্যান্য','যাতায়াত খরচ'],['অন্যান্য','পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)',1]];
+const SHOP_DEFAULT=[
+ {title:'পোশাক',icon:'👗',cat:'Clothes',items:['বরের ধুতি-পাঞ্জাবি (বিয়ে)','টোপর ও বরের সাজের জিনিস','বরের রিসেপশনের পোশাক','বরের জুতো','কনের ভাত-কাপড়ের শাড়ি','কনের রিসেপশনের শাড়ি','বাবা-মায়ের পোশাক','ভাই-বোনদের পোশাক','আত্মীয়দের দেওয়ার শাড়ি / জামা','অনুষ্ঠানের জন্য নতুন গামছা / কাপড়']},
+ {title:'মুদি বাজার',icon:'🛒',cat:'Groceries / বাজার',items:['চাল (সাদা ভাত)','গোবিন্দভোগ / বাসমতী চাল (পোলাও)','মুগ ডাল','অন্যান্য ডাল','সর্ষের তেল','সাদা তেল / রিফাইন্ড','ঘি','মশলা (জিরে, ধনে, হলুদ, লঙ্কা, গরম মশলা)','চিনি','নুন','ময়দা / বেসন','পাঁপড়','কাজু-কিশমিশ','চা / কফি','মিনারেল জল']},
+ {title:'সবজি, মাছ ও মাংস',icon:'🥬',cat:'Vegetables, fish & meat',items:['আলু','পেঁয়াজ','আদা-রসুন','বেগুন','মিক্সড সবজি / শুক্তোর সবজি','টমেটো','লেবু, শসা, গাজর (স্যালাড)','মাছ (রুই / কাতলা)','মুরগির মাংস','খাসির মাংস','পনির','দই','দুধ (পায়েস)']},
+ {title:'সোনা ও গয়না',icon:'💍',cat:'Jewellery',items:['কনের সোনার হার','আংটি (বর ও কনে)','কানের দুল','চুড়ি / বালা','শাঁখা-পলা','লোহা বাঁধানো','সিঁদুর কৌটো','টিকলি / টায়রা']},
+ {title:'গাড়ি ও যাতায়াত',icon:'🚌',cat:'Transport',items:['বরযাত্রী বাস','বরের গাড়ি','আত্মীয়দের আনা-নেওয়ার গাড়ি','টোটো / অটো (লোকাল)','জ্বালানি ও ড্রাইভারের খরচ']},
+ {title:'তত্ত্ব',icon:'🎁',cat:'Tattva / তত্ত্ব',items:['গায়ে হলুদের তত্ত্বের বড় মাছ','তত্ত্বের মিষ্টি','তত্ত্বের শাড়ি','প্রসাধনী (সাবান, তেল, ক্রিম, আলতা, সিঁদুর)','শুকনো ফল','তত্ত্ব সাজানোর ডালা ও প্যাকিং']},
+ {title:'পুজো ও দশকর্মা',icon:'🪔',cat:'Priest / Puja',items:['পুরোহিতের দক্ষিণা','দশকর্মা ভাণ্ডারের জিনিস','ফুল ও মালা','ধান-দূর্বা','পান-সুপারি','প্রদীপ, ধূপ, শঙ্খ','বরণডালা','ঘট ও আমপল্লব']},
+ {title:'মিষ্টি ও দই',icon:'🍬',cat:'Sweets',items:['রসগোল্লা (রিসেপশন)','মিষ্টি (অন্যান্য দিন)','মিষ্টি দই','আইসক্রিম','পান (রিসেপশন)']},
+ {title:'নিমন্ত্রণ',icon:'💌',cat:'Invitation cards',items:['কার্ড ছাপানো','খাম','ডিজিটাল কার্ড','কার্ড বিলির খরচ']},
+ {title:'উপহার ও অন্যান্য',icon:'🎀',cat:'Gifts',items:['আত্মীয়দের উপহার','ফুলশয্যায় কনেকে উপহার','নতুন বেডশিট ও বালিশের কভার','ডিসপোজেবল প্লেট-গ্লাস (বাকি দিন)','টিস্যু ও পরিষ্কারের জিনিস','টর্চ, ব্যাটারি, এক্সটেনশন বোর্ড','ফার্স্ট এইড বক্স']}
+];
+const mkShop=()=>{const lists=[],items=[];SHOP_DEFAULT.forEach(L=>{const id=uid();lists.push({id,title:L.title,icon:L.icon,cat:L.cat});L.items.forEach(n=>items.push({id:uid(),list:id,name:n,qty:'',est:'',act:'',shop:'',by:'',done:false}));});return{lists,items};};
+const mkItems=(arr,g)=>arr.map(([sec,name,skip])=>({id:uid(),sec,name,skip:!!skip,...(g?{g}:{})}));
+const ikey=g=>(g==='dec'||g==='evt')?'plan':g;
+const PACKAGE_ITEM='পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)';
+const M13='১৩. বৌভাতের খাবার (২৭ তারিখ, ~৪০০ জন)', M14='১৪. বাকি দিনের খাবার (২৪–২৬ তারিখ)';
+const DEFAULT_ITEMS=[
+ ['১. প্যান্ডেল','ছাদে ৮০ সিটের খাবার বক্স প্যান্ডেল (সাইড কভার, কার্পেট/ত্রিপল)'],
+ ['১. প্যান্ডেল','দ্বিতীয় ছাদে রান্নার ছোট প্যান্ডেল'],
+ ['১. প্যান্ডেল','প্যান্ডেলের ভেতরের কাপড়ের বক্স ডেকোরেশন + লাইট'],
+ ['২. চেয়ার-টেবিল','৮০ সিটের চেয়ার + টেবিল (টেবিল কভার সহ)'],
+ ['২. চেয়ার-টেবিল','অতিরিক্ত ১০ সেট চেয়ার-টেবিল'],
+ ['২. চেয়ার-টেবিল','অপেক্ষার জায়গার ২০–৩০টা চেয়ার'],
+ ['৩. স্টল','স্টল ৩টা (ফুচকা, পকোড়া, কফি)'],
+ ['৪. গেট ও প্রবেশপথ','মেন গেট (প্লাস্টিক ফুল + লাইট) — বাড়ির গেট'],
+ ['৪. গেট ও প্রবেশপথ','ছোট গেট — কাকাদের গেট'],
+ ['৪. গেট ও প্রবেশপথ','বর-বউয়ের নাম লেখা ওয়েলকাম বোর্ড'],
+ ['৪. গেট ও প্রবেশপথ','সিঁড়ি (প্লাস্টিক ফুল) ও ঢোকার রাস্তা (টুনি)'],
+ ['৫. রিসেপশন স্টেজ','স্টেজ ও ব্যাকড্রপ (প্লাস্টিক ফুল)'],
+ ['৫. রিসেপশন স্টেজ','বর-বউয়ের সোফা'],
+ ['৫. রিসেপশন স্টেজ','স্টেজের আলাদা লাইট'],
+ ['৬. অন্যান্য সাজানো','গায়ে হলুদের জায়গা'],
+ ['৬. অন্যান্য সাজানো','ফুলশয্যার খাট (আসল ফুল)'],
+ ['৬. অন্যান্য সাজানো','বর গাড়ি (ফুল দিয়ে)'],
+ ['৭. লাইটিং ও সাউন্ড','বাড়ির সামনে ও ছাদের লাইটিং (ঝালর/টুনি)'],
+ ['৭. লাইটিং ও সাউন্ড','রাস্তায় স্ট্যান্ড লাইট ৬–৭টা'],
+ ['৭. লাইটিং ও সাউন্ড','খাবার ও রান্নার প্যান্ডেলে লাইট'],
+ ['৭. লাইটিং ও সাউন্ড','সাউন্ড বক্স ৫/৬টা + মাইক ১টা'],
+ ['৭. লাইটিং ও সাউন্ড','মিউজিক'],
+ ['৮. বিদ্যুৎ ও নিরাপত্তা','জেনারেটর (ডিজেল সহ)'],
+ ['৮. বিদ্যুৎ ও নিরাপত্তা','ইলেকট্রিশিয়ান'],
+ ['৮. বিদ্যুৎ ও নিরাপত্তা','আগুন নেভানোর ব্যবস্থা'],
+ ['৯. পরিষ্কার','হাত ধোয়ার জায়গা'],
+ ['৯. পরিষ্কার','ডাস্টবিন + প্রতি ব্যাচের পরে পরিষ্কার'],
+ ['৯. পরিষ্কার','খাবার ও রান্নার জলের জার'],
+ ['১০. রান্না','রাঁধুনি + হেল্পার — শুধু লেবার (বাজার আমরা)'],
+ ['১০. রান্না','বাসনপত্র ও উনুন ভাড়া (২৪–২৭)'],
+ ['১০. রান্না','গ্যাস সিলিন্ডার'],
+ ['১১. পরিবেশন','পরিবেশনের লোক (রিসেপশন, ৪–৫ ব্যাচ)'],
+ ['১১. পরিবেশন','স্ট্যান্ডার্ড প্লেট, জলের বোতল, মেনু কার্ড'],
+ ['১২. থাকার ব্যবস্থা','তোশক, বালিশ, লেপ, চাদর — ১৫ সেট (২৪–২৮)'],
+ [M13,'বাজার সহ মোট দাম (প্লেট প্রতি × ৪০০)',1],
+ ...['মিনারেল জল','স্যালাড (সস, লেবু, নুন)','ভেজিটেবল চপ','পোলাও','চিকেন কষা','সাদা ভাত','মুগ ডাল','পনির দিয়ে মিক্সড ভেজ','চিকেন / মাছ / পনির','মাটন','চাটনি','পাঁপড়','রসগোল্লা','পায়েস (ঐচ্ছিক)','আইসক্রিম','পান'].map(n=>[M13,n,1]),
+ [M14,'বাজার সহ মোট দাম (২৪, ২৫: ~১০০ জন; ২৬: ~১৫০ জন)',1],
+ ...['বেগুন ভাজা','ভাত','ডাল','সবজি (চচ্চড়ি / শুক্তো / মিক্সড ভেজ)','মাছ','মিষ্টি'].map(n=>[M14,n,1]),
+ ['অন্যান্য','মাল আনা-নেওয়া / লেবার / GST (আলাদা হলে)'],
+ ['অন্যান্য',PACKAGE_ITEM,1]
+];
+
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Math.round(n||0).toLocaleString('en-IN');
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+const initials=s=>String(s||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const colorFor=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return CAT_COLORS[Math.abs(h)%CAT_COLORS.length];};
+const fmtDate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+
+function fresh(){return{budget:400000,shop:mkShop(),vendors:[],groups:DEFAULT_GROUPS.map(g=>({...g})),items:[...mkItems(DEFAULT_ITEMS),...mkItems(PHOTO_ITEMS,'photo'),...mkItems(MAKEUP_ITEMS,'makeup')],quotes:{},terms:{},bookings:[],payments:[]};}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY));}catch(e){S=null;}
+if(!S){S=fresh();try{const o=JSON.parse(localStorage.getItem('wedding-tracker-v1'));if(o){S.budget=o.budget??S.budget;S.vendors=o.vendors||[];S.terms=o.terms||{};S.bookings=o.bookings||[];S.payments=o.payments||[];}}catch(e){}}
+function migrate(){
+  S.vendors.forEach(v=>{if(!v.group)v.group=v.type==='Event management'?'evt':'dec';});
+  if(!S.groups)S.groups=[];
+  if(!S.shop)S.shop=mkShop();
+  DEFAULT_GROUPS.forEach(dg=>{if(!S.groups.some(x=>x.id===dg.id))S.groups.splice(DEFAULT_GROUPS.indexOf(dg),0,{...dg});});
+  if(!S.items.some(i=>!i.g&&i.name===PACKAGE_ITEM))S.items.push({id:uid(),sec:'অন্যান্য',name:PACKAGE_ITEM,skip:true});
+  if(!S.items.some(i=>i.g==='photo'))S.items.push(...mkItems(PHOTO_ITEMS,'photo'));
+  if(!S.items.some(i=>i.g==='makeup'))S.items.push(...mkItems(MAKEUP_ITEMS,'makeup'));
+}
+migrate();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){toast('⚠️ Storage full — download a backup and remove some old screenshots');return false;}};
+save();
+
+/* ================= HELPERS ================= */
+const UI={sl:null,sf:'all',qg:'dec',tab:'home',payFilter:'All',paySearch:'',qSearch:{dec:'',evt:''},open:{}};
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800);}
+const GR=g=>S.groups.find(x=>x.id===g)||{id:g,title:'?',cat:'Misc',icon:'📝'};
+const itemsFor=g=>S.items.filter(i=>(i.g||'plan')===ikey(g));
+const allCats=()=>[...new Set([...CATS,...S.groups.map(x=>x.cat),...S.shop.lists.map(x=>x.cat)])];
+const vgItems=vid=>{const v=S.vendors.find(x=>x.id===vid);return itemsFor(v?v.group:'dec');};
+const vendorTotal=vid=>{const q=S.quotes[vid]||{};return vgItems(vid).reduce((a,it)=>a+(it.skip?0:(+q[it.id]||0)),0);};
+const quotedCount=vid=>{const q=S.quotes[vid]||{};return vgItems(vid).filter(it=>+q[it.id]>0).length;};
+const listOf=i=>S.shop.lists.find(l=>l.id===i.list)||{};
+const shopSpentCat=c=>S.shop.items.filter(i=>i.done&&listOf(i).cat===c).reduce((a,i)=>a+(+i.act||+i.est||0),0);
+const paidFor=bid=>S.payments.filter(p=>p.to===bid).reduce((a,p)=>a+p.amt,0);
+function bestMix(g){
+  const V=S.vendors.filter(v=>v.group===g);let sum=0,wins={};
+  itemsFor(g).forEach(it=>{if(it.skip)return;let best=null;V.forEach(v=>{const p=+(S.quotes[v.id]||{})[it.id]||0;if(p>0&&(!best||p<best.p))best={p,v:v.id};});if(best){sum+=best.p;wins[best.v]=(wins[best.v]||0)+1;}});
+  return{sum,wins};
+}
+function totals(){
+  const committed=S.bookings.reduce((a,b)=>a+b.amt,0);
+  const loose=S.payments.filter(p=>!S.bookings.some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0);
+  const shopSpent=S.shop.items.filter(i=>i.done).reduce((a,i)=>a+(+i.act||+i.est||0),0);
+  const shopLeft=S.shop.items.filter(i=>!i.done).reduce((a,i)=>a+(+i.est||0),0);
+  const cost=committed+loose+shopSpent, paid=S.payments.reduce((a,p)=>a+p.amt,0)+shopSpent;
+  return{cost,paid,due:Math.max(0,cost-paid),left:S.budget-cost,shopSpent,shopLeft,projected:cost+shopLeft};
+}
+
+/* ================= IMAGES ================= */
+async function compressImage(file,max=1400,q=.7){
+  const url=URL.createObjectURL(file);const img=new Image();
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url;});
+  const sc=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+  const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+  URL.revokeObjectURL(url);return c.toDataURL('image/jpeg',q);
+}
+function proofField(val=''){
+  return `<div class="full"><label class="f"><span>Payment proof (QR / UPI screenshot or receipt photo)</span></label>
+  <div class="proof" id="proofBox">${val?`<img src="${val}" alt="">`:'<div class="muted" style="margin-bottom:8px">📷 No screenshot attached</div>'}
+  <div class="pbtns"><label class="btn sm soft" style="cursor:pointer">🖼 ${val?'Change':'Add'} screenshot<input type="file" accept="image/*" data-proof hidden></label>
+  <label class="btn sm soft" style="cursor:pointer">📸 Camera<input type="file" accept="image/*" capture="environment" data-proof hidden></label>
+  ${val?'<button type="button" class="btn sm line" data-proofdel>Remove</button>':''}</div></div>
+  <input type="hidden" name="img" value="${esc(val)}"></div>`;
+}
+document.addEventListener('change',async e=>{
+  if(e.target.dataset.proof===undefined)return;const f=e.target.files[0];if(!f)return;
+  try{const data=await compressImage(f);const box=$('proofBox').parentElement;box.outerHTML=proofField(data);toast('Screenshot added');}
+  catch(err){toast('Could not read that image');}
+});
+document.addEventListener('click',e=>{if(e.target.dataset&&e.target.dataset.proofdel!==undefined){$('proofBox').parentElement.outerHTML=proofField('');}});
+function viewProof(pid){const p=S.payments.find(x=>x.id===pid);if(!p||!p.img)return;$('viewImg').src=p.img;$('viewDl').href=p.img;$('viewDl').download=`payment-${p.date||''}-${p.amt}.jpg`;$('viewer').showModal();}
+$('viewClose').onclick=()=>$('viewer').close();
+
+/* ================= SHEET (dialog forms) ================= */
+function ask(msg,yes='Yes, remove'){return new Promise(res=>openSheet('Are you sure?',`<p class="full" style="margin:0">${esc(msg)}</p>`,()=>{setTimeout(res,0);},yes));}
+let sheetSubmit=null;
+function field(name,label,type='text',val='',opts={}){
+  const cls=opts.full?'f full':'f';
+  if(type==='select')return`<label class="${cls}"><span>${label}</span><select name="${name}">${opts.options.map(o=>{const v=o.v??o,t=o.t??o;return`<option value="${esc(v)}" ${String(v)===String(val)?'selected':''}>${esc(t)}</option>`;}).join('')}</select></label>`;
+  return`<label class="${cls}"><span>${label}</span><input name="${name}" type="${type}" value="${esc(val)}" ${type==='number'?'inputmode="numeric"':''} ${opts.list?`list="${opts.list}"`:''} placeholder="${esc(opts.ph||'')}" ${opts.req?'required':''}></label>`;
+}
+function openSheet(title,fields,onSubmit,submitLabel='Save'){
+  $('sheet').innerHTML=`<div class="grab"></div><h3>${title}</h3><div class="fgrid">${fields}</div><div class="acts"><button type="button" class="btn line" data-close>Cancel</button><button class="btn" value="ok">${submitLabel}</button></div>`;
+  sheetSubmit=onSubmit;$('dlg').showModal();
+  const first=$('sheet').querySelector('input,select');if(first&&first.type!=='date')setTimeout(()=>first.focus(),50);
+}
+$('sheet').addEventListener('click',e=>{if(e.target.dataset.close!==undefined)$('dlg').close();});
+$('sheet').addEventListener('submit',e=>{e.preventDefault();const d=Object.fromEntries(new FormData($('sheet')));if(sheetSubmit&&sheetSubmit(d)!==false)$('dlg').close();});
+$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close();});
+
+function sheetVendor(g){openSheet(`Add ${esc(GR(g).title)} vendor`,field('name','Name','text','',{full:1,req:1,ph:GR(g).ph||'Vendor name'})+field('phone','Phone / WhatsApp','tel','',{full:1}),d=>{S.vendors.push({id:uid(),name:d.name.trim(),phone:d.phone.trim(),group:g,type:GR(g).title});save();render();toast('Vendor added');});}
+function sheetTerms(vid){const v=S.vendors.find(x=>x.id===vid),t=S.terms[vid]||{};
+  openSheet(`Terms — ${esc(v.name)}`,field('gst','Transport / labour / GST included?','select',t.gst||'?',{options:['?','Yes','No','Partly']})+field('adv','Advance asked (₹)','number',t.adv||'')+field('dates','Setup / removal dates','text',t.dates||'',{full:1,ph:'e.g. setup 24th, remove 28th'})+field('note','Damage terms / notes','text',t.note||'',{full:1})+field('phone','Phone','tel',v.phone||'',{full:1}),
+  d=>{S.terms[vid]={gst:d.gst,adv:d.adv,dates:d.dates,note:d.note};v.phone=d.phone;save();render();toast('Saved');});}
+function sheetBooking(pre={},editId=null){const b=editId?S.bookings.find(x=>x.id===editId):pre;
+  openSheet(editId?'Edit booking':'New booking',field('name','Vendor / purpose','text',b.name||'',{full:1,req:1,ph:'e.g. Photographer – Rahul Studio'})+field('cat','Category','select',b.cat||'Misc',{options:allCats()})+field('amt','Agreed amount (₹)','number',b.amt||'',{req:1})+field('phone','Phone','tel',b.phone||'')+field('due','Balance due by','date',b.due||'')+field('note','Note','text',b.note||'',{full:1}),
+  d=>{const o={name:d.name.trim(),cat:d.cat,amt:+d.amt||0,phone:d.phone.trim(),due:d.due,note:d.note};if(editId)Object.assign(b,o);else S.bookings.push({id:uid(),...o});save();render();toast(editId?'Booking updated':'Booking added');});}
+function sheetPayment(toId='',editId=null){const p=editId?S.payments.find(x=>x.id===editId):{date:today(),to:toId,mode:'UPI'};
+  const bk=S.bookings.find(b=>b.id===(p.to||toId));
+  openSheet(editId?'Edit payment':'Record payment',field('amt','Amount (₹)','number',p.amt||(bk?Math.max(0,bk.amt-paidFor(bk.id)):''),{req:1})+field('date','Date','date',p.date||today())+field('to','Paid to','select',p.to||toId,{full:1,options:[{v:'',t:'— Other (no booking) —'},...S.bookings.map(b=>({v:b.id,t:`${b.name} (due ${inr(Math.max(0,b.amt-paidFor(b.id)))})`}))]})+field('cat','Category (if no booking)','select',p.cat||'Misc',{options:allCats()})+field('mode','Mode','select',p.mode||'UPI',{options:MODES})+field('by','Paid by','text',p.by||'',{ph:'Who paid'})+field('note','Note','text',p.note||'',{full:1,ph:'advance, groceries, saree…'})+proofField(p.img||''),
+  d=>{const b=S.bookings.find(x=>x.id===d.to);const o={date:d.date,to:d.to,cat:b?b.cat:d.cat,amt:+d.amt||0,mode:d.mode,by:d.by.trim(),note:d.note.trim(),img:d.img||''};if(!o.amt){toast('Enter amount');return false;}
+    if(editId)Object.assign(p,o);else S.payments.push({id:uid(),...o});if(!save()){if(!editId)S.payments.pop();return false;}render();toast('Payment saved ✓');});}
+function sheetItem(g){const secs=[...new Set(itemsFor(g).map(i=>i.sec))];
+  openSheet('Add item',`<datalist id="secs">${secs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>`+field('name','Item name','text','',{full:1,req:1})+field('sec','Section','text','অন্যান্য',{full:1,list:'secs'}),
+  d=>{const it={id:uid(),name:d.name.trim(),sec:d.sec.trim()||'অন্যান্য',skip:false};if(ikey(g)!=='plan')it.g=g;S.items.push(it);save();render();toast(ikey(g)==='plan'?'Item added to Decorator & Event lists':'Item added');});}
+function sheetGroup(id){const gr=id?GR(id):{title:'',cat:'__same',icon:'📝'};
+  openSheet(id?'Edit category':'New quotation category',field('title','Category name','text',gr.title,{full:1,req:1,ph:'e.g. Clothes, Transport, Tattva, Priest'})+field('icon','Icon','select',gr.icon,{options:ICONS})+field('cat','Count spending under','select',id?gr.cat:'__same',{options:[{v:'__same',t:'(same as name)'},...allCats()]}),
+  d=>{const title=d.title.trim();const o={title,icon:d.icon,cat:d.cat==='__same'?title:d.cat};
+    if(id)Object.assign(gr,o);else{const nid=uid();S.groups.push({id:nid,custom:true,ph:'Vendor / shop name',...o});S.items.push({id:uid(),sec:'আইটেম',name:'মোট দাম',skip:false,g:nid});UI.qg=nid;}
+    save();render();toast(id?'Category updated':'Category added — now add items and vendors');});}
+
+/* ================= HOME ================= */
+function renderCountdown(){
+  const ms=WEDDING-new Date();const days=Math.max(0,Math.ceil(ms/864e5));
+  const qn=S.vendors.length,bk=S.bookings.length;
+  $('countdown').innerHTML=`<div class="cd"><b>${days}</b><span>days to go</span></div><div class="cd"><b>${qn}</b><span>quotes</span></div><div class="cd"><b>${bk}</b><span>booked</span></div>`;
+}
+function renderHome(){
+  const T=totals(),pct=S.budget?Math.min(1,T.cost/S.budget):0,ppct=S.budget?Math.min(1,T.paid/S.budget):0,C=2*Math.PI*42;
+  $('ring').innerHTML=`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface2)" stroke-width="10"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--gold)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*pct} ${C}" opacity=".7"/><circle cx="50" cy="50" r="42" fill="none" stroke="${T.left<0?'var(--bad)':'var(--brand)'}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*ppct} ${C}"/></svg><div class="c"><div><b>${Math.round(pct*100)}%</b><span>of budget used</span></div></div>`;
+  $('kv').innerHTML=`<div><small>Budget</small><strong>${inr(S.budget)}</strong></div><div><small>Committed</small><strong>${inr(T.cost)}</strong></div><div><small>Paid</small><strong class="pos">${inr(T.paid)}</strong></div><div><small>${T.left>=0?'Left in budget':'Over budget'}</small><strong class="${T.left>=0?'pos':'neg'}">${inr(Math.abs(T.left))}</strong></div>`;
+
+  $('proj').innerHTML=`<div><b>🛍️ Shopping still to buy (estimated): ${inr(T.shopLeft)}</b><div class="muted">Projected total when everything is bought: <b class="${T.projected>S.budget?'neg':''}">${inr(T.projected)}</b>${T.projected>S.budget?` · ${inr(T.projected-S.budget)} over budget`:` · ${inr(S.budget-T.projected)} margin`}</div></div>`;
+  $('shareWa').href='https://wa.me/?text='+encodeURIComponent(summaryText(T));
+  const rows=allCats().map(c=>{const cost=S.bookings.filter(b=>b.cat===c).reduce((a,b)=>a+b.amt,0)+S.payments.filter(p=>p.cat===c&&!S.bookings.some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);const pd=S.payments.filter(p=>p.cat===c).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);return{c,cost,pd};}).filter(r=>r.cost||r.pd).sort((a,b)=>b.cost-a.cost);
+  const mx=Math.max(1,...rows.map(r=>r.cost));
+  $('catBars').innerHTML=rows.length?rows.map(r=>`<div class="b"><div class="t"><span>${esc(r.c)}</span><span><b>${inr(r.cost)}</b> <span class="muted">· paid ${inr(r.pd)}</span></span></div><div class="track"><i class="a" style="width:${r.cost/mx*100}%"></i><i class="p" style="width:${Math.min(r.pd,r.cost||r.pd)/mx*100}%"></i></div></div>`).join(''):`<div class="empty"><b>📊</b>Add bookings or payments to see this.</div>`;
+
+  const dues=S.bookings.map(b=>({...b,bal:b.amt-paidFor(b.id)})).filter(b=>b.bal>0).sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+  $('dueList').innerHTML=dues.length?dues.slice(0,6).map(b=>{const late=b.due&&b.due<today();return`<div class="item"><div class="av" style="background:${colorFor(b.cat)}">${esc(initials(b.name))}</div><div class="grow"><div class="nm">${esc(b.name)}</div><div class="meta">${esc(b.cat)}${b.due?` · <span class="${late?'neg':''}">${late?'overdue ':'by '}${fmtDate(b.due)}</span>`:''}</div></div><div class="amt">${inr(b.bal)}<br><button class="btn sm" data-pay="${b.id}">Pay</button></div></div>`;}).join(''):`<div class="empty"><b>🎉</b>Nothing due right now.</div>`;
+
+  $('quoteSnap').innerHTML=S.groups.map(x=>x.id).map(g=>{const V=S.vendors.filter(v=>v.group===g).map(v=>({...v,t:vendorTotal(v.id)})).filter(v=>v.t>0).sort((a,b)=>a.t-b.t);const bm=bestMix(g);
+    return`<div class="item"><div class="av" style="background:var(--surface2)">${GR(g).icon}</div><div class="grow"><div class="nm">${esc(GR(g).title)}</div><div class="meta">${S.vendors.filter(v=>v.group===g).length} vendors · ${V.length?`cheapest: ${esc(V[0].name)}`:'no prices yet'}</div></div><div class="amt">${V.length?inr(V[0].t):'—'}${bm.sum&&V.length>1?`<br><span class="muted">best mix ${inr(bm.sum)}</span>`:''}</div></div>`;}).join('');
+
+  const rec=[...S.payments].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  $('recentList').innerHTML=rec.length?rec.map(payRow).join(''):`<div class="empty"><b>💸</b>No payments yet.</div>`;
+}
+function payRow(p){const b=S.bookings.find(x=>x.id===p.to);const nm=b?b.name:(p.note||p.cat);
+  return`<div class="item">${p.img?`<button class="thumbbtn" data-view="${p.id}" title="View proof"><img src="${p.img}" alt=""></button>`:`<div class="av" style="background:${colorFor(p.cat)}">${esc(initials(nm))}</div>`}<div class="grow"><div class="nm">${esc(nm)}</div><div class="meta">${p.img?'📎 ':''}${fmtDate(p.date)} · ${esc(p.mode)}${p.by?` · ${esc(p.by)}`:''}${b&&p.note?` · ${esc(p.note)}`:''}</div></div><div class="amt">${inr(p.amt)}<br><button class="x" data-editpay="${p.id}" title="Edit">✎</button><button class="x" data-delpay="${p.id}" title="Delete">✕</button></div></div>`;}
+
+/* ================= QUOTES ================= */
+function renderQuotes(){
+  if(!S.groups.some(x=>x.id===UI.qg))UI.qg='dec';
+  $('qChips').innerHTML=S.groups.map(gr=>`<button class="chip ${gr.id===UI.qg?'on':''}" data-qg="${gr.id}">${gr.icon} ${esc(gr.title)}<span class="n">${S.vendors.filter(v=>v.group===gr.id).length}</span></button>`).join('')+`<button class="chip" data-newgroup>➕ New category</button>`;
+  buildQuoteBody(UI.qg);renderQuote(UI.qg);
+}
+function buildQuoteBody(g){
+  const G=GR(g),plan=ikey(g)==='plan';
+  $('qBody').innerHTML=`
+  <div class="card">
+    <div class="head"><div><h2>${G.icon} ${esc(G.title)} quotations</h2><div class="muted">${plan?'Every item from your decoration plan, side by side':'Compare vendors item by item'}${G.custom?` · counted under “${esc(G.cat)}”`:''}</div></div>
+      <div class="tools">${G.custom?`<button class="btn sm soft" data-editgroup="${g}">✎</button><button class="btn sm soft" data-delgroup="${g}">🗑</button>`:''}<button class="btn sm" data-addv="${g}">+ Vendor</button></div></div>
+    <div class="vgrid" data-vgrid></div>
+    <div data-mix></div>
+  </div>
+  <div class="card">
+    <div class="head"><h2>Item-wise prices</h2><button class="btn sm soft" data-additem>+ Item</button></div>
+    <p class="hint">Green = cheapest for that item. ☑ = counted in the total.${plan?' Food rows (১৩, ১৪) and the package row start unticked. If a vendor includes groceries, tick “বাজার সহ মোট” and untick the labour row. Items added here appear in both the Decorator and Event lists.':' Optional rows and the package row start unticked. Tick the package row if a vendor gives only one total price.'}</p>
+    <input class="search" data-qsearch="${g}" placeholder="🔍 Search items…" value="${esc(UI.qSearch[g]||'')}">
+    <div data-table></div>
+  </div>`;
+}
+function renderQuote(g){
+  if(g!==UI.qg)return;
+  const G=GR(g),el=$('qBody'),V=S.vendors.filter(v=>v.group===g),ITEMS=itemsFor(g);
+  const tots=V.map(v=>({v,t:vendorTotal(v.id),n:quotedCount(v.id)}));
+  const ranked=tots.filter(x=>x.t>0).sort((a,b)=>a.t-b.t);
+  const bm=bestMix(g);
+  el.querySelector('[data-vgrid]').innerHTML=V.length?tots.map(({v,t,n})=>{const rank=ranked.findIndex(r=>r.v.id===v.id);const tm=S.terms[v.id]||{};
+    return`<div class="vcard ${rank===0&&ranked.length>1?'win':''}">
+      <span class="rank">${rank===0&&ranked.length>1?'<span class="pill ok">🏆 Cheapest</span>':rank>0?`<span class="pill gold">#${rank+1}</span>`:''}</span>
+      <div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:${colorFor(v.name)}">${esc(initials(v.name))}</div><div style="min-width:0"><div class="nm" style="font-weight:600">${esc(v.name)}</div><div class="muted">${n} items priced${bm.wins[v.id]?` · cheapest on ${bm.wins[v.id]}`:''}</div></div></div>
+      <div class="tot">${inr(t)}</div>
+      <div class="muted">${v.phone?`📞 ${esc(v.phone)} · `:''}${tm.adv?`Advance ${inr(tm.adv)} · `:''}${tm.gst&&tm.gst!=='?'?`Transport/GST incl: ${esc(tm.gst)}`:'Terms not added'}${tm.dates?` · ${esc(tm.dates)}`:''}${tm.note?` · ${esc(tm.note)}`:''}</div>
+      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
+    </div>`;}).join(''):`<div class="empty"><b>${G.icon}</b>No ${esc(G.title.toLowerCase())} vendors yet.<br><br><button class="btn" data-addv="${g}">+ Add first vendor</button></div>`;
+  el.querySelector('[data-mix]').innerHTML=V.length>1&&bm.sum?`<div class="best-mix"><div><b>✨ Best mix: ${inr(bm.sum)}</b><div class="muted">If you picked the cheapest vendor for every item${ranked.length&&ranked[0].t-bm.sum>0?` · saves ${inr(ranked[0].t-bm.sum)} vs the cheapest single vendor`:''}</div></div></div>`:'';
+
+  const q=(UI.qSearch[g]||'').toLowerCase();
+  const secs=[...new Set(ITEMS.map(i=>i.sec))];
+  const html=secs.map(sec=>{
+    const items=ITEMS.filter(i=>i.sec===sec&&(!q||i.name.toLowerCase().includes(q)||sec.toLowerCase().includes(q)));
+    if(!items.length)return'';
+    const secTot=V.map(v=>items.reduce((a,it)=>a+(it.skip?0:(+(S.quotes[v.id]||{})[it.id]||0)),0));
+    const key=g+sec, open=UI.open[key]??(!sec.startsWith('১৩')&&!sec.startsWith('১৪'));
+    return`<details class="sec" data-key="${esc(key)}" ${open||q?'open':''}><summary><span>${esc(sec)}</span><span class="muted">${items.length} items</span></summary><div class="scroll"><table>
+      <thead><tr><th class="stick">Item</th><th>☑</th>${V.map(v=>`<th class="num">${esc(v.name)}</th>`).join('')}<th></th></tr></thead><tbody>
+      ${items.map(it=>{const ps=V.map(v=>+(S.quotes[v.id]||{})[it.id]||0).filter(p=>p>0);const mn=ps.length>1?Math.min(...ps):null;
+        return`<tr class="${it.skip?'off':''}"><td class="stick">${esc(it.name)}</td><td><input type="checkbox" class="chk" data-inc="${it.id}" ${it.skip?'':'checked'}></td>${V.map(v=>{const val=(S.quotes[v.id]||{})[it.id]??'';return`<td class="num ${mn!==null&&+val===mn?'best':''}"><input class="cell" type="number" inputmode="numeric" placeholder="—" value="${esc(val)}" data-q="${v.id}|${it.id}"></td>`;}).join('')}<td><button class="x" data-deli="${it.id}" title="Remove item">✕</button></td></tr>`;}).join('')}
+      ${V.length?`<tr class="sumrow"><td class="stick">Subtotal</td><td></td>${secTot.map(t=>`<td class="num">${inr(t)}</td>`).join('')}<td></td></tr>`:''}
+      </tbody></table></div></details>`;
+  }).join('');
+  el.querySelector('[data-table]').innerHTML=V.length?(html||'<div class="empty">No items match.</div>'):`<div class="empty">Add a vendor to start filling in prices.${ITEMS.length?'':'<br>Then add items with “+ Item”.'}</div>`;
+}
+
+/* ================= SHOPPING ================= */
+function renderShop(){
+  const L=S.shop.lists;if(!L.some(l=>l.id===UI.sl))UI.sl=L[0]&&L[0].id;
+  const all=S.shop.items,T=totals(),est=all.reduce((a,i)=>a+(+i.est||0),0);
+  $('shopSum').innerHTML=`<div><small>Estimated</small><strong>${inr(est)}</strong></div><div><small>Spent</small><strong class="pos">${inr(T.shopSpent)}</strong></div><div><small>To buy (est.)</small><strong>${inr(T.shopLeft)}</strong></div>`;
+  $('shopChips').innerHTML=L.map(l=>{const it=all.filter(i=>i.list===l.id);return`<button class="chip ${l.id===UI.sl?'on':''}" data-sl="${l.id}">${l.icon} ${esc(l.title)}<span class="n">${it.filter(i=>i.done).length}/${it.length}</span></button>`;}).join('')+`<button class="chip" data-newlist>➕ New list</button>`;
+  const l=L.find(x=>x.id===UI.sl);
+  if(!l){$('shopBody').innerHTML='<div class="card empty"><b>🛍️</b>No lists. Add one with “➕ New list”.</div>';return;}
+  const items=all.filter(i=>i.list===l.id),f=UI.sf||'all';
+  const shown=items.filter(i=>f==='all'||(f==='todo'?!i.done:i.done));
+  const lEst=items.reduce((a,i)=>a+(+i.est||0),0),lSpent=items.filter(i=>i.done).reduce((a,i)=>a+(+i.act||+i.est||0),0);
+  const todo=items.filter(i=>!i.done);
+  const wa='https://wa.me/?text='+encodeURIComponent([`*${l.icon} ${l.title} — কেনার তালিকা*`,...todo.map(i=>`- ${i.name}${i.qty?` — ${i.qty}`:''}${i.shop?` (${i.shop})`:''}`)].join('\n'));
+  $('shopBody').innerHTML=`<div class="card">
+    <div class="head"><div><h2>${l.icon} ${esc(l.title)}</h2><div class="muted">${items.filter(i=>i.done).length} of ${items.length} bought · est. ${inr(lEst)} · spent ${inr(lSpent)} · counted under “${esc(l.cat)}”</div></div>
+      <div class="tools"><button class="btn sm soft" data-editlist="${l.id}">✎</button><button class="btn sm soft" data-dellist="${l.id}">🗑</button></div></div>
+    <div class="tools" style="margin-bottom:10px"><button class="btn sm" data-sadd>+ Item</button>${todo.length?`<a class="btn sm wa" target="_blank" rel="noopener" href="${wa}">🟢 Send list</a>`:''}</div>
+    <div class="chips">${[['all','All'],['todo','To buy'],['done','Bought']].map(([k,t])=>`<button class="chip ${f===k?'on':''}" data-sfilt="${k}">${t}</button>`).join('')}</div>
+    <p class="hint">Tick when bought. Enter an estimate first, then the actual price after buying. Bought items count as spent; unbought ones show as “to buy”.</p>
+    <div class="list">${shown.length?shown.map(i=>`<div class="sitem ${i.done?'done':''}">
+      <input type="checkbox" class="chk" data-sdone="${i.id}" ${i.done?'checked':''}>
+      <div class="grow"><div class="nm">${esc(i.name)}</div><div class="meta">${[i.qty,i.shop,i.by&&('👤 '+i.by)].filter(Boolean).map(esc).join(' · ')||'&nbsp;'}</div></div>
+      <div class="prices"><div><input class="cell" type="number" inputmode="numeric" placeholder="—" value="${esc(i.est)}" data-sf="${i.id}|est"><small>Estimate</small></div><div><input class="cell" type="number" inputmode="numeric" placeholder="—" value="${esc(i.act)}" data-sf="${i.id}|act"><small>Actual</small></div></div>
+      <button class="x" data-sedit="${i.id}" title="Edit">✎</button><button class="x" data-sdel="${i.id}" title="Delete">✕</button></div>`).join(''):'<div class="empty">Nothing here.</div>'}</div>
+  </div>`;
+}
+function sheetShopItem(id){const i=id?S.shop.items.find(x=>x.id===id):{name:'',qty:'',est:'',act:'',shop:'',by:'',done:false};
+  openSheet(id?'Edit item':'Add shopping item',field('name','Item','text',i.name,{full:1,req:1})+field('qty','Quantity','text',i.qty,{ph:'e.g. 10 kg, 2 pcs'})+field('shop','Shop / where','text',i.shop)+field('est','Estimated price (₹)','number',i.est)+field('act','Actual price (₹)','number',i.act)+field('by','Who will buy','text',i.by,{full:1}),
+  d=>{const o={name:d.name.trim(),qty:d.qty.trim(),shop:d.shop.trim(),est:d.est,act:d.act,by:d.by.trim()};if(id)Object.assign(i,o);else S.shop.items.push({id:uid(),list:UI.sl,done:false,...o});save();render();toast(id?'Updated':'Item added');});}
+function sheetList(id){const l=id?S.shop.lists.find(x=>x.id===id):{title:'',icon:'📝',cat:'__same'};
+  openSheet(id?'Edit list':'New shopping list',field('title','List name','text',l.title,{full:1,req:1,ph:'e.g. Bride gifts, Decoration items'})+field('icon','Icon','select',l.icon,{options:ICONS})+field('cat','Count spending under','select',id?l.cat:'__same',{options:[{v:'__same',t:'(same as name)'},...allCats()]}),
+  d=>{const title=d.title.trim(),o={title,icon:d.icon,cat:d.cat==='__same'?title:d.cat};if(id)Object.assign(l,o);else{const nid=uid();S.shop.lists.push({id:nid,...o});UI.sl=nid;}save();render();toast(id?'List updated':'List added');});}
+
+/* ================= PAYMENTS ================= */
+function renderPay(){
+  $('bookList').innerHTML=S.bookings.length?S.bookings.map(b=>{const pd=paidFor(b.id),bal=b.amt-pd,pc=b.amt?Math.min(100,pd/b.amt*100):0,late=bal>0&&b.due&&b.due<today();
+    return`<div class="item" style="flex-wrap:wrap"><div class="av" style="background:${colorFor(b.cat)}">${esc(initials(b.name))}</div><div class="grow"><div class="nm">${esc(b.name)}</div><div class="meta">${esc(b.cat)}${b.phone?` · <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a>`:''}${b.due?` · ${late?'<span class="neg">overdue</span>':'due'} ${fmtDate(b.due)}`:''}</div></div>
+      <div class="amt">${bal<=0?'<span class="pill ok">✓ Paid</span>':`<span class="pill due">${inr(bal)} due</span>`}<div class="muted">${inr(pd)} / ${inr(b.amt)}</div></div>
+      <div style="flex-basis:100%"><div class="track" style="margin:4px 0 8px"><i class="p" style="width:${pc}%"></i></div><div class="tools">${bal>0?`<button class="btn sm" data-pay="${b.id}">+ Pay</button>`:''}<button class="btn sm soft" data-editbook="${b.id}">Edit</button><button class="x" data-delbook="${b.id}">✕</button></div></div></div>`;}).join(''):`<div class="empty"><b>🤝</b>No bookings yet. Press "Book" on a vendor in a quotation tab, or add one here, e.g. photographer, makeup or clothes.</div>`;
+
+  const cats=['All','📎 With proof','⚠️ No proof',...new Set(S.payments.map(p=>p.cat))];
+  if(!cats.includes(UI.payFilter))UI.payFilter='All';
+  $('payChips').innerHTML=cats.map(c=>`<button class="chip ${c===UI.payFilter?'on':''}" data-chip="${esc(c)}">${esc(c)}</button>`).join('');
+  const s=UI.paySearch.toLowerCase();
+  const list=[...S.payments].filter(p=>UI.payFilter==='All'||(UI.payFilter==='📎 With proof'?!!p.img:UI.payFilter==='⚠️ No proof'?!p.img:p.cat===UI.payFilter)).filter(p=>{if(!s)return true;const b=S.bookings.find(x=>x.id===p.to);return[b?.name,p.note,p.by,p.cat,p.mode].join(' ').toLowerCase().includes(s);}).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const tot=list.reduce((a,p)=>a+p.amt,0);
+  $('payList').innerHTML=list.length?list.map(payRow).join('')+`<div class="item" style="background:var(--surface2)"><div class="grow"><b>Total${UI.payFilter!=='All'?` · ${esc(UI.payFilter)}`:''}</b></div><div class="amt">${inr(tot)}</div></div>`:`<div class="empty"><b>🧾</b>No payments found.</div>`;
+}
+
+/* ================= EVENTS ================= */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,a,summary');if(!t)return;const d=t.dataset;
+  if(d.tab){UI.tab=d.tab;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b===t));document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+d.tab));$('fab').classList.toggle('on',['quotes','shop','pay'].includes(d.tab));window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(d.addv)return sheetVendor(d.addv);
+  if(d.additem!==undefined)return sheetItem(UI.qg);
+  if(d.qg){UI.qg=d.qg;renderQuotes();return;}
+  if(d.newgroup!==undefined)return sheetGroup();
+  if(d.editgroup)return sheetGroup(d.editgroup);
+  if(d.delgroup){const id=d.delgroup;return ask(`Delete the “${GR(id).title}” category with all its vendors, items and prices? Bookings and payments stay.`,'Yes, delete').then(()=>{const vs=S.vendors.filter(v=>v.group===id).map(v=>v.id);vs.forEach(v=>{delete S.quotes[v];delete S.terms[v];});S.vendors=S.vendors.filter(v=>v.group!==id);S.items=S.items.filter(i=>i.g!==id);S.groups=S.groups.filter(x=>x.id!==id);UI.qg='dec';save();render();toast('Category deleted');});}
+  if(d.terms)return sheetTerms(d.terms);
+  if(d.book){const v=S.vendors.find(x=>x.id===d.book);return sheetBooking({name:v.name,cat:GR(v.group).cat,amt:vendorTotal(v.id)||'',phone:v.phone});}
+  if(d.delv){const id=d.delv;return ask('Remove this vendor and all their prices?').then(()=>{S.vendors=S.vendors.filter(v=>v.id!==id);delete S.quotes[id];delete S.terms[id];save();render();toast('Vendor removed');});}
+  if(d.deli){const id=d.deli;return ask(ikey(UI.qg)==='plan'?'Remove this item from both the Decorator and Event lists?':'Remove this item?').then(()=>{S.items=S.items.filter(i=>i.id!==id);save();render();});}
+  if(d.act==='addBooking')return sheetBooking();
+  if(d.act==='addPay')return sheetPayment();
+  if(d.pay)return sheetPayment(d.pay);
+  if(d.editbook)return sheetBooking({},d.editbook);
+  if(d.delbook){const id=d.delbook;return ask('Remove this booking? Its payments stay in the history.').then(()=>{S.bookings=S.bookings.filter(b=>b.id!==id);S.payments.forEach(p=>{if(p.to===id)p.to='';});save();render();});}
+  if(d.editpay)return sheetPayment('',d.editpay);
+  if(d.delpay){const id=d.delpay;return ask('Delete this payment?').then(()=>{S.payments=S.payments.filter(p=>p.id!==id);save();render();toast('Deleted');});}
+  if(d.chip){UI.payFilter=d.chip;renderPay();}
+  if(d.view)return viewProof(d.view);
+  if(d.sl){UI.sl=d.sl;renderShop();return;}
+  if(d.sfilt){UI.sf=d.sfilt;renderShop();return;}
+  if(d.newlist!==undefined)return sheetList();
+  if(d.editlist)return sheetList(d.editlist);
+  if(d.dellist){const id=d.dellist;return ask(`Delete the list “${S.shop.lists.find(l=>l.id===id).title}” and all its items?`,'Yes, delete').then(()=>{S.shop.lists=S.shop.lists.filter(l=>l.id!==id);S.shop.items=S.shop.items.filter(i=>i.list!==id);save();render();toast('List deleted');});}
+  if(d.sadd!==undefined)return sheetShopItem();
+  if(d.sedit)return sheetShopItem(d.sedit);
+  if(d.sdel){const id=d.sdel;return ask('Delete this item?').then(()=>{S.shop.items=S.shop.items.filter(i=>i.id!==id);save();render();});}
+});
+document.addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.key;if(k)UI.open[k]=e.target.open;},true);
+document.addEventListener('change',e=>{
+  const d=e.target.dataset;
+  if(d.sdone){const it=S.shop.items.find(x=>x.id===d.sdone);it.done=e.target.checked;save();renderShop();renderHome();if(it.done)toast(+it.act||+it.est?'Marked bought ✓':'Bought ✓ — add the actual price');return;}
+  if(d.sf){const[id,k]=d.sf.split('|');S.shop.items.find(x=>x.id===id)[k]=e.target.value;save();renderShop();renderHome();return;}
+  if(d.inc){const it=S.items.find(x=>x.id===d.inc);it.skip=!e.target.checked;save();render();}
+  if(d.q){const[v,i]=d.q.split('|');(S.quotes[v]||={})[i]=e.target.value;save();const g=S.vendors.find(x=>x.id===v).group;renderQuote(g);renderHome();}
+});
+document.addEventListener('input',e=>{
+  if(e.target.dataset.qsearch){const g=e.target.dataset.qsearch;UI.qSearch[g]=e.target.value;renderQuote(g);}
+  if(e.target.id==='paySearch'){UI.paySearch=e.target.value;renderPay();}
+});
+$('fab').onclick=()=>{if(UI.tab==='shop')return sheetShopItem();if(UI.tab==='pay')sheetPayment();else sheetVendor(UI.qg);};
+
+$('budget').onchange=e=>{S.budget=+e.target.value||0;save();render();toast('Budget updated');};
+function summaryText(T){
+  const lines=['*💍 বিয়ের হিসাব*',`Budget: ${inr(S.budget)}`,`Committed / spent: ${inr(T.cost)}`,`Paid: ${inr(T.paid)}`,`Still to pay: ${inr(T.due)}`,`Shopping left (est.): ${inr(T.shopLeft)}`,`Projected total: ${inr(T.projected)}`,T.left>=0?`Left in budget now: ${inr(T.left)}`:`⚠️ Over budget: ${inr(-T.left)}`,''];
+  const dues=S.bookings.map(b=>({...b,bal:b.amt-paidFor(b.id)})).filter(b=>b.bal>0);
+  if(dues.length){lines.push('*Due:*');dues.forEach(b=>lines.push(`- ${b.name}: ${inr(b.bal)}${b.due?` (by ${fmtDate(b.due)})`:''}`));}
+  return lines.join('\n');
+}
+
+/* theme */
+const setTheme=t=>{document.documentElement.dataset.theme=t;$('themeBtn').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(KEY+'-theme',t);}catch(e){}};
+let th='light';try{th=localStorage.getItem(KEY+'-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}
+setTheme(th);$('themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+/* backup */
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();}
+const csv=rows=>'﻿'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+$('expJson').onclick=()=>{download(`wedding-backup-${today()}.json`,JSON.stringify(S,null,1),'application/json');toast('Backup downloaded');};
+$('impBtn').onclick=()=>$('impFile').click();
+$('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.items)throw 0;S=d;migrate();save();render();toast('Backup restored ✓');}catch(err){toast('Not a valid backup file');}};r.readAsText(f);};
+$('expPay').onclick=()=>download('wedding-payments.csv',csv([['Date','Paid to','Category','Amount','Mode','Paid by','Note','Proof attached'],...S.payments.map(p=>{const b=S.bookings.find(x=>x.id===p.to);return[p.date,b?b.name:'',p.cat,p.amt,p.mode,p.by,p.note,p.img?'Yes':'No'];})]),'text/csv');
+$('expQuote').onclick=()=>{const rows=[];S.groups.forEach(gr=>{const V=S.vendors.filter(v=>v.group===gr.id);rows.push([gr.title,'Section','Item','In total',...V.map(v=>v.name)]);itemsFor(gr.id).forEach(it=>rows.push(['',it.sec,it.name,it.skip?'No':'Yes',...V.map(v=>(S.quotes[v.id]||{})[it.id]||'')]));rows.push(['','','Total','',...V.map(v=>vendorTotal(v.id))]);rows.push([]);});download('wedding-quotations.csv',csv(rows),'text/csv');};
+$('expShop').onclick=()=>download('wedding-shopping.csv',csv([['List','Item','Quantity','Shop','Who buys','Estimate','Actual','Bought'],...S.shop.items.map(i=>[listOf(i).title,i.name,i.qty,i.shop,i.by,i.est,i.act,i.done?'Yes':'No'])]),'text/csv');
+$('reset').onclick=()=>ask('Delete ALL data? Download a backup first if unsure.','Yes, delete everything').then(()=>{S=fresh();UI.qg='dec';save();render();toast('Reset done');});
+
+/* ================= BRANDING ================= */
+const DEFAULT_LOGO='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2410c"/><stop offset="1" stop-color="#7f1d1d"/></linearGradient></defs><circle cx="50" cy="50" r="50" fill="url(#g)"/><circle cx="40" cy="54" r="17" fill="none" stroke="#f5c76b" stroke-width="5"/><circle cx="60" cy="54" r="17" fill="none" stroke="#fde68a" stroke-width="5"/><path d="M60 22l5 7h-10z" fill="#fde68a"/><circle cx="60" cy="31" r="3" fill="#fff"/></svg>`);
+const DEFAULT_TITLE='বিয়ের হিসাব', DEFAULT_SUB='২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া';
+const REPO={logo:null,banner:null};
+function probe(src,key){const im=new Image();im.onload=()=>{REPO[key]=src;applyBrand();};im.src=src;}
+probe('logo.png','logo');probe('banner.jpg','banner');
+function applyBrand(){
+  const B=S.brand||{};
+  const logo=B.logo||REPO.logo||DEFAULT_LOGO, banner=B.banner||REPO.banner||'';
+  $('logoImg').src=logo;$('favicon').href=logo;
+  $('brandTitle').textContent=B.title||DEFAULT_TITLE;$('brandSub').textContent=B.sub||DEFAULT_SUB;
+  document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
+  const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}
+  $('bPrev').style.backgroundImage=banner?`linear-gradient(180deg,transparent,rgba(0,0,0,.55)),url("${banner}")`:'linear-gradient(135deg,#c2410c,#9f1d22)';
+  $('bPrev').innerHTML=`<img src="${logo}" alt=""><b style="text-shadow:0 1px 4px rgba(0,0,0,.4)">${esc(B.title||DEFAULT_TITLE)}</b>`;
+  if(document.activeElement!==$('bTitle'))$('bTitle').value=B.title||'';
+  if(document.activeElement!==$('bSub'))$('bSub').value=B.sub||'';
+  $('bTitle').placeholder=DEFAULT_TITLE;$('bSub').placeholder=DEFAULT_SUB;
+}
+async function setBrandImg(key,file,max,q){
+  if(!file)return;try{S.brand=S.brand||{};S.brand[key]=await compressImage(file,max,q);if(!save()){delete S.brand[key];return;}applyBrand();toast(key==='logo'?'Logo updated':'Banner updated');}catch(e){toast('Could not read that image');}
+}
+$('upLogo').onchange=e=>setBrandImg('logo',e.target.files[0],400,.85);
+$('upBanner').onchange=e=>setBrandImg('banner',e.target.files[0],1600,.75);
+$('rmLogo').onclick=()=>{if(S.brand)delete S.brand.logo;save();applyBrand();toast('Logo removed');};
+$('rmBanner').onclick=()=>{if(S.brand)delete S.brand.banner;save();applyBrand();toast('Banner removed');};
+$('bTitle').oninput=e=>{S.brand=S.brand||{};S.brand.title=e.target.value.trim();save();applyBrand();};
+$('bSub').oninput=e=>{S.brand=S.brand||{};S.brand.sub=e.target.value.trim();save();applyBrand();};
+
+/* ================= RENDER ================= */
+function render(){applyBrand();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
+render();
+</script>
+</body>
+</html>
