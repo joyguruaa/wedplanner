@@ -651,7 +651,7 @@ function renderHome(){
   $('recentList').innerHTML=rec.length?rec.map(payRow).join(''):`<div class="empty"><b>💸</b>No payments yet.</div>`;
 }
 function payRow(p){const b=S.bookings.find(x=>x.id===p.to);const nm=b?b.name:(p.note||p.cat);const im=imgOf(p);
-  return`<div class="item">${im?`<button class="thumbbtn" data-view="${p.id}" title="View proof"><img src="${im}" alt=""></button>`:`<div class="av" style="background:${colorFor(p.cat)}">${esc(initials(nm))}</div>`}<div class="grow"><div class="nm">${esc(nm)}</div><div class="meta">${p.img||p.imgRef?'📎 ':''}${fmtDate(p.date)} · ${esc(p.mode)}${p.by?` · ${esc(p.by)}`:''}${b&&p.note?` · ${esc(p.note)}`:''}</div></div><div class="amt">${inr(p.amt)}<br><button class="x" data-editpay="${p.id}" title="Edit">✎</button><button class="x" data-delpay="${p.id}" title="Delete">✕</button></div></div>`;}
+  return`<div class="item">${im?`<button class="thumbbtn" data-view="${p.id}" title="View proof"><img src="${im}" alt=""></button>`:`<div class="av" style="background:${colorFor(p.cat)}">${esc(initials(nm))}</div>`}<div class="grow"><div class="nm">${esc(nm)}</div><div class="meta">${p.img||p.imgRef?'📎 ':''}${fmtDate(p.date)} · ${esc(p.mode)}${p.by?` · ${esc(p.by)}`:''}${b&&p.note?` · ${esc(p.note)}`:''}</div></div><div class="amt">${inr(p.amt)}<br><button class="x" data-shp="${p.id}" title="Share on WhatsApp">🟢</button><button class="x" data-editpay="${p.id}" title="Edit">✎</button><button class="x" data-delpay="${p.id}" title="Delete">✕</button></div></div>`;}
 
 /* ================= QUOTES ================= */
 function renderQuotes(){
@@ -664,7 +664,7 @@ function buildQuoteBody(g){
   $('qBody').innerHTML=`
   <div class="card">
     <div class="head"><div><h2>${G.icon} ${esc(G.title)} quotations</h2><div class="muted">${plan?'Every item from your decoration plan, side by side':'Compare vendors item by item'}${G.custom?` · counted under “${esc(G.cat)}”`:''}</div></div>
-      <div class="tools">${G.custom?`<button class="btn sm soft" data-editgroup="${g}">✎</button><button class="btn sm soft" data-delgroup="${g}">🗑</button>`:''}<button class="btn sm" data-addv="${g}">+ Vendor</button></div></div>
+      <div class="tools">${G.custom?`<button class="btn sm soft" data-editgroup="${g}">✎</button><button class="btn sm soft" data-delgroup="${g}">🗑</button>`:''}<button class="btn sm wa" data-shq="${g}" title="Share comparison on WhatsApp">🟢 Share</button><button class="btn sm" data-addv="${g}">+ Vendor</button></div></div>
     <div class="vgrid" data-vgrid></div>
     <div data-mix></div>
   </div>
@@ -687,7 +687,7 @@ function renderQuote(g){
       <div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:${colorFor(v.name)}">${esc(initials(v.name))}</div><div style="min-width:0"><div class="nm" style="font-weight:600">${esc(v.name)}</div><div class="muted">${n} items priced${bm.wins[v.id]?` · cheapest on ${bm.wins[v.id]}`:''}</div></div></div>
       <div class="tot">${inr(t)}</div>
       <div class="muted">${v.phone?`📞 ${esc(v.phone)} · `:''}${tm.adv?`Advance ${inr(tm.adv)} · `:''}${tm.gst&&tm.gst!=='?'?`Transport/GST incl: ${esc(tm.gst)}`:'Terms not added'}${tm.dates?` · ${esc(tm.dates)}`:''}${tm.note?` · ${esc(tm.note)}`:''}</div>
-      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
+      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm wa" data-shv="${v.id}" title="Share this quotation on WhatsApp">🟢 Share</button><button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
     </div>`;}).join(''):`<div class="empty"><b>${G.icon}</b>No ${esc(G.title.toLowerCase())} vendors yet.<br><br><button class="btn" data-addv="${g}">+ Add first vendor</button></div>`;
   el.querySelector('[data-mix]').innerHTML=V.length>1&&bm.sum?`<div class="best-mix"><div><b>✨ Best mix: ${inr(bm.sum)}</b><div class="muted">If you picked the cheapest vendor for every item${ranked.length&&ranked[0].t-bm.sum>0?` · saves ${inr(ranked[0].t-bm.sum)} vs the cheapest single vendor`:''}</div></div></div>`:'';
 
@@ -706,6 +706,63 @@ function renderQuote(g){
       </tbody></table></div></details>`;
   }).join('');
   el.querySelector('[data-table]').innerHTML=V.length?(html||'<div class="empty">No items match.</div>'):`<div class="empty">Add a vendor to start filling in prices.${ITEMS.length?'':'<br>Then add items with “+ Item”.'}</div>`;
+}
+
+/* ================= WHATSAPP SHARING ================= */
+const WTITLE=()=>(S.brand&&S.brand.title)||'বিয়ের হিসাব';
+function waShare(text){
+  const url='https://wa.me/?text='+encodeURIComponent(text);
+  const w=window.open(url,'_blank');if(!w)location.href=url;
+}
+async function imgFile(src,name){try{const b=await (await fetch(src)).blob();return new File([b],name,{type:b.type||'image/jpeg'});}catch(e){return null;}}
+function quoteText(vid){
+  const v=S.vendors.find(x=>x.id===vid),G=GR(v.group),q=S.quotes[vid]||{},tm=S.terms[vid]||{};
+  const items=itemsFor(v.group).filter(it=>+q[it.id]>0);
+  const L=[`*${G.icon} ${G.title} quotation — ${v.name}*`];
+  if(v.phone)L.push(`📞 ${v.phone}`);
+  L.push('');
+  let sec=null;
+  items.forEach(it=>{if(it.sec!==sec){sec=it.sec;L.push(`*${sec}*`);}L.push(`- ${it.name}: ${inr(+q[it.id])}${it.skip?' _(not in total)_':''}`);});
+  if(!items.length)L.push('_No item prices entered yet_');
+  L.push('',`*Total: ${inr(vendorTotal(vid))}*`);
+  const terms=[tm.adv&&`Advance: ${inr(tm.adv)}`,tm.gst&&tm.gst!=='?'&&`Transport/labour/GST included: ${tm.gst}`,tm.dates&&`Setup/removal: ${tm.dates}`,tm.note&&`Notes: ${tm.note}`].filter(Boolean);
+  if(terms.length)L.push(...terms);
+  const others=S.vendors.filter(x=>x.group===v.group).map(x=>({x,t:vendorTotal(x.id)})).filter(o=>o.t>0).sort((a,b)=>a.t-b.t);
+  if(others.length>1){const r=others.findIndex(o=>o.x.id===vid);if(r===0)L.push(`🏆 Cheapest of ${others.length} quotes so far`);else if(r>0)L.push(`#${r+1} of ${others.length} quotes · ${inr(others[r].t-others[0].t)} more than ${others[0].x.name}`);}
+  L.push('',`— ${WTITLE()}`);
+  return L.join('\n');
+}
+function compareText(g){
+  const G=GR(g),V=S.vendors.filter(v=>v.group===g).map(v=>({v,t:vendorTotal(v.id),n:quotedCount(v.id)})).sort((a,b)=>(a.t||1e15)-(b.t||1e15));
+  const L=[`*${G.icon} ${G.title} — quotation comparison*`,`${V.length} vendor${V.length===1?'':'s'}`,''];
+  if(!V.length)L.push('_No vendors added yet_');
+  V.forEach((o,i)=>{const tm=S.terms[o.v.id]||{};L.push(`${i+1}. *${o.v.name}* — ${o.t?inr(o.t):'no prices yet'}${i===0&&o.t&&V.length>1?' 🏆':''}${i>0&&o.t&&V[0].t?` (+${inr(o.t-V[0].t)})`:''}`);
+    const extra=[o.n&&`${o.n} items priced`,tm.adv&&`advance ${inr(tm.adv)}`,o.v.phone&&`📞 ${o.v.phone}`].filter(Boolean);if(extra.length)L.push(`   ${extra.join(' · ')}`);});
+  const bm=bestMix(g);if(V.length>1&&bm.sum)L.push('',`✨ Best mix (cheapest per item): ${inr(bm.sum)}`);
+  L.push('',`— ${WTITLE()}`);
+  return L.join('\n');
+}
+function bookingText(bid){
+  const b=S.bookings.find(x=>x.id===bid),pd=paidFor(bid),bal=b.amt-pd,ps=S.payments.filter(p=>p.to===bid).sort((a,c)=>(a.date||'').localeCompare(c.date||''));
+  const L=[`*🤝 Booking — ${b.name}*`,`Category: ${b.cat}`,b.phone&&`📞 ${b.phone}`,'',`Agreed: *${inr(b.amt)}*`,`Paid: ${inr(pd)}`,bal>0?`Balance due: *${inr(bal)}*${b.due?` (by ${fmtDate(b.due)})`:''}`:'✅ Fully paid'].filter(x=>x!==undefined&&x!==false&&x!==null);
+  if(b.note)L.push(`Note: ${b.note}`);
+  if(ps.length){L.push('','*Payments:*');ps.forEach(p=>L.push(`- ${fmtDate(p.date)}: ${inr(p.amt)} (${p.mode}${p.by?`, by ${p.by}`:''})${p.note?` — ${p.note}`:''}${p.img||p.imgRef?' 📎':''}`));}
+  L.push('',`— ${WTITLE()}`);
+  return L.join('\n');
+}
+function paymentText(p){
+  const b=S.bookings.find(x=>x.id===p.to);
+  const L=[`*💸 Payment made*`,`To: *${b?b.name:(p.note||p.cat)}*`,`Amount: *${inr(p.amt)}*`,`Date: ${fmtDate(p.date)}`,`Mode: ${p.mode}`];
+  if(p.by)L.push(`Paid by: ${p.by}`);if(b&&p.note)L.push(`Note: ${p.note}`);
+  if(b){const bal=b.amt-paidFor(b.id);L.push('',`Agreed ${inr(b.amt)} · paid so far ${inr(paidFor(b.id))} · ${bal>0?`balance ${inr(bal)}`:'✅ fully paid'}`);}
+  L.push('',`— ${WTITLE()}`);
+  return L.join('\n');
+}
+async function sharePayment(pid){
+  const p=S.payments.find(x=>x.id===pid),text=paymentText(p),im=imgOf(p);
+  if(im&&navigator.canShare){const f=await imgFile(im,`payment-${p.date||''}-${p.amt}.jpg`);
+    if(f&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});return;}catch(e){if(e&&e.name==='AbortError')return;}}}
+  waShare(text+(im?'\n_(screenshot saved in the planner)_':''));
 }
 
 /* ================= SHOPPING ================= */
@@ -746,7 +803,7 @@ function renderPay(){
   $('bookList').innerHTML=S.bookings.length?S.bookings.map(b=>{const pd=paidFor(b.id),bal=b.amt-pd,pc=b.amt?Math.min(100,pd/b.amt*100):0,late=bal>0&&b.due&&b.due<today();
     return`<div class="item" style="flex-wrap:wrap"><div class="av" style="background:${colorFor(b.cat)}">${esc(initials(b.name))}</div><div class="grow"><div class="nm">${esc(b.name)}</div><div class="meta">${esc(b.cat)}${b.phone?` · <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a>`:''}${b.due?` · ${late?'<span class="neg">overdue</span>':'due'} ${fmtDate(b.due)}`:''}</div></div>
       <div class="amt">${bal<=0?'<span class="pill ok">✓ Paid</span>':`<span class="pill due">${inr(bal)} due</span>`}<div class="muted">${inr(pd)} / ${inr(b.amt)}</div></div>
-      <div style="flex-basis:100%"><div class="track" style="margin:4px 0 8px"><i class="p" style="width:${pc}%"></i></div><div class="tools">${bal>0?`<button class="btn sm" data-pay="${b.id}">+ Pay</button>`:''}<button class="btn sm soft" data-editbook="${b.id}">Edit</button><button class="x" data-delbook="${b.id}">✕</button></div></div></div>`;}).join(''):`<div class="empty"><b>🤝</b>No bookings yet. Press "Book" on a vendor in a quotation tab, or add one here, e.g. photographer, makeup or clothes.</div>`;
+      <div style="flex-basis:100%"><div class="track" style="margin:4px 0 8px"><i class="p" style="width:${pc}%"></i></div><div class="tools">${bal>0?`<button class="btn sm" data-pay="${b.id}">+ Pay</button>`:''}<button class="btn sm wa" data-shb="${b.id}">🟢 Share</button><button class="btn sm soft" data-editbook="${b.id}">Edit</button><button class="x" data-delbook="${b.id}">✕</button></div></div></div>`;}).join(''):`<div class="empty"><b>🤝</b>No bookings yet. Press "Book" on a vendor in a quotation tab, or add one here, e.g. photographer, makeup or clothes.</div>`;
 
   const cats=['All','📎 With proof','⚠️ No proof',...new Set(S.payments.map(p=>p.cat))];
   if(!cats.includes(UI.payFilter))UI.payFilter='All';
@@ -780,6 +837,10 @@ document.addEventListener('click',e=>{
   if(d.delpay){const id=d.delpay;return ask('Delete this payment?').then(()=>{S.payments=S.payments.filter(p=>p.id!==id);save();render();toast('Deleted');});}
   if(d.chip){UI.payFilter=d.chip;renderPay();}
   if(d.view)return viewProof(d.view);
+  if(d.shv)return waShare(quoteText(d.shv));
+  if(d.shq)return waShare(compareText(d.shq));
+  if(d.shb)return waShare(bookingText(d.shb));
+  if(d.shp)return sharePayment(d.shp);
   if(d.sl){UI.sl=d.sl;renderShop();return;}
   if(d.sfilt){UI.sf=d.sfilt;renderShop();return;}
   if(d.newlist!==undefined)return sheetList();
