@@ -250,13 +250,25 @@ dialog.vd[open]{display:flex;flex-direction:column}
 .dmeta select{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--ink);font:inherit;font-size:12.5px;padding:4px 6px}
 .dmeta small{display:block;color:var(--muted);font-size:11.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dact{display:flex;justify-content:space-between;padding:0 6px 6px}
-#shareView{display:none;max-width:760px;margin:0 auto;padding-bottom:30px}
+#shareView{display:none;max-width:1200px;margin:-44px auto 0;padding:0 14px 20px;position:relative;z-index:2}
 body.viewmode #shareView{display:block}
-body.viewmode header.top,body.viewmode main,body.viewmode nav.bottom,body.viewmode .fab{display:none!important}
-body.viewmode{padding-bottom:0}
-#shareView .vd-hero{padding-top:26px}
-@media(min-width:800px){#shareView .vd-hero{border-radius:0 0 28px 28px}}
-.sv-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 14px 0;padding:12px 4px}
+body.viewmode main,body.viewmode nav.bottom:not(.sv-nav),body.viewmode .fab,body.viewmode #countdown,body.viewmode #syncBtn{display:none!important}
+.sv-nav{display:none}
+body.viewmode .sv-nav{display:flex}
+.sv-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 8px;border-radius:12px;flex:1;max-width:110px;text-decoration:none}
+.sv-nav a i{font-style:normal;font-size:20px;line-height:1}
+.sv-tag{display:none;margin:14px auto 0;max-width:1200px;position:relative;z-index:1}
+body.viewmode .sv-tag{display:flex}
+#shareView .vd-hero{border-radius:22px;margin-bottom:14px;padding:20px 18px;box-shadow:var(--shadow)}
+#shareView .vd-main{margin:0}
+#shareView .card{margin-bottom:14px}
+.sv-note{text-align:center;margin:6px 0 0}
+@media(min-width:900px){
+  #shareView{padding:0 24px 20px}
+  #shareView .vd-main{columns:2;column-gap:16px}
+  #shareView .vd-main>.card,#shareView .vd-main>div{break-inside:avoid;display:block}
+}
+@media print{body.viewmode .sv-nav,body.viewmode .sv-tag{display:none!important}#shareView{margin-top:0}}
 dialog.pv{--bg:#0d0f14;--surface:#161a22;--surface2:#212632;--ink:#f2ede6;--muted:#9c96a8;--line:#2a303c;--brand:#b8860b;--brand-2:#d4a03a;--good:#4ade80;--goodbg:#12301e;--bad:#f87171;--badbg:#3b1515;--shadow:none;color:var(--ink)}
 .pv-hero{background:radial-gradient(120% 140% at 0% 0%,#2b2f3d 0%,#151821 55%,#0d0f14 100%);padding:20px 18px 64px;position:relative;border-bottom:1px solid #2a303c}
 .pv-hero h2{margin:0;font-size:22px;color:#f5d58a}
@@ -353,6 +365,7 @@ a.btn{text-decoration:none}
     <div style="display:flex;gap:8px"><button class="icon-btn" id="syncBtn" title="GitHub sync">☁️</button><button class="icon-btn" id="themeBtn" title="Theme">🌙</button></div>
   </div>
   <div class="countdown" id="countdown"></div>
+  <div class="vd-tags sv-tag" id="svTag"></div>
 </header>
 
 <main>
@@ -388,7 +401,7 @@ a.btn{text-decoration:none}
     <div class="card">
       <div class="head"><h2>Share with family</h2></div>
       <p class="hint">Send a quick summary of budget, payments and dues on WhatsApp.</p>
-      <a class="btn wa" id="shareWa" target="_blank" rel="noopener">🟢 Share on WhatsApp</a>
+      <button class="btn wa" id="shareWa">🟢 Share on WhatsApp</button>
     </div>
   </section>
 
@@ -457,6 +470,15 @@ a.btn{text-decoration:none}
       <p class="muted" id="syStatus" style="margin:10px 0 0"></p>
     </div>
     <div class="card">
+      <h2>🔗 Short share links</h2>
+      <p class="hint">Shared links are short (like <code>…/wedplanner/#s=Ab3dE9xY…</code>) when GitHub auto-save is connected and a public repo named <b>wedplanner-share</b> exists that your token can write to. Each shared item is stored there <b>encrypted</b>; only someone with the link can read it.</p>
+      <details class="sec"><summary><span>One-time setup</span></summary><div style="padding:12px 14px;font-size:14px"><ol style="margin:0;padding-left:18px;line-height:1.6">
+        <li>On github.com create a new repository <b>wedplanner-share</b> → <b>Public</b> → tick <b>Add a README</b>.</li>
+        <li>Open <b>github.com/settings/personal-access-tokens</b>, click your wedplanner token → <b>Edit</b> → Repository access → also select <b>wedplanner-share</b> → <b>Update</b>.</li>
+        <li>Tap <b>Test</b> below. Your devices keep working with the same token.</li></ol></div></details>
+      <div class="tools" style="margin-top:10px"><button class="btn sm" id="shTest">🧪 Test short link</button><span class="muted" id="shRes" style="align-self:center"></span></div>
+    </div>
+    <div class="card">
       <h2>Logo & banner</h2>
       <p class="hint">Uploads here show on this device only (and go into your backup). To show them for everyone on the website, add <b>logo.png</b> and <b>banner.jpg</b> to the GitHub repo next to index.html.</p>
       <div class="bprev"><div class="bimg" id="bPrev"></div></div>
@@ -507,6 +529,7 @@ a.btn{text-decoration:none}
 <dialog id="viewer" class="viewer"><img id="viewImg" alt="Payment proof"><video id="viewVid" controls playsinline style="display:none;flex:1;min-height:0;width:100%;background:#000"></video><div class="acts"><a class="btn soft" id="viewDl" download="payment-proof.jpg">⬇ Save</a><button class="btn" id="viewClose">Close</button></div></dialog>
 <dialog id="pvdlg" class="vd pv"><div id="pvBody" style="display:flex;flex-direction:column;height:100%;min-height:0"></div></dialog>
 <div id="shareView"></div>
+<nav class="bottom sv-nav" id="svNav"></nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -722,7 +745,6 @@ function renderHome(){
   $('kv').innerHTML=`<div><small>Budget</small><strong>${inr(S.budget)}</strong></div><div><small>Committed</small><strong>${inr(T.cost)}</strong></div><div><small>Paid</small><strong class="pos">${inr(T.paid)}</strong></div><div><small>${T.left>=0?'Left in budget':'Over budget'}</small><strong class="${T.left>=0?'pos':'neg'}">${inr(Math.abs(T.left))}</strong></div>`;
 
   $('proj').innerHTML=`<div><b>🛍️ Shopping still to buy (estimated): ${inr(T.shopLeft)}</b><div class="muted">Projected total when everything is bought: <b class="${T.projected>S.budget?'neg':''}">${inr(T.projected)}</b>${T.projected>S.budget?` · ${inr(T.projected-S.budget)} over budget`:` · ${inr(S.budget-T.projected)} margin`}</div></div>`;
-  $('shareWa').href='https://wa.me/?text='+encodeURIComponent(summaryText(T));
   const rows=allCats().map(c=>{const cost=S.bookings.filter(b=>b.cat===c).reduce((a,b)=>a+b.amt,0)+S.payments.filter(p=>p.cat===c&&!S.bookings.some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);const pd=S.payments.filter(p=>p.cat===c).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);return{c,cost,pd};}).filter(r=>r.cost||r.pd).sort((a,b)=>b.cost-a.cost);
   const mx=Math.max(1,...rows.map(r=>r.cost));
   $('catBars').innerHTML=rows.length?rows.map(r=>`<div class="b"><div class="t"><span>${esc(r.c)}</span><span><b>${inr(r.cost)}</b> <span class="muted">· paid ${inr(r.pd)}</span></span></div><div class="track"><i class="a" style="width:${r.cost/mx*100}%"></i><i class="p" style="width:${Math.min(r.pd,r.cost||r.pd)/mx*100}%"></i></div></div>`).join(''):`<div class="empty"><b>📊</b>Add bookings or payments to see this.</div>`;
@@ -819,7 +841,6 @@ return{pack:o=>comp(JSON.stringify(o)),unpack:s=>JSON.parse(decomp(s))};})();
 
 const shareBase=()=>location.origin+location.pathname;
 const shareLink=P=>shareBase()+'#v='+LZ.pack(P);
-const linkLine=P=>`👉 *Tap to see full details:*\n${shareLink(P)}`;
 function comparePayload(g){const G=GR(g);const V=S.vendors.filter(v=>v.group===g).map(v=>({v,t:vendorTotal(v.id),n:quotedCount(v.id)})).sort((a,b)=>(a.t||1e15)-(b.t||1e15));const bm=bestMix(g);
   return{t:'c',T:WTITLE(),gi:G.icon,gt:G.title,rows:V.map(o=>[o.v.name,o.t,o.n,o.v.phone||'',(S.terms[o.v.id]||{}).adv||'']),bm:V.length>1?bm.sum:0,dt:Date.now()};}
 function bookingPayload(bid){const b=S.bookings.find(x=>x.id===bid);const ps=S.payments.filter(p=>p.to===bid).sort((a,c)=>(a.date||'').localeCompare(c.date||''));
@@ -857,73 +878,111 @@ function renderShareView(P){
      <div class="card"><h2>Payments due</h2>${P.du.length?`<div class="list">${P.du.map(x=>`<div class="item"><div class="av" style="background:${colorFor(x[0])}">${esc(initials(x[0]))}</div><div class="grow"><div class="nm">${esc(x[0])}</div><div class="meta">${x[2]?'by '+fmtDate(x[2]):''}</div></div><div class="amt">${inr(x[1])}</div></div>`).join('')}</div>`:'<div class="empty">🎉 Nothing due.</div>'}</div></div>`;}
   return '<div class="card empty">Unknown link.</div>';
 }
-function showSharedView(code){
-  let P;try{P=LZ.unpack(code);}catch(e){P=null;}
+/* ---------- shared page (recipient) ---------- */
+let SVB=null;
+function showSharedPayload(P,link){
   document.body.classList.add('viewmode');
-  const box=$('shareView');
-  box.innerHTML=P?`${renderShareView(P)}<div class="sv-foot"><div class="muted">Shared from <b>${esc(P.T||'WedPlanner')}</b>${P.dt?' · '+new Date(P.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''} · read-only</div><button class="btn sm soft" id="svExit">Open WedPlanner</button></div>`
-    :`<div class="vd-main" style="margin-top:20px"><div class="card empty"><b>🔗</b>This link is incomplete or damaged. Ask the sender to share it again.</div></div>`;
-  document.title=(P&&P.n?P.n+' — ':'')+(P&&P.T||'WedPlanner');
-  const ex=$('svExit');if(ex)ex.onclick=()=>{history.replaceState(null,'',location.pathname);document.body.classList.remove('viewmode');box.innerHTML='';render();};
+  SVB=P?{title:P.T||'WedPlanner',sub:P.ST||''}:null;applyBrand();
+  const kind={q:'Quotation',c:'Quotation comparison',b:'Booking',p:'Payment receipt',s:'Shopping list',h:'Budget summary'}[P&&P.t]||'Shared';
+  $('svTag').innerHTML=P?`<span>🔗 ${kind}</span><span>Read-only</span>${P.dt?`<span>${new Date(P.dt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>`:''}`:'';
+  $('shareView').innerHTML=P?renderShareView(P)+`<p class="muted sv-note">Shared from ${esc(P.T||'WedPlanner')} · details as of ${P.dt?new Date(P.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</p>`
+    :`<div class="card empty"><b>🔗</b>This link is not available. It may be incomplete, or it was just created — try again in a moment, or ask the sender to share again.</div>`;
+  const ph=P&&(P.ph||'');
+  $('svNav').innerHTML=`<button data-svshare><i>📤</i>Share</button>${ph?`<a href="tel:${esc(ph)}"><i>📞</i>Call</a>`:''}<button data-svprint><i>🖨</i>Save PDF</button><button data-svexit><i>🏠</i>WedPlanner</button>`;
+  document.title=(P&&P.n?P.n+' — ':'')+kind+' · '+((P&&P.T)||'WedPlanner');
   window.scrollTo(0,0);
 }
-window.addEventListener('hashchange',()=>{const m=location.hash.match(/^#v=(.+)$/);if(m)showSharedView(m[1]);});
-
-const WTITLE=()=>(S.brand&&S.brand.title)||'বিয়ের হিসাব';
-function waShare(text){
-  const url='https://wa.me/?text='+encodeURIComponent(text);
-  const w=window.open(url,'_blank');if(!w)location.href=url;
+function exitShared(){history.replaceState(null,'',location.pathname);document.body.classList.remove('viewmode');SVB=null;$('shareView').innerHTML='';render();}
+$('svNav').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.svexit!==undefined)return exitShared();
+  if(t.dataset.svprint!==undefined)return window.print();
+  if(t.dataset.svshare!==undefined){const url=location.href;try{if(navigator.share){await navigator.share({url,title:document.title});return;}}catch(err){if(err.name==='AbortError')return;}
+    try{await navigator.clipboard.writeText(url);toast('Link copied');}catch(err){prompt('Copy this link',url);}}
+});
+async function openSharedHash(){
+  const h=location.hash;
+  let m=h.match(/^#v=(.+)$/);if(m){let P=null;try{P=LZ.unpack(m[1]);}catch(e){}return showSharedPayload(P);}
+  m=h.match(/^#s=([A-Za-z0-9_-]{8})([A-Za-z0-9_-]{22})$/);if(!m)return false;
+  showSharedPayload({t:'loading',T:'Loading…'});$('shareView').innerHTML='<div class="card empty"><b>⏳</b>Opening…</div>';
+  const owner=/\.github\.io$/.test(location.hostname)?location.hostname.split('.')[0]:(SY.owner||'joyguruaa');
+  const url=`https://raw.githubusercontent.com/${owner}/${SHARE_REPO}/main/s/${m[1]}.json`;
+  let P=null;
+  for(let k=0;k<4&&!P;k++){try{const r=await fetch(url+'?t='+Date.now(),{cache:'no-store'});if(r.ok){const j=await r.json();
+      const key=await crypto.subtle.importKey('raw',u8(m[2].replace(/-/g,'+').replace(/_/g,'/')+'=='),'AES-GCM',false,['decrypt']);
+      const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u8(j.iv)},key,u8(j.ct));P=JSON.parse(new TextDecoder().decode(pt));}}catch(e){}
+    if(!P)await new Promise(r=>setTimeout(r,2500));}
+  showSharedPayload(P);return true;
 }
+window.addEventListener('hashchange',()=>{if(/^#(v|s)=/.test(location.hash))openSharedHash();});
+
+/* ---------- short links (encrypted snapshot in a public repo) ---------- */
+const SHARE_REPO='wedplanner-share';
+const b64u=bytes=>b64enc(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function makeLink(P){
+  P.T=WTITLE();P.ST=(S.brand&&S.brand.sub)||'';P.dt=Date.now();
+  if(syOn()&&window.crypto&&crypto.subtle){
+    try{
+      const keyBytes=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+      const key=await crypto.subtle.importKey('raw',keyBytes,'AES-GCM',false,['encrypt']);
+      const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(P))));
+      const id=b64u(crypto.getRandomValues(new Uint8Array(6)));
+      const r=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${id}.json`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+        body:JSON.stringify({message:'share',content:b64enc(JSON.stringify({v:1,iv:b64enc(iv),ct:b64enc(ct)}))})});
+      if(r.ok)return{link:`${shareBase()}#s=${id}${b64u(keyBytes)}`,short:true};
+      SHORT_FAIL=r.status;
+    }catch(e){SHORT_FAIL='network';}
+  }
+  return{link:shareLink(P),short:false};
+}
+let SHORT_FAIL=null;
+const waClean=t=>t.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/️/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/^ +/gm,'').trim();
+async function shareFlow(text,P,extra={}){
+  toast('Preparing link…');
+  const {link,short}=await makeLink(P);
+  const msg=waClean(text.replace('{LINK}',link));
+  const wa='https://wa.me/?text='+encodeURIComponent(msg);
+  openSheet('Ready to share',`<div class="full">
+    <div style="white-space:pre-wrap;background:var(--surface2);border-radius:14px;padding:12px;font-size:14px;max-height:240px;overflow:auto;word-break:break-word">${esc(msg)}</div>
+    ${!short?`<p class="muted" style="margin:10px 0 0">ℹ️ Long link used — ${syOn()?`short links need a public repo named <b>${SHARE_REPO}</b> that your token can write to (see More → Short share links).`:'connect GitHub auto-save to get short links.'}</p>`:''}
+    <div class="tools" style="margin-top:12px">
+      <a class="btn wa" href="${wa}" target="_blank" rel="noopener">🟢 Send on WhatsApp</a>
+      <button type="button" class="btn soft" id="sfCopy">📋 Copy</button>
+      ${navigator.share?'<button type="button" class="btn soft" id="sfMore">📤 Other apps</button>':''}
+      ${extra.img?'<button type="button" class="btn soft" id="sfImg">📎 Send screenshot</button>':''}
+    </div></div>`,()=>{},'Done');
+  $('sfCopy').onclick=async()=>{try{await navigator.clipboard.writeText(msg);toast('Copied');}catch(e){prompt('Copy',msg);}};
+  if($('sfMore'))$('sfMore').onclick=async()=>{try{await navigator.share({text:msg});}catch(e){}};
+  if($('sfImg'))$('sfImg').onclick=async()=>{const f=await imgFile(extra.img,'payment-proof.jpg');if(f&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});}catch(e){}}else{const a=document.createElement('a');a.href=extra.img;a.download='payment-proof.jpg';a.click();toast('Saved — attach it in WhatsApp');}};
+}
+
+$('shTest').onclick=async()=>{const r=$('shRes');if(!syOn()){r.textContent='Connect GitHub auto-save first.';return;}r.textContent='Testing…';SHORT_FAIL=null;
+  const {link,short}=await makeLink({t:'h',bud:S.budget,cost:0,pd:0,due:0,sl:0,pr:0,du:[]});
+  r.innerHTML=short?`✅ Working — <a href="${link}" target="_blank" rel="noopener">open test link</a>`:`❌ Not working (${SHORT_FAIL===404?'repo not found or token has no access to it':SHORT_FAIL===403?'token not allowed to write to it':SHORT_FAIL}). Check the setup steps.`;};
+/* ---------- message texts (short; details are behind the link) ---------- */
+const WTITLE=()=>(S.brand&&S.brand.title)||'বিয়ের হিসাব';
 async function imgFile(src,name){try{const b=await (await fetch(src)).blob();return new File([b],name,{type:b.type||'image/jpeg'});}catch(e){return null;}}
 function quoteText(vid){
-  const v=S.vendors.find(x=>x.id===vid),G=GR(v.group),q=S.quotes[vid]||{},tm=S.terms[vid]||{};
-  const items=itemsFor(v.group).filter(it=>+q[it.id]>0);
-  const L=[`*${G.icon} ${G.title} quotation — ${v.name}*`,`*Total: ${inr(vendorTotal(vid))}*`,'',linkLine(quotePayload(vid))];
-  if(v.phone)L.push('',`📞 ${v.phone}`);
-  L.push('');
-  let sec=null;
-  items.forEach(it=>{if(it.sec!==sec){sec=it.sec;L.push(`*${sec}*`);}L.push(`- ${it.name}: ${inr(+q[it.id])}${it.skip?' _(not in total)_':''}`);});
-  if(!items.length)L.push('_No item prices entered yet_');
-  L.push('',`*Total: ${inr(vendorTotal(vid))}*`);
-  const terms=[tm.adv&&`Advance: ${inr(tm.adv)}`,tm.gst&&tm.gst!=='?'&&`Transport/labour/GST included: ${tm.gst}`,tm.dates&&`Setup/removal: ${tm.dates}`,tm.note&&`Notes: ${tm.note}`].filter(Boolean);
-  if(terms.length)L.push(...terms);
-  const others=S.vendors.filter(x=>x.group===v.group).map(x=>({x,t:vendorTotal(x.id)})).filter(o=>o.t>0).sort((a,b)=>a.t-b.t);
-  if(others.length>1){const r=others.findIndex(o=>o.x.id===vid);if(r===0)L.push(`🏆 Cheapest of ${others.length} quotes so far`);else if(r>0)L.push(`#${r+1} of ${others.length} quotes · ${inr(others[r].t-others[0].t)} more than ${others[0].x.name}`);}
-  L.push('',`— ${WTITLE()}`);
-  return L.join('\n');
+  const v=S.vendors.find(x=>x.id===vid),G=GR(v.group),tot=vendorTotal(vid);
+  const peers=S.vendors.filter(x=>x.group===v.group).map(x=>({x,t:vendorTotal(x.id)})).filter(o=>o.t>0).sort((a,b)=>a.t-b.t);const r=peers.findIndex(o=>o.x.id===vid);
+  const rank=peers.length>1?(r===0?`★ Cheapest of ${peers.length} quotes`:r>0?`#${r+1} of ${peers.length} quotes (+${inr(tot-peers[0].t)})`:''):'';
+  return `*${v.name}* — ${G.title} quotation\nTotal: *${inr(tot)}*${rank?'\n'+rank:''}\n\n➜ View full quotation:\n{LINK}`;
 }
 function compareText(g){
-  const G=GR(g),V=S.vendors.filter(v=>v.group===g).map(v=>({v,t:vendorTotal(v.id),n:quotedCount(v.id)})).sort((a,b)=>(a.t||1e15)-(b.t||1e15));
-  const L=[`*${G.icon} ${G.title} — quotation comparison*`,`${V.length} vendor${V.length===1?'':'s'}`,'',linkLine(comparePayload(g)),''];
-  if(!V.length)L.push('_No vendors added yet_');
-  V.forEach((o,i)=>{const tm=S.terms[o.v.id]||{};L.push(`${i+1}. *${o.v.name}* — ${o.t?inr(o.t):'no prices yet'}${i===0&&o.t&&V.length>1?' 🏆':''}${i>0&&o.t&&V[0].t?` (+${inr(o.t-V[0].t)})`:''}`);
-    const extra=[o.n&&`${o.n} items priced`,tm.adv&&`advance ${inr(tm.adv)}`,o.v.phone&&`📞 ${o.v.phone}`].filter(Boolean);if(extra.length)L.push(`   ${extra.join(' · ')}`);});
-  const bm=bestMix(g);if(V.length>1&&bm.sum)L.push('',`✨ Best mix (cheapest per item): ${inr(bm.sum)}`);
-  L.push('',`— ${WTITLE()}`);
-  return L.join('\n');
+  const G=GR(g),V=S.vendors.filter(v=>v.group===g).map(v=>({v,t:vendorTotal(v.id)})).filter(o=>o.t>0).sort((a,b)=>a.t-b.t);
+  return `*${G.title} quotations* — ${S.vendors.filter(v=>v.group===g).length} vendors\n${V.length?`Lowest: *${V[0].v.name}* ${inr(V[0].t)}`:'No prices yet'}\n\n➜ View comparison:\n{LINK}`;
 }
 function bookingText(bid){
-  const b=S.bookings.find(x=>x.id===bid),pd=paidFor(bid),bal=b.amt-pd,ps=S.payments.filter(p=>p.to===bid).sort((a,c)=>(a.date||'').localeCompare(c.date||''));
-  const L=[`*🤝 Booking — ${b.name}*`,linkLine(bookingPayload(bid)),'',`Category: ${b.cat}`,b.phone&&`📞 ${b.phone}`,'',`Agreed: *${inr(b.amt)}*`,`Paid: ${inr(pd)}`,bal>0?`Balance due: *${inr(bal)}*${b.due?` (by ${fmtDate(b.due)})`:''}`:'✅ Fully paid'].filter(x=>x!==undefined&&x!==false&&x!==null);
-  if(b.note)L.push(`Note: ${b.note}`);
-  if(ps.length){L.push('','*Payments:*');ps.forEach(p=>L.push(`- ${fmtDate(p.date)}: ${inr(p.amt)} (${p.mode}${p.by?`, by ${p.by}`:''})${p.note?` — ${p.note}`:''}${p.img||p.imgRef?' 📎':''}`));}
-  L.push('',`— ${WTITLE()}`);
-  return L.join('\n');
+  const b=S.bookings.find(x=>x.id===bid),pd=paidFor(bid),bal=b.amt-pd;
+  return `*Booking — ${b.name}*\nAgreed ${inr(b.amt)} · Paid ${inr(pd)}\n${bal>0?`Balance: *${inr(bal)}*${b.due?` (by ${fmtDate(b.due)})`:''}`:'✔ Fully paid'}\n\n➜ View details:\n{LINK}`;
 }
 function paymentText(p){
   const b=S.bookings.find(x=>x.id===p.to);
-  const L=[`*💸 Payment made — ${inr(p.amt)}*`,linkLine(paymentPayload(p)),'',`To: *${b?b.name:(p.note||p.cat)}*`,`Amount: *${inr(p.amt)}*`,`Date: ${fmtDate(p.date)}`,`Mode: ${p.mode}`];
-  if(p.by)L.push(`Paid by: ${p.by}`);if(b&&p.note)L.push(`Note: ${p.note}`);
-  if(b){const bal=b.amt-paidFor(b.id);L.push('',`Agreed ${inr(b.amt)} · paid so far ${inr(paidFor(b.id))} · ${bal>0?`balance ${inr(bal)}`:'✅ fully paid'}`);}
-  L.push('',`— ${WTITLE()}`);
-  return L.join('\n');
+  return `*Payment made — ${inr(p.amt)}*\nTo ${b?b.name:(p.note||p.cat)} · ${fmtDate(p.date)} · ${p.mode}${b?`\nBalance left: ${inr(Math.max(0,b.amt-paidFor(b.id)))}`:''}\n\n➜ View receipt:\n{LINK}`;
 }
-async function sharePayment(pid){
-  const p=S.payments.find(x=>x.id===pid),text=paymentText(p),im=imgOf(p);
-  if(im&&navigator.canShare){const f=await imgFile(im,`payment-${p.date||''}-${p.amt}.jpg`);
-    if(f&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});return;}catch(e){if(e&&e.name==='AbortError')return;}}}
-  waShare(text+(im?'\n_(screenshot saved in the planner)_':''));
-}
+function shopText(lid){const l=S.shop.lists.find(x=>x.id===lid),it=S.shop.items.filter(i=>i.list===lid),todo=it.filter(i=>!i.done);
+  return `*${l.title}* — shopping list\n${todo.length} of ${it.length} items still to buy\n\n➜ View list:\n{LINK}`;}
+function waShare(text){const w=window.open('https://wa.me/?text='+encodeURIComponent(waClean(text)),'_blank');if(!w)location.href='https://wa.me/?text='+encodeURIComponent(waClean(text));}
+async function sharePayment(pid){const p=S.payments.find(x=>x.id===pid);const im=imgOf(p);return shareFlow(paymentText(p),paymentPayload(p),{img:im});}
 
 /* ================= VENDOR DETAIL ================= */
 const SEC_COLORS=['#9f1d22','#d4a03a','#c2410c','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#2563eb','#0f766e','#b45309','#6b7280','#4d7c0f','#9333ea'];
@@ -1221,11 +1280,10 @@ function renderShop(){
   const shown=items.filter(i=>f==='all'||(f==='todo'?!i.done:i.done));
   const lEst=items.reduce((a,i)=>a+(+i.est||0),0),lSpent=items.filter(i=>i.done).reduce((a,i)=>a+(+i.act||+i.est||0),0);
   const todo=items.filter(i=>!i.done);
-  const wa='https://wa.me/?text='+encodeURIComponent([`*${l.icon} ${l.title} — কেনার তালিকা*`,linkLine(shopPayload(l.id)),'',...todo.map(i=>`- ${i.name}${i.qty?` — ${i.qty}`:''}${i.shop?` (${i.shop})`:''}`)].join('\n'));
   $('shopBody').innerHTML=`<div class="card">
     <div class="head"><div><h2>${l.icon} ${esc(l.title)}</h2><div class="muted">${items.filter(i=>i.done).length} of ${items.length} bought · est. ${inr(lEst)} · spent ${inr(lSpent)} · counted under “${esc(l.cat)}”</div></div>
       <div class="tools"><button class="btn sm soft" data-editlist="${l.id}">✎</button><button class="btn sm soft" data-dellist="${l.id}">🗑</button></div></div>
-    <div class="tools" style="margin-bottom:10px"><button class="btn sm" data-sadd>+ Item</button>${todo.length?`<a class="btn sm wa" target="_blank" rel="noopener" href="${wa}">🟢 Send list</a>`:''}</div>
+    <div class="tools" style="margin-bottom:10px"><button class="btn sm" data-sadd>+ Item</button><button class="btn sm wa" data-shs="${l.id}">🟢 Share list</button></div>
     <div class="chips">${[['all','All'],['todo','To buy'],['done','Bought']].map(([k,t])=>`<button class="chip ${f===k?'on':''}" data-sfilt="${k}">${t}</button>`).join('')}</div>
     <p class="hint">Tick when bought. Enter an estimate first, then the actual price after buying. Bought items count as spent; unbought ones show as “to buy”.</p>
     <div class="list">${shown.length?shown.map(i=>`<div class="sitem ${i.done?'done':''}">
@@ -1284,9 +1342,10 @@ document.addEventListener('click',e=>{
   if(d.delpay){const id=d.delpay;return ask('Delete this payment?').then(()=>{S.payments=S.payments.filter(p=>p.id!==id);save();render();toast('Deleted');});}
   if(d.chip){UI.payFilter=d.chip;renderPay();}
   if(d.view)return viewProof(d.view);
-  if(d.shv)return waShare(quoteText(d.shv));
-  if(d.shq)return waShare(compareText(d.shq));
-  if(d.shb)return waShare(bookingText(d.shb));
+  if(d.shv)return shareFlow(quoteText(d.shv),quotePayload(d.shv));
+  if(d.shq)return shareFlow(compareText(d.shq),comparePayload(d.shq));
+  if(d.shb)return shareFlow(bookingText(d.shb),bookingPayload(d.shb));
+  if(d.shs)return shareFlow(shopText(d.shs),shopPayload(d.shs));
   if(d.shp)return sharePayment(d.shp);
   if(d.sl){UI.sl=d.sl;renderShop();return;}
   if(d.sfilt){UI.sf=d.sfilt;renderShop();return;}
@@ -1312,12 +1371,8 @@ document.addEventListener('input',e=>{
 $('fab').onclick=()=>{if(UI.tab==='shop')return sheetShopItem();if(UI.tab==='pay')sheetPayment();else sheetVendor(UI.qg);};
 
 $('budget').onchange=e=>{S.budget=+e.target.value||0;save();render();toast('Budget updated');};
-function summaryText(T){
-  const lines=[`*💍 ${WTITLE()} — budget summary*`,linkLine(summaryPayload()),'',`Budget: ${inr(S.budget)}`,`Committed / spent: ${inr(T.cost)}`,`Paid: ${inr(T.paid)}`,`Still to pay: ${inr(T.due)}`,`Shopping left (est.): ${inr(T.shopLeft)}`,`Projected total: ${inr(T.projected)}`,T.left>=0?`Left in budget now: ${inr(T.left)}`:`⚠️ Over budget: ${inr(-T.left)}`,''];
-  const dues=S.bookings.map(b=>({...b,bal:b.amt-paidFor(b.id)})).filter(b=>b.bal>0);
-  if(dues.length){lines.push('*Due:*');dues.forEach(b=>lines.push(`- ${b.name}: ${inr(b.bal)}${b.due?` (by ${fmtDate(b.due)})`:''}`));}
-  return lines.join('\n');
-}
+function summaryText(){const T=totals();return `*${WTITLE()}* — budget summary\nSpent/committed ${inr(T.cost)} of ${inr(S.budget)}\nPaid ${inr(T.paid)} · Still to pay ${inr(T.due)}\n\n➜ View summary:\n{LINK}`;}
+$('shareWa').addEventListener('click',e=>{e.preventDefault();shareFlow(summaryText(),summaryPayload());});
 
 /* theme */
 const setTheme=t=>{document.documentElement.dataset.theme=t;$('themeBtn').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(KEY+'-theme',t);}catch(e){}};
@@ -1346,8 +1401,8 @@ function applyBrand(){
   if(B.logoRef&&!B.logo)loadRef(B.logoRef);if(B.bannerRef&&!B.banner)loadRef(B.bannerRef);
   const logo=B.logo||IMG[B.logoRef]||REPO.logo||DEFAULT_LOGO, banner=B.banner||IMG[B.bannerRef]||REPO.banner||'';
   $('logoImg').src=logo;$('favicon').href=logo;
-  $('brandTitle').textContent=B.title||DEFAULT_TITLE;$('brandSub').textContent=B.sub||DEFAULT_SUB;
-  document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
+  $('brandTitle').textContent=SVB?SVB.title:(B.title||DEFAULT_TITLE);$('brandSub').textContent=SVB?SVB.sub:(B.sub||DEFAULT_SUB);
+  if(!SVB)document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
   const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}
   $('bPrev').style.backgroundImage=banner?`linear-gradient(180deg,transparent,rgba(0,0,0,.55)),url("${banner}")`:'linear-gradient(135deg,#c2410c,#9f1d22)';
   $('bPrev').innerHTML=`<img src="${logo}" alt=""><b style="text-shadow:0 1px 4px rgba(0,0,0,.4)">${esc(B.title||DEFAULT_TITLE)}</b>`;
@@ -1510,8 +1565,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&syOn()&&!syBusy&&!SY.d
 function render(){applyBrand();if(typeof pvRefreshIfChanged==='function')pvRefreshIfChanged();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
 render();
 (function(){
-  const sv=location.hash.match(/^#v=(.+)$/);
-  if(sv){showSharedView(sv[1]);if(syOn())syPull();else setSyncStatus('off');return;}
+  if(/^#(v|s)=/.test(location.hash)){openSharedHash();if(syOn())syPull();else setSyncStatus('off');return;}
   const m=location.hash.match(/^#pair=([A-Za-z0-9_-]+)/);
   if(m){
     history.replaceState(null,'',location.pathname+location.search);
