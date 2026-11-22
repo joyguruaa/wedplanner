@@ -190,6 +190,54 @@ dialog.viewer .acts{display:flex;gap:8px;justify-content:center;padding:12px cal
 .sumgrid small{display:block;color:var(--muted);font-size:11.5px}
 .sumgrid strong{font-size:16px}
 .qrbox{display:grid;place-items:center;padding:14px;background:#fff;border-radius:16px;margin:0 auto 12px;width:max-content}
+.vcard{cursor:pointer;transition:transform .15s, box-shadow .15s}
+.vcard:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+dialog.vd{padding:0;width:100%;max-width:760px;height:100%;max-height:100%;margin:0 auto;border-radius:0;background:var(--bg);overflow:hidden}
+dialog.vd[open]{display:flex;flex-direction:column}
+@media(min-width:800px){dialog.vd{height:calc(100% - 40px);margin:20px auto;border-radius:24px}}
+#vdBody{display:flex;flex-direction:column;height:100%;min-height:0}
+.vd-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.vd-hero{background:radial-gradient(120% 140% at 0% 0%,#c2410c 0%,#9f1d22 50%,#5c0f13 100%);color:#fff;padding:18px 18px 70px;position:relative}
+.vd-hero .x{position:absolute;right:12px;top:12px;color:#fff;background:rgba(255,255,255,.15);font-size:18px;width:38px;height:38px;border-radius:12px}
+.vd-hero .who{display:flex;gap:12px;align-items:center;padding-right:44px}
+.vd-hero .av{width:52px;height:52px;flex-basis:52px;font-size:18px;border:2px solid rgba(255,255,255,.6)}
+.vd-hero h2{margin:0;font-size:22px;line-height:1.2}
+.vd-hero .cat{opacity:.85;font-size:13px}
+.vd-total{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.vd-total b{font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.vd-total small{display:block;opacity:.8;font-size:12px;margin-bottom:4px}
+.vd-tags{display:flex;gap:6px;flex-wrap:wrap}
+.vd-tags span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:4px 10px;border-radius:99px;font-size:12px}
+.vd-main{margin:-52px 12px 0;position:relative}
+.vd-chart{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center}
+@media(max-width:480px){.vd-chart{grid-template-columns:1fr}.vd-chart .donut{max-width:170px;margin:0 auto}}
+.donut{position:relative;aspect-ratio:1}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.donut .c b{font-size:15px;display:block}.donut .c span{font-size:11px;color:var(--muted)}
+.leg{display:flex;flex-direction:column;gap:8px}
+.leg .r{display:grid;grid-template-columns:12px 1fr auto;gap:8px;align-items:center;font-size:13.5px}
+.leg .r i{width:12px;height:12px;border-radius:4px}
+.leg .r .pc{color:var(--muted);font-size:12px;margin-left:4px}
+.cmp .row{display:grid;grid-template-columns:minmax(80px,140px) 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:13.5px}
+.cmp .row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .row.me{font-weight:700}
+.cmp .bar{height:12px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.cmp .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#d4a03a,#e9bf6a)}
+.cmp .row.me .bar i{background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+.qsec{margin-top:6px}
+.qsec h4{margin:14px 0 6px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
+.qitem{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.qitem:last-child{border-bottom:0}
+.qitem .p{font-weight:700;white-space:nowrap;text-align:right}
+.qitem .p small{display:block;font-weight:500;font-size:11px}
+.qitem.off{opacity:.55}
+.vd-actions{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line);overflow-x:auto}
+.vd-actions .btn{flex:1 1 0;justify-content:center;white-space:nowrap;padding:11px 8px;min-width:0}
+@media(max-width:420px){.vd-actions .btn{font-size:13.5px}}
+.terms-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.terms-grid div{background:var(--surface2);border-radius:12px;padding:10px}
+.terms-grid small{display:block;color:var(--muted);font-size:11.5px}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -422,6 +470,7 @@ a.btn{text-decoration:none}
 </nav>
 
 <dialog id="dlg"><form class="sheet" id="sheet" method="dialog"></form></dialog>
+<dialog id="vdlg" class="vd"><div id="vdBody"></div></dialog>
 <dialog id="viewer" class="viewer"><img id="viewImg" alt="Payment proof"><div class="acts"><a class="btn soft" id="viewDl" download="payment-proof.jpg">⬇ Save</a><button class="btn" id="viewClose">Close</button></div></dialog>
 <div class="toast" id="toast"></div>
 
@@ -682,12 +731,12 @@ function renderQuote(g){
   const ranked=tots.filter(x=>x.t>0).sort((a,b)=>a.t-b.t);
   const bm=bestMix(g);
   el.querySelector('[data-vgrid]').innerHTML=V.length?tots.map(({v,t,n})=>{const rank=ranked.findIndex(r=>r.v.id===v.id);const tm=S.terms[v.id]||{};
-    return`<div class="vcard ${rank===0&&ranked.length>1?'win':''}">
+    return`<div class="vcard ${rank===0&&ranked.length>1?'win':''}" data-openv="${v.id}" role="button" tabindex="0">
       <span class="rank">${rank===0&&ranked.length>1?'<span class="pill ok">🏆 Cheapest</span>':rank>0?`<span class="pill gold">#${rank+1}</span>`:''}</span>
       <div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:${colorFor(v.name)}">${esc(initials(v.name))}</div><div style="min-width:0"><div class="nm" style="font-weight:600">${esc(v.name)}</div><div class="muted">${n} items priced${bm.wins[v.id]?` · cheapest on ${bm.wins[v.id]}`:''}</div></div></div>
       <div class="tot">${inr(t)}</div>
       <div class="muted">${v.phone?`📞 ${esc(v.phone)} · `:''}${tm.adv?`Advance ${inr(tm.adv)} · `:''}${tm.gst&&tm.gst!=='?'?`Transport/GST incl: ${esc(tm.gst)}`:'Terms not added'}${tm.dates?` · ${esc(tm.dates)}`:''}${tm.note?` · ${esc(tm.note)}`:''}</div>
-      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm wa" data-shv="${v.id}" title="Share this quotation on WhatsApp">🟢 Share</button><button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
+      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm" data-openv="${v.id}">📄 Details</button><button class="btn sm wa" data-shv="${v.id}" title="Share this quotation on WhatsApp">🟢 Share</button><button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
     </div>`;}).join(''):`<div class="empty"><b>${G.icon}</b>No ${esc(G.title.toLowerCase())} vendors yet.<br><br><button class="btn" data-addv="${g}">+ Add first vendor</button></div>`;
   el.querySelector('[data-mix]').innerHTML=V.length>1&&bm.sum?`<div class="best-mix"><div><b>✨ Best mix: ${inr(bm.sum)}</b><div class="muted">If you picked the cheapest vendor for every item${ranked.length&&ranked[0].t-bm.sum>0?` · saves ${inr(ranked[0].t-bm.sum)} vs the cheapest single vendor`:''}</div></div></div>`:'';
 
@@ -765,6 +814,106 @@ async function sharePayment(pid){
   waShare(text+(im?'\n_(screenshot saved in the planner)_':''));
 }
 
+/* ================= VENDOR DETAIL ================= */
+const SEC_COLORS=['#9f1d22','#d4a03a','#c2410c','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#2563eb','#0f766e','#b45309','#6b7280','#4d7c0f','#9333ea'];
+function vendorData(vid){
+  const v=S.vendors.find(x=>x.id===vid),G=GR(v.group),q=S.quotes[vid]||{},tm=S.terms[vid]||{};
+  const peers=S.vendors.filter(x=>x.group===v.group);
+  const items=itemsFor(v.group).filter(it=>+q[it.id]>0).map(it=>{
+    const price=+q[it.id];const others=peers.filter(x=>x.id!==vid).map(x=>+(S.quotes[x.id]||{})[it.id]||0).filter(x=>x>0);
+    const min=Math.min(price,...others);return{...it,price,cheapest:others.length>0&&price<=min,diff:price-min,compared:others.length>0};});
+  const secMap=new Map();items.filter(i=>!i.skip).forEach(i=>secMap.set(i.sec,(secMap.get(i.sec)||0)+i.price));
+  const secs=[...secMap.entries()].map(([name,amt],k)=>({name,amt})).sort((a,b)=>b.amt-a.amt).map((s,k)=>({...s,color:SEC_COLORS[k%SEC_COLORS.length]}));
+  const total=vendorTotal(vid);
+  const ranked=peers.map(x=>({x,t:vendorTotal(x.id)})).filter(o=>o.t>0).sort((a,b)=>a.t-b.t);
+  const rank=ranked.findIndex(o=>o.x.id===vid);
+  return{v,G,tm,items,secs,total,ranked,rank,cheapCount:items.filter(i=>i.cheapest).length};
+}
+function openVendor(vid){
+  const D=vendorData(vid),{v,G,tm,items,secs,total,ranked,rank}=D;
+  const C=2*Math.PI*40;let off=0;
+  const donut=secs.length?`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface2)" stroke-width="16"/>${secs.map(s=>{const len=C*s.amt/total;const el=`<circle cx="50" cy="50" r="40" fill="none" stroke="${s.color}" stroke-width="16" stroke-dasharray="${Math.max(0,len-0.6)} ${C}" stroke-dashoffset="${-off}"/>`;off+=len;return el;}).join('')}</svg><div class="c"><div><b>${inr(total)}</b><span>${secs.length} sections</span></div></div>`:'';
+  const maxT=Math.max(1,...ranked.map(o=>o.t));
+  let sec=null;
+  const list=items.map(it=>{const head=it.sec!==sec?(sec=it.sec,`</div><div class="qsec"><h4><span>${esc(it.sec)}</span><span>${inr(items.filter(i=>i.sec===it.sec&&!i.skip).reduce((a,i)=>a+i.price,0))}</span></h4>`):'';
+    return head+`<div class="qitem ${it.skip?'off':''}"><span>${esc(it.name)}${it.skip?' <span class="muted">(not in total)</span>':''}</span><span class="p">${inr(it.price)}${it.compared?(it.cheapest?'<small class="pos">✓ cheapest</small>':`<small class="neg">+${inr(it.diff)}</small>`):''}</span></div>`;}).join('');
+  $('vdBody').innerHTML=`<div class="vd-scroll">
+    <div class="vd-hero">
+      <button class="x" data-vclose title="Close">✕</button>
+      <div class="who"><div class="av" style="background:${colorFor(v.name)}">${esc(initials(v.name))}</div><div style="min-width:0"><h2>${esc(v.name)}</h2><div class="cat">${G.icon} ${esc(G.title)} quotation</div>${v.phone?`<div class="cat">📞 ${esc(v.phone)}</div>`:''}</div></div>
+      <div class="vd-total"><div><small>Total quotation</small><b>${inr(total)}</b></div>
+        <div class="vd-tags">${rank===0&&ranked.length>1?'<span>🏆 Cheapest</span>':rank>0?`<span>#${rank+1} of ${ranked.length}</span><span>+${inr(total-ranked[0].t)} vs cheapest</span>`:''}<span>${items.length} items priced</span>${D.cheapCount&&ranked.length>1?`<span>Cheapest on ${D.cheapCount}</span>`:''}</div></div>
+    </div>
+    <div class="vd-main">
+      ${secs.length?`<div class="card"><h2>Where the money goes</h2><p class="hint">Share of the total by section</p><div class="vd-chart"><div class="donut">${donut}</div><div class="leg">${secs.map(s=>`<div class="r"><i style="background:${s.color}"></i><span>${esc(s.name)}<span class="pc">${Math.round(s.amt/total*100)}%</span></span><b>${inr(s.amt)}</b></div>`).join('')}</div></div></div>`:''}
+      ${ranked.length>1?`<div class="card cmp"><h2>Compared with other ${esc(G.title.toLowerCase())}s</h2>${ranked.map(o=>`<div class="row ${o.x.id===vid?'me':''}"><span class="nm">${esc(o.x.name)}</span><div class="bar"><i style="width:${o.t/maxT*100}%"></i></div><span>${inr(o.t)}</span></div>`).join('')}</div>`:''}
+      <div class="card"><h2>Item-wise prices</h2>${items.length?`<div>${list}</div>`:'<div class="empty">No prices entered yet. Fill them in the Item-wise prices table.</div>'}</div>
+      <div class="card"><div class="head"><h2>Terms</h2><button class="btn sm soft" data-terms="${v.id}">Edit</button></div><div class="terms-grid">
+        <div><small>Advance</small><b>${tm.adv?inr(tm.adv):'—'}</b></div><div><small>Transport / GST incl.</small><b>${esc(tm.gst&&tm.gst!=='?'?tm.gst:'—')}</b></div>
+        <div style="grid-column:1/-1"><small>Setup / removal</small><b>${esc(tm.dates||'—')}</b></div><div style="grid-column:1/-1"><small>Notes</small>${esc(tm.note||'—')}</div></div></div>
+    </div></div>
+    <div class="vd-actions">${v.phone?`<a class="btn soft" href="tel:${esc(v.phone)}">📞 Call</a>`:''}<button class="btn wa" data-vimg="${v.id}">🖼 Image</button><button class="btn wa" data-shv="${v.id}">🟢 Text</button><button class="btn" data-book="${v.id}">✅ Book</button></div>`;
+  if(!$('vdlg').open)$('vdlg').showModal();
+  $('vdBody').querySelector('.vd-scroll').scrollTop=0;
+}
+$('vdlg').addEventListener('click',e=>{if(e.target===$('vdlg'))$('vdlg').close();});
+
+/* quote picture for WhatsApp */
+function ellip(x,t,w){if(x.measureText(t).width<=w)return t;while(t.length&&x.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…';}
+async function quoteImage(vid){
+  const D=vendorData(vid),{v,G,tm,items,secs,total,ranked,rank}=D;
+  try{await document.fonts.ready;}catch(e){}
+  const W=1080,P=64,F='"Hind Siliguri","Kohinoor Bangla","Noto Sans Bengali",Inter,system-ui,sans-serif';
+  const c=document.createElement('canvas');c.width=W;c.height=5000;const x=c.getContext('2d');
+  x.fillStyle='#faf6f1';x.fillRect(0,0,W,5000);
+  const g=x.createLinearGradient(0,0,W,420);g.addColorStop(0,'#c2410c');g.addColorStop(.5,'#9f1d22');g.addColorStop(1,'#5c0f13');x.fillStyle=g;x.fillRect(0,0,W,440);
+  x.fillStyle='rgba(255,255,255,.8)';x.font=`500 30px ${F}`;x.fillText(ellip(x,WTITLE()+' · '+G.title+' quotation',W-2*P),P,82);
+  x.fillStyle='#fff';x.font=`800 66px ${F}`;x.fillText(ellip(x,v.name,W-2*P),P,170);
+  if(v.phone){x.font=`500 32px ${F}`;x.fillStyle='rgba(255,255,255,.85)';x.fillText('📞 '+v.phone,P,224);}
+  x.fillStyle='rgba(255,255,255,.75)';x.font=`500 28px ${F}`;x.fillText('Total quotation',P,300);
+  x.fillStyle='#fff';x.font=`800 92px ${F}`;x.fillText(inr(total),P,392);
+  let tag=rank===0&&ranked.length>1?'🏆 Cheapest of '+ranked.length:rank>0?`#${rank+1} of ${ranked.length} · +${inr(total-ranked[0].t)}`:`${items.length} items priced`;
+  x.font=`600 28px ${F}`;const tw=x.measureText(tag).width+40;x.fillStyle='rgba(255,255,255,.18)';roundRect(x,W-P-tw,340,tw,56,28);x.fill();x.fillStyle='#fff';x.fillText(tag,W-P-tw+20,378);
+  let y=500;
+  const card=(h)=>{x.fillStyle='#fff';x.shadowColor='rgba(60,30,10,.08)';x.shadowBlur=24;roundRect(x,P-16,y-46,W-2*P+32,h,28);x.fill();x.shadowBlur=0;};
+  if(secs.length){
+    const n=Math.min(secs.length,8),h=150+n*78;card(h);
+    x.fillStyle='#1f1a17';x.font=`700 36px ${F}`;x.fillText('Where the money goes',P+10,y+6);y+=60;
+    // stacked bar
+    let bx=P+10;const bw=W-2*P-20;secs.forEach(s=>{const w=bw*s.amt/total;x.fillStyle=s.color;x.fillRect(bx,y-16,Math.max(0,w-3),22);bx+=w;});y+=48;
+    secs.slice(0,n).forEach(s=>{x.fillStyle=s.color;roundRect(x,P+10,y-24,26,26,7);x.fill();x.fillStyle='#1f1a17';x.font=`500 30px ${F}`;x.fillText(ellip(x,s.name,W-2*P-330),P+52,y);x.font=`700 30px ${F}`;const a=inr(s.amt);x.fillText(a,W-P-10-x.measureText(a).width,y);x.fillStyle='#7d6f63';x.font=`500 24px ${F}`;const pc=Math.round(s.amt/total*100)+'%';x.fillText(pc,W-P-170-x.measureText(pc).width,y);y+=78;});
+    y+=40;
+  }
+  if(items.length){
+    const maxLines=24;let lines=[];let sec=null;items.forEach(it=>{if(it.sec!==sec){sec=it.sec;lines.push({h:sec});}lines.push({it});});
+    const more=lines.length>maxLines?lines.length-maxLines:0;lines=lines.slice(0,maxLines);
+    const h=80+lines.reduce((a,l)=>a+(l.h?62:54),0)+(more?50:0);card(h);
+    x.fillStyle='#1f1a17';x.font=`700 36px ${F}`;x.fillText('Item-wise prices',P+10,y+6);y+=64;
+    lines.forEach(l=>{if(l.h){x.fillStyle='#9f1d22';x.font=`700 26px ${F}`;x.fillText(ellip(x,l.h,W-2*P-20),P+10,y+8);y+=62;return;}
+      const it=l.it;x.fillStyle=it.skip?'#a8998c':'#1f1a17';x.font=`500 28px ${F}`;x.fillText(ellip(x,it.name,W-2*P-300),P+10,y);
+      x.font=`700 28px ${F}`;const a=inr(it.price);x.fillText(a,W-P-10-x.measureText(a).width,y);
+      if(it.compared){x.font=`600 22px ${F}`;const t=it.cheapest?'✓ cheapest':'+'+inr(it.diff);x.fillStyle=it.cheapest?'#15803d':'#dc2626';x.fillText(t,W-P-180-x.measureText(t).width,y);}
+      y+=54;});
+    if(more){x.fillStyle='#7d6f63';x.font=`500 24px ${F}`;x.fillText(`…and ${more} more lines in the planner`,P+10,y);y+=50;}
+    y+=40;
+  }
+  const terms=[tm.adv&&['Advance',inr(tm.adv)],tm.gst&&tm.gst!=='?'&&['Transport/GST incl.',tm.gst],tm.dates&&['Setup / removal',tm.dates],tm.note&&['Notes',tm.note]].filter(Boolean);
+  if(terms.length){card(70+terms.length*52);x.fillStyle='#1f1a17';x.font=`700 34px ${F}`;x.fillText('Terms',P+10,y+4);y+=58;
+    terms.forEach(([k,val])=>{x.fillStyle='#7d6f63';x.font=`500 26px ${F}`;x.fillText(k,P+10,y);x.fillStyle='#1f1a17';x.font=`600 26px ${F}`;x.fillText(ellip(x,String(val),W-2*P-320),P+300,y);y+=52;});y+=40;}
+  x.fillStyle='#7d6f63';x.font=`500 24px ${F}`;const ft=`${WTITLE()} · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`;x.fillText(ft,(W-x.measureText(ft).width)/2,y+10);y+=50;
+  const out=document.createElement('canvas');out.width=W;out.height=y;out.getContext('2d').drawImage(c,0,0);
+  return out;
+}
+function roundRect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+async function shareQuoteImage(vid){
+  const v=S.vendors.find(x=>x.id===vid);toast('Creating image…');
+  const cv=await quoteImage(vid);const name=`quotation-${v.name.replace(/[^\w]+/g,'-')}.png`;
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));const file=new File([blob],name,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:`${GR(v.group).icon} ${v.name} — quotation ${inr(vendorTotal(vid))}`});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  toast('Image downloaded — attach it in WhatsApp');
+}
+
 /* ================= SHOPPING ================= */
 function renderShop(){
   const L=S.shop.lists;if(!L.some(l=>l.id===UI.sl))UI.sl=L[0]&&L[0].id;
@@ -816,7 +965,10 @@ function renderPay(){
 
 /* ================= EVENTS ================= */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('button,a,summary');if(!t)return;const d=t.dataset;
+  const t=e.target.closest('button,a,summary');if(!t){const vc=e.target.closest('[data-openv]');if(vc)openVendor(vc.dataset.openv);return;}const d=t.dataset;
+  if(d.openv)return openVendor(d.openv);
+  if(d.vclose!==undefined)return $('vdlg').close();
+  if(d.vimg)return shareQuoteImage(d.vimg);
   if(d.tab){UI.tab=d.tab;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b===t));document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+d.tab));$('fab').classList.toggle('on',['quotes','shop','pay'].includes(d.tab));window.scrollTo({top:0,behavior:'smooth'});return;}
   if(d.addv)return sheetVendor(d.addv);
   if(d.additem!==undefined)return sheetItem(UI.qg);
