@@ -283,6 +283,19 @@ dialog.pv{--bg:#0d0f14;--surface:#161a22;--surface2:#212632;--ink:#f2ede6;--mute
 .pv-item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .pv-item .grow{flex:1;min-width:0}
 .pv-thumb{width:42px;height:42px;border-radius:10px;object-fit:cover;flex:0 0 42px;border:0;padding:0;background:var(--surface2)}
+.sv-media{margin-top:0}
+.sv-gallery{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:700px){.sv-gallery{grid-template-columns:1fr 1fr}}
+.sv-ph{margin:0;border-radius:16px;overflow:hidden;background:var(--surface2);cursor:zoom-in;border:1px solid var(--line)}
+.sv-ph img{width:100%;display:block;max-height:560px;object-fit:cover}
+.ph-load{aspect-ratio:4/3;display:grid;place-items:center;color:var(--muted);font-size:22px}
+.sv-ph figcaption,.sv-media .cap{font-size:12.5px;color:var(--muted);padding:9px 12px}
+.sv-vid{border-radius:16px;overflow:hidden;background:var(--surface);margin-top:12px;border:1px solid var(--line)}
+.sv-vid video{width:100%;display:block;max-height:75vh;background:#000}
+.sv-play{width:100%;aspect-ratio:16/9;border:0;background:#111;color:#fff;font-size:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.sv-play small{font-size:13px;opacity:.8}
+.sv-doc{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px;background:var(--surface)}
+.sv-doc iframe{width:100%;height:560px;border:0;display:block;background:#fff;border-top:1px solid var(--line)}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -508,6 +521,7 @@ a.btn{text-decoration:none}
     </div>
     <div class="card">
       <h2>Reset</h2>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-d</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -888,15 +902,28 @@ function showSharedPayload(P,link){
   $('shareView').innerHTML=P?renderShareView(P)+`<p class="muted sv-note">Shared from ${esc(P.T||'WedPlanner')} · details as of ${P.dt?new Date(P.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</p>`
     :`<div class="card empty"><b>🔗</b>This link is not available. It may be incomplete, or it was just created — try again in a moment, or ask the sender to share again.</div>`;
   SVP=P;
-  if(P&&P.att&&P.att.length){const host=$('shareView').querySelector('.vd-main')||$('shareView');host.insertAdjacentHTML('beforeend',`<div class="card"><h2>📎 Attachments</h2><p class="hint">${P.att.length} file${P.att.length===1?'':'s'} · tap to open</p><div class="docs-grid">${P.att.map((a,i)=>`<div class="dtile"><button type="button" class="dthumb" data-satt="${i}">${a.k==='image'?'':`<span class="ic">${iconOf(a.k)}</span>`}${a.k==='video'?'<span class="play">▶</span>':''}</button><div class="dmeta"><b style="font-size:12.5px">${esc(a.g||'')}</b><small title="${esc(a.n)}">${esc(a.n)} · ${fmtSize(a.sz||0)}</small></div><div class="dact"><button type="button" class="x" data-sattdl="${i}" style="font-size:13px">⬇ Download</button></div></div>`).join('')}</div></div>`);
-    P.att.forEach((a,i)=>{if(a.k==='image')sattURL(i).then(u=>{const el=$('shareView').querySelector(`[data-satt="${i}"]`);if(u&&el){const im=document.createElement('img');im.src=u;im.alt='';el.prepend(im);}});});}
+  if(P&&P.att&&P.att.length){
+    const A=P.att.map((a,i)=>({...a,i})),imgs=A.filter(a=>a.k==='image'),vids=A.filter(a=>a.k==='video'),docs=A.filter(a=>a.k!=='image'&&a.k!=='video');
+    const cap=a=>`${a.g?`<b>${esc(a.g)}</b> · `:''}${esc(a.n)}${a.sz?' · '+fmtSize(a.sz):''}`;
+    const html=`<div class="card sv-media"><div class="head"><h2>📎 Attachments</h2><span class="muted">${[imgs.length&&imgs.length+' photo'+(imgs.length>1?'s':''),vids.length&&vids.length+' video'+(vids.length>1?'s':''),docs.length&&docs.length+' document'+(docs.length>1?'s':'')].filter(Boolean).join(' · ')}</span></div>
+      ${imgs.length?`<div class="sv-gallery">${imgs.map(a=>`<figure class="sv-ph" data-satt="${a.i}" title="Tap to enlarge"><div class="ph-load">⏳</div><figcaption>${cap(a)}</figcaption></figure>`).join('')}</div>`:''}
+      ${vids.map(a=>`<div class="sv-vid" data-vbox="${a.i}">${(a.sz||0)<=20e6?'<div class="ph-load" style="aspect-ratio:16/9;background:#111;color:#bbb">⏳ Loading video…</div>':`<button type="button" class="sv-play" data-vplay="${a.i}">▶<small>Tap to load video (${fmtSize(a.sz)})</small></button>`}<div class="cap">${cap(a)}</div></div>`).join('')}
+      ${docs.map(a=>`<div class="sv-doc"><div class="cap" style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span>${a.k==='pdf'?'📄':'📎'} ${cap(a)}</span><span class="tools"><button type="button" class="btn sm soft" data-satt="${a.i}">Open</button><button type="button" class="btn sm soft" data-sattdl="${a.i}">⬇ Download</button></span></div>${a.k==='pdf'&&innerWidth>=700?`<iframe data-pdf="${a.i}" title="${esc(a.n)}"></iframe>`:''}</div>`).join('')}
+    </div>`;
+    const vm=$('shareView').querySelector('.vd-main');(vm||$('shareView')).insertAdjacentHTML(vm?'afterend':'beforeend',html);
+    imgs.forEach(a=>sattURL(a.i).then(u=>{const el=$('shareView').querySelector(`figure[data-satt="${a.i}"]`);if(!el)return;const l=el.querySelector('.ph-load');if(u){const im=document.createElement('img');im.src=u;im.alt=a.n;im.loading='lazy';l.replaceWith(im);}else l.textContent='Could not load';}));
+    vids.forEach(a=>{if((a.sz||0)<=20e6)loadVid(a.i);});
+    docs.forEach(a=>{const fr=$('shareView').querySelector(`iframe[data-pdf="${a.i}"]`);if(fr)sattURL(a.i).then(u=>{if(u)fr.src=u;});});
+  }
   const ph=P&&(P.ph||'');
   $('svNav').innerHTML=`<button data-svshare><i>📤</i>Share</button>${ph?`<a href="tel:${esc(ph)}"><i>📞</i>Call</a>`:''}<button data-svprint><i>🖨</i>Save PDF</button><button data-svexit><i>🏠</i>WedPlanner</button>`;
   document.title=(P&&P.n?P.n+' — ':'')+kind+' · '+((P&&P.T)||'WedPlanner');
   window.scrollTo(0,0);
 }
+async function loadVid(i){const box=$('shareView').querySelector(`[data-vbox="${i}"]`);if(!box)return;const first=box.firstElementChild;first.outerHTML='<div class="ph-load" style="aspect-ratio:16/9;background:#111;color:#bbb">⏳ Loading video…</div>';
+  const u=await sattURL(i);const ph=box.firstElementChild;if(!u){ph.textContent='Could not load this video';return;}const v=document.createElement('video');v.src=u;v.controls=true;v.playsInline=true;v.preload='metadata';ph.replaceWith(v);}
 async function sattURL(i){if(SATT[i])return SATT[i];const a=SVP.att[i];try{const r=await fetch(SVRAW+a.f+'.bin',{cache:'no-store'});if(!r.ok)return null;const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u8(a.iv)},SVK,await r.arrayBuffer());SATT[i]=URL.createObjectURL(new Blob([pt],{type:a.ty||'application/octet-stream'}));return SATT[i];}catch(e){return null;}}
-$('shareView').addEventListener('click',async e=>{const t=e.target.closest('[data-satt],[data-sattdl]');if(!t||!SVP)return;const i=+(t.dataset.satt??t.dataset.sattdl),a=SVP.att[i];toast('Opening…');const u=await sattURL(i);if(!u)return toast('Could not load this file');
+$('shareView').addEventListener('click',async e=>{const vp=e.target.closest('[data-vplay]');if(vp)return loadVid(+vp.dataset.vplay);const t=e.target.closest('[data-satt],[data-sattdl]');if(!t||!SVP)return;const i=+(t.dataset.satt??t.dataset.sattdl),a=SVP.att[i];toast('Opening…');const u=await sattURL(i);if(!u)return toast('Could not load this file');
   if(t.dataset.sattdl!==undefined){const l=document.createElement('a');l.href=u;l.download=a.n;document.body.appendChild(l);l.click();l.remove();return;}
   if(a.k==='image'||a.k==='video')return viewMedia(u,a.k,a.n);const w=window.open(u,'_blank');if(!w){const l=document.createElement('a');l.href=u;l.download=a.n;l.click();}});
 function exitShared(){history.replaceState(null,'',location.pathname);document.body.classList.remove('viewmode');SVB=null;$('shareView').innerHTML='';render();}
@@ -933,13 +960,14 @@ async function makeLink(P,files=[]){
       const key=await crypto.subtle.importKey('raw',keyBytes,'AES-GCM',false,['encrypt']);
       const id=b64u(crypto.getRandomValues(new Uint8Array(6)));
       if(files.length){P.att=[];let k=0;
-        for(const f of files){k++;toast(`Uploading attachment ${k} of ${files.length}…`);
-          let blob=null;try{blob=await f.get();}catch(e){}if(!blob)continue;
+        for(const f of files){k++;toast(`Uploading attachment ${k} of ${files.length}${f.size>3e6?` (${fmtSize(f.size)})`:''}…`);
+          let blob=null;try{blob=await f.get();}catch(e){}
+          if(!blob){ATT_FAIL.push({n:f.name,why:'file not available on this device'+(f.ref?'':' — it was added on another device and has not finished uploading there')});continue;}
           const fiv=crypto.getRandomValues(new Uint8Array(12));
           const fct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:fiv},key,await blob.arrayBuffer()));
-          const fn=`${id}-${k}`;
-          const fr=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${fn}.bin`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({message:'share file',content:b64enc(fct)})});
-          if(fr.ok)P.att.push({n:f.name,ty:f.type,k:f.kind,g:f.tag,f:fn,iv:b64enc(fiv),sz:blob.size});
+          const fn=`${id}-${k}`;let fr=null,err='';
+          for(let tr=0;tr<2&&!(fr&&fr.ok);tr++){try{fr=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${fn}.bin`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({message:'share file',content:b64enc(fct)})});if(!fr.ok)err='GitHub error '+fr.status;}catch(e){err='upload interrupted (connection or file too large)';}}
+          if(fr&&fr.ok)P.att.push({n:f.name,ty:f.type,k:f.kind,g:f.tag,f:fn,iv:b64enc(fiv),sz:blob.size});else ATT_FAIL.push({n:f.name,why:err});
         }}
       const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(P))));
       const r=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${id}.json`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},
@@ -950,11 +978,11 @@ async function makeLink(P,files=[]){
   }
   return{link:shareLink(P),short:false};
 }
-let SHORT_FAIL=null;
+let SHORT_FAIL=null,ATT_FAIL=[];
 const waClean=t=>t.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/️/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/^ +/gm,'').trim();
 async function shareFlow(text,P,extra={}){
   toast('Preparing link…');
-  const files=extra.files||[];
+  const files=extra.files||[];ATT_FAIL=[];
   const {link,short}=await makeLink(P,files);
   if(files.length&&short)text=text.replace('\n\n➜',`\n📎 ${(P.att||[]).length} attachment${(P.att||[]).length===1?'':'s'} included\n\n➜`);
   const msg=waClean(text.replace('{LINK}',link));
@@ -962,6 +990,8 @@ async function shareFlow(text,P,extra={}){
   openSheet('Ready to share',`<div class="full">
     <div style="white-space:pre-wrap;background:var(--surface2);border-radius:14px;padding:12px;font-size:14px;max-height:240px;overflow:auto;word-break:break-word">${esc(msg)}</div>
     ${!short&&files.length?`<p class="muted" style="margin:10px 0 0">📎 Attachments can only be included with short links.</p>`:''}
+    ${short&&files.length?`<p class="muted" style="margin:10px 0 0">📎 Attachments included: <b>${(P.att||[]).length} of ${files.length}</b>${(P.att||[]).length?' — '+P.att.map(a=>esc(a.n)).join(', '):''}</p>`:''}
+    ${ATT_FAIL.length?`<p style="margin:8px 0 0;color:var(--bad);font-size:13px">⚠️ Not included:<br>${ATT_FAIL.map(f=>`• ${esc(f.n)} — ${esc(f.why)}`).join('<br>')}</p>`:''}
     ${!short?`<p class="muted" style="margin:10px 0 0">ℹ️ Long link used — ${syOn()?`short links need a public repo named <b>${SHARE_REPO}</b> that your token can write to (see More → Short share links).`:'connect GitHub auto-save to get short links.'}</p>`:''}
     <div class="tools" style="margin-top:12px">
       <a class="btn wa" href="${wa}" target="_blank" rel="noopener">🟢 Send on WhatsApp</a>
@@ -1002,7 +1032,7 @@ function shopText(lid){const l=S.shop.lists.find(x=>x.id===lid),it=S.shop.items.
   return `*${l.title}* — shopping list\n${todo.length} of ${it.length} items still to buy\n\n➜ View list:\n{LINK}`;}
 function waShare(text){const w=window.open('https://wa.me/?text='+encodeURIComponent(waClean(text)),'_blank');if(!w)location.href='https://wa.me/?text='+encodeURIComponent(waClean(text));}
 async function sharePayment(pid){const p=S.payments.find(x=>x.id===pid);const im=imgOf(p);return shareFlow(paymentText(p),paymentPayload(p),{img:im,files:im?[{name:`payment-${p.date||''}.jpg`,type:'image/jpeg',kind:'image',tag:'Payment proof',get:async()=>(await fetch(im)).blob()}]:[]});}
-const shareFiles=own=>(S.files||[]).filter(f=>f.own===own).map(f=>({name:f.name,type:f.type,kind:f.kind,tag:f.tag,get:()=>fileBlob(f)}));
+const shareFiles=own=>(S.files||[]).filter(f=>f.own===own).map(f=>({name:f.name,type:f.type,kind:f.kind,tag:f.tag,size:f.size,ref:f.ref,get:()=>fileBlob(f)}));
 
 /* ================= VENDOR DETAIL ================= */
 const SEC_COLORS=['#9f1d22','#d4a03a','#c2410c','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#2563eb','#0f766e','#b45309','#6b7280','#4d7c0f','#9333ea'];
