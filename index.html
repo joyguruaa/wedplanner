@@ -521,7 +521,7 @@ a.btn{text-decoration:none}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-d</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-e</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -916,7 +916,7 @@ function showSharedPayload(P,link){
     docs.forEach(a=>{const fr=$('shareView').querySelector(`iframe[data-pdf="${a.i}"]`);if(fr)sattURL(a.i).then(u=>{if(u)fr.src=u;});});
   }
   const ph=P&&(P.ph||'');
-  $('svNav').innerHTML=`<button data-svshare><i>📤</i>Share</button>${ph?`<a href="tel:${esc(ph)}"><i>📞</i>Call</a>`:''}<button data-svprint><i>🖨</i>Save PDF</button><button data-svexit><i>🏠</i>WedPlanner</button>`;
+  $('svNav').innerHTML=`<button data-svshare><i>📤</i>Share</button><button data-svprint><i>🖨</i>Save PDF</button>`;
   document.title=(P&&P.n?P.n+' — ':'')+kind+' · '+((P&&P.T)||'WedPlanner');
   window.scrollTo(0,0);
 }
