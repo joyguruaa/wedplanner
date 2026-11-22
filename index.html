@@ -867,7 +867,7 @@ function renderShareView(P){
      <div class="card"><h2>Payments</h2>${P.ps.length?`<div class="list">${P.ps.map(x=>`<div class="item"><div class="av" style="background:var(--good)">₹</div><div class="grow"><div class="nm">${inr(x[1])}</div><div class="meta">${fmtDate(x[0])} · ${esc(x[2])}${x[3]?' · '+esc(x[3]):''}${x[4]?' · '+esc(x[4]):''}</div></div></div>`).join('')}</div>`:'<div class="empty">No payments yet.</div>'}</div></div>`;}
   if(P.t==='p'){const tags=P.b?(P.b[0]-P.b[1]>0?`<span>Balance ${inr(P.b[0]-P.b[1])}</span>`:'<span>✅ Fully paid</span>'):'';
     return hero('💸','Payment made',`to ${esc(P.to)}`,inr(P.amt),'Amount paid',tags)+
-    `<div class="vd-main"><div class="card"><div class="terms-grid"><div><small>Paid to</small><b>${esc(P.to)}</b></div><div><small>Date</small><b>${fmtDate(P.d)}</b></div><div><small>Mode</small><b>${esc(P.m)}</b></div><div><small>Paid by</small><b>${esc(P.by||'—')}</b></div>${P.no?`<div style="grid-column:1/-1"><small>Note</small>${esc(P.no)}</div>`:''}<div style="grid-column:1/-1"><small>Proof</small>${P.pf?'📎 Screenshot saved in the planner':'—'}</div></div></div>
+    `<div class="vd-main"><div class="card"><div class="terms-grid"><div><small>Paid to</small><b>${esc(P.to)}</b></div><div><small>Date</small><b>${fmtDate(P.d)}</b></div><div><small>Mode</small><b>${esc(P.m)}</b></div><div><small>Paid by</small><b>${esc(P.by||'—')}</b></div>${P.no?`<div style="grid-column:1/-1"><small>Note</small>${esc(P.no)}</div>`:''}<div style="grid-column:1/-1"><small>Proof</small>${P.att&&P.att.length?'📎 Screenshot attached below':P.pf?'📎 Screenshot saved in the planner':'—'}</div></div></div>
      ${P.b?`<div class="card"><h2>${esc(P.to)} — overall</h2>${prog(P.b[1],P.b[0])}<div class="kv" style="margin-top:10px"><div><small>Agreed</small><strong>${inr(P.b[0])}</strong></div><div><small>Paid so far</small><strong class="pos">${inr(P.b[1])}</strong></div></div></div>`:''}</div>`;}
   if(P.t==='s'){const est=P.it.reduce((a,x)=>a+x[2],0),sp=P.it.filter(x=>x[4]).reduce((a,x)=>a+(x[3]||x[2]),0),done=P.it.filter(x=>x[4]).length;
     return hero(P.i,P.n,'Shopping list',`${done} / ${P.it.length}`,'Items bought',`<span>Est. ${inr(est)}</span><span>Spent ${inr(sp)}</span>`)+
@@ -879,7 +879,7 @@ function renderShareView(P){
   return '<div class="card empty">Unknown link.</div>';
 }
 /* ---------- shared page (recipient) ---------- */
-let SVB=null;
+let SVB=null,SVK=null,SVRAW='',SVP=null;const SATT={};
 function showSharedPayload(P,link){
   document.body.classList.add('viewmode');
   SVB=P?{title:P.T||'WedPlanner',sub:P.ST||''}:null;applyBrand();
@@ -887,11 +887,18 @@ function showSharedPayload(P,link){
   $('svTag').innerHTML=P?`<span>🔗 ${kind}</span><span>Read-only</span>${P.dt?`<span>${new Date(P.dt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>`:''}`:'';
   $('shareView').innerHTML=P?renderShareView(P)+`<p class="muted sv-note">Shared from ${esc(P.T||'WedPlanner')} · details as of ${P.dt?new Date(P.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</p>`
     :`<div class="card empty"><b>🔗</b>This link is not available. It may be incomplete, or it was just created — try again in a moment, or ask the sender to share again.</div>`;
+  SVP=P;
+  if(P&&P.att&&P.att.length){const host=$('shareView').querySelector('.vd-main')||$('shareView');host.insertAdjacentHTML('beforeend',`<div class="card"><h2>📎 Attachments</h2><p class="hint">${P.att.length} file${P.att.length===1?'':'s'} · tap to open</p><div class="docs-grid">${P.att.map((a,i)=>`<div class="dtile"><button type="button" class="dthumb" data-satt="${i}">${a.k==='image'?'':`<span class="ic">${iconOf(a.k)}</span>`}${a.k==='video'?'<span class="play">▶</span>':''}</button><div class="dmeta"><b style="font-size:12.5px">${esc(a.g||'')}</b><small title="${esc(a.n)}">${esc(a.n)} · ${fmtSize(a.sz||0)}</small></div><div class="dact"><button type="button" class="x" data-sattdl="${i}" style="font-size:13px">⬇ Download</button></div></div>`).join('')}</div></div>`);
+    P.att.forEach((a,i)=>{if(a.k==='image')sattURL(i).then(u=>{const el=$('shareView').querySelector(`[data-satt="${i}"]`);if(u&&el){const im=document.createElement('img');im.src=u;im.alt='';el.prepend(im);}});});}
   const ph=P&&(P.ph||'');
   $('svNav').innerHTML=`<button data-svshare><i>📤</i>Share</button>${ph?`<a href="tel:${esc(ph)}"><i>📞</i>Call</a>`:''}<button data-svprint><i>🖨</i>Save PDF</button><button data-svexit><i>🏠</i>WedPlanner</button>`;
   document.title=(P&&P.n?P.n+' — ':'')+kind+' · '+((P&&P.T)||'WedPlanner');
   window.scrollTo(0,0);
 }
+async function sattURL(i){if(SATT[i])return SATT[i];const a=SVP.att[i];try{const r=await fetch(SVRAW+a.f+'.bin',{cache:'no-store'});if(!r.ok)return null;const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u8(a.iv)},SVK,await r.arrayBuffer());SATT[i]=URL.createObjectURL(new Blob([pt],{type:a.ty||'application/octet-stream'}));return SATT[i];}catch(e){return null;}}
+$('shareView').addEventListener('click',async e=>{const t=e.target.closest('[data-satt],[data-sattdl]');if(!t||!SVP)return;const i=+(t.dataset.satt??t.dataset.sattdl),a=SVP.att[i];toast('Opening…');const u=await sattURL(i);if(!u)return toast('Could not load this file');
+  if(t.dataset.sattdl!==undefined){const l=document.createElement('a');l.href=u;l.download=a.n;document.body.appendChild(l);l.click();l.remove();return;}
+  if(a.k==='image'||a.k==='video')return viewMedia(u,a.k,a.n);const w=window.open(u,'_blank');if(!w){const l=document.createElement('a');l.href=u;l.download=a.n;l.click();}});
 function exitShared(){history.replaceState(null,'',location.pathname);document.body.classList.remove('viewmode');SVB=null;$('shareView').innerHTML='';render();}
 $('svNav').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
   if(t.dataset.svexit!==undefined)return exitShared();
@@ -908,7 +915,7 @@ async function openSharedHash(){
   const url=`https://raw.githubusercontent.com/${owner}/${SHARE_REPO}/main/s/${m[1]}.json`;
   let P=null;
   for(let k=0;k<4&&!P;k++){try{const r=await fetch(url+'?t='+Date.now(),{cache:'no-store'});if(r.ok){const j=await r.json();
-      const key=await crypto.subtle.importKey('raw',u8(m[2].replace(/-/g,'+').replace(/_/g,'/')+'=='),'AES-GCM',false,['decrypt']);
+      const key=await crypto.subtle.importKey('raw',u8(m[2].replace(/-/g,'+').replace(/_/g,'/')+'=='),'AES-GCM',false,['decrypt']);SVK=key;SVRAW=url.replace(/s\/[^/]+\.json$/,'s/');
       const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u8(j.iv)},key,u8(j.ct));P=JSON.parse(new TextDecoder().decode(pt));}}catch(e){}
     if(!P)await new Promise(r=>setTimeout(r,2500));}
   showSharedPayload(P);return true;
@@ -918,14 +925,23 @@ window.addEventListener('hashchange',()=>{if(/^#(v|s)=/.test(location.hash))open
 /* ---------- short links (encrypted snapshot in a public repo) ---------- */
 const SHARE_REPO='wedplanner-share';
 const b64u=bytes=>b64enc(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-async function makeLink(P){
+async function makeLink(P,files=[]){
   P.T=WTITLE();P.ST=(S.brand&&S.brand.sub)||'';P.dt=Date.now();
   if(syOn()&&window.crypto&&crypto.subtle){
     try{
       const keyBytes=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
       const key=await crypto.subtle.importKey('raw',keyBytes,'AES-GCM',false,['encrypt']);
-      const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(P))));
       const id=b64u(crypto.getRandomValues(new Uint8Array(6)));
+      if(files.length){P.att=[];let k=0;
+        for(const f of files){k++;toast(`Uploading attachment ${k} of ${files.length}…`);
+          let blob=null;try{blob=await f.get();}catch(e){}if(!blob)continue;
+          const fiv=crypto.getRandomValues(new Uint8Array(12));
+          const fct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:fiv},key,await blob.arrayBuffer()));
+          const fn=`${id}-${k}`;
+          const fr=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${fn}.bin`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({message:'share file',content:b64enc(fct)})});
+          if(fr.ok)P.att.push({n:f.name,ty:f.type,k:f.kind,g:f.tag,f:fn,iv:b64enc(fiv),sz:blob.size});
+        }}
+      const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(P))));
       const r=await fetch(`https://api.github.com/repos/${encodeURIComponent(SY.owner)}/${SHARE_REPO}/contents/s/${id}.json`,{method:'PUT',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},
         body:JSON.stringify({message:'share',content:b64enc(JSON.stringify({v:1,iv:b64enc(iv),ct:b64enc(ct)}))})});
       if(r.ok)return{link:`${shareBase()}#s=${id}${b64u(keyBytes)}`,short:true};
@@ -938,11 +954,14 @@ let SHORT_FAIL=null;
 const waClean=t=>t.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/️/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/^ +/gm,'').trim();
 async function shareFlow(text,P,extra={}){
   toast('Preparing link…');
-  const {link,short}=await makeLink(P);
+  const files=extra.files||[];
+  const {link,short}=await makeLink(P,files);
+  if(files.length&&short)text=text.replace('\n\n➜',`\n📎 ${(P.att||[]).length} attachment${(P.att||[]).length===1?'':'s'} included\n\n➜`);
   const msg=waClean(text.replace('{LINK}',link));
   const wa='https://wa.me/?text='+encodeURIComponent(msg);
   openSheet('Ready to share',`<div class="full">
     <div style="white-space:pre-wrap;background:var(--surface2);border-radius:14px;padding:12px;font-size:14px;max-height:240px;overflow:auto;word-break:break-word">${esc(msg)}</div>
+    ${!short&&files.length?`<p class="muted" style="margin:10px 0 0">📎 Attachments can only be included with short links.</p>`:''}
     ${!short?`<p class="muted" style="margin:10px 0 0">ℹ️ Long link used — ${syOn()?`short links need a public repo named <b>${SHARE_REPO}</b> that your token can write to (see More → Short share links).`:'connect GitHub auto-save to get short links.'}</p>`:''}
     <div class="tools" style="margin-top:12px">
       <a class="btn wa" href="${wa}" target="_blank" rel="noopener">🟢 Send on WhatsApp</a>
@@ -982,7 +1001,8 @@ function paymentText(p){
 function shopText(lid){const l=S.shop.lists.find(x=>x.id===lid),it=S.shop.items.filter(i=>i.list===lid),todo=it.filter(i=>!i.done);
   return `*${l.title}* — shopping list\n${todo.length} of ${it.length} items still to buy\n\n➜ View list:\n{LINK}`;}
 function waShare(text){const w=window.open('https://wa.me/?text='+encodeURIComponent(waClean(text)),'_blank');if(!w)location.href='https://wa.me/?text='+encodeURIComponent(waClean(text));}
-async function sharePayment(pid){const p=S.payments.find(x=>x.id===pid);const im=imgOf(p);return shareFlow(paymentText(p),paymentPayload(p),{img:im});}
+async function sharePayment(pid){const p=S.payments.find(x=>x.id===pid);const im=imgOf(p);return shareFlow(paymentText(p),paymentPayload(p),{img:im,files:im?[{name:`payment-${p.date||''}.jpg`,type:'image/jpeg',kind:'image',tag:'Payment proof',get:async()=>(await fetch(im)).blob()}]:[]});}
+const shareFiles=own=>(S.files||[]).filter(f=>f.own===own).map(f=>({name:f.name,type:f.type,kind:f.kind,tag:f.tag,get:()=>fileBlob(f)}));
 
 /* ================= VENDOR DETAIL ================= */
 const SEC_COLORS=['#9f1d22','#d4a03a','#c2410c','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#2563eb','#0f766e','#b45309','#6b7280','#4d7c0f','#9333ea'];
@@ -1342,9 +1362,9 @@ document.addEventListener('click',e=>{
   if(d.delpay){const id=d.delpay;return ask('Delete this payment?').then(()=>{S.payments=S.payments.filter(p=>p.id!==id);save();render();toast('Deleted');});}
   if(d.chip){UI.payFilter=d.chip;renderPay();}
   if(d.view)return viewProof(d.view);
-  if(d.shv)return shareFlow(quoteText(d.shv),quotePayload(d.shv));
+  if(d.shv)return shareFlow(quoteText(d.shv),quotePayload(d.shv),{files:shareFiles('v:'+d.shv)});
   if(d.shq)return shareFlow(compareText(d.shq),comparePayload(d.shq));
-  if(d.shb)return shareFlow(bookingText(d.shb),bookingPayload(d.shb));
+  if(d.shb){const b=S.bookings.find(x=>x.id===d.shb);return shareFlow(bookingText(d.shb),bookingPayload(d.shb),{files:shareFiles(bookOwn(b))});}
   if(d.shs)return shareFlow(shopText(d.shs),shopPayload(d.shs));
   if(d.shp)return sharePayment(d.shp);
   if(d.sl){UI.sl=d.sl;renderShop();return;}
