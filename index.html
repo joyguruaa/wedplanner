@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#9f1d22">
+<meta name="theme-color" content="#8E0A22">
 <title>বিয়ের হিসাব — Wedding Planner</title>
 <link rel="icon" id="favicon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#faf6f1;--surface:#ffffff;--surface2:#f5ede4;--ink:#1f1a17;--muted:#7d6f63;--line:#ece2d7;
@@ -253,8 +253,8 @@ dialog.vd[open]{display:flex;flex-direction:column}
 #shareView{display:none;max-width:1200px;margin:-44px auto 0;padding:0 14px 20px;position:relative;z-index:2}
 body.viewmode #shareView{display:block}
 body.viewmode main,body.viewmode nav.bottom:not(.sv-nav),body.viewmode .fab,body.viewmode #countdown,body.viewmode #syncBtn{display:none!important}
-.sv-nav{display:none}
-body.viewmode .sv-nav{display:flex}
+nav.bottom.sv-nav{display:none}
+body.viewmode nav.bottom.sv-nav{display:flex}
 .sv-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 8px;border-radius:12px;flex:1;max-width:110px;text-decoration:none}
 .sv-nav a i{font-style:normal;font-size:20px;line-height:1}
 .sv-tag{display:none;margin:14px auto 0;max-width:1200px;position:relative;z-index:1}
@@ -296,6 +296,34 @@ dialog.pv{--bg:#0d0f14;--surface:#161a22;--surface2:#212632;--ink:#f2ede6;--mute
 .sv-play small{font-size:13px;opacity:.8}
 .sv-doc{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px;background:var(--surface)}
 .sv-doc iframe{width:100%;height:560px;border:0;display:block;background:#fff;border-top:1px solid var(--line)}
+.rem{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.rem.late{border-color:var(--bad);background:var(--badbg)}
+.rem.soon{border-color:var(--gold)}
+.rem.done{opacity:.55}.rem.done .nm{text-decoration:line-through}
+.rem .chk{width:22px;height:22px;flex:0 0 22px}
+.rem .grow{flex:1;min-width:0}
+.rem .when{font-size:12.5px;color:var(--muted)}
+.rem.late .when{color:var(--bad);font-weight:600}
+.rem .acts{display:flex;gap:2px}
+.bell{position:relative}
+.bell.has::after{content:attr(data-count);position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#F6C453;color:#5B0A1A;font-size:11.5px;font-weight:800;display:grid;place-items:center;border:2px solid #8E0A22}
+body.viewmode .bell{display:none}
+.rgrp{margin-top:12px}
+.rgh{font-size:13px;font-weight:700;color:var(--muted);margin:0 2px 6px;display:flex;gap:6px;align-items:center}
+.rgh span{background:var(--surface2);border-radius:99px;padding:0 8px;font-weight:600}
+.rgh.neg{color:var(--bad)}
+.rem{transition:background .2s}
+.rem.urgent{border-left:4px solid var(--brand)}
+.rem .pri{display:inline-block;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:2px}
+.feedbox{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;margin-top:12px;background:linear-gradient(135deg,rgba(232,163,23,.14),rgba(181,18,43,.05));border:1px dashed rgba(232,163,23,.6);flex-wrap:wrap}
+.feedbox.ok{border-style:solid;border-color:rgba(19,122,69,.35);background:var(--goodbg)}
+.feedbox .grow{flex:1 1 200px;min-width:0}
+.feedbox .when,.sugrow .when{font-size:12.5px;color:var(--muted)}
+.rsug{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.sugrow{display:flex;gap:10px;align-items:center;padding:9px 0}
+.sugrow .grow{flex:1;min-width:0}
+.qchips2{display:flex;gap:6px;flex-wrap:wrap}
+.qchips2 .chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -361,6 +389,80 @@ a.btn{text-decoration:none}
 @media(min-width:1300px){
   #shopBody .list{grid-template-columns:1fr 1fr 1fr}
 }
+
+/* ===================== LAAL-PAAR THEME ===================== */
+:root{--bg:#FBF6F5;--surface:#FFFFFF;--surface2:#F7EDEB;--ink:#22161A;--muted:#7A666B;--line:#EFDFDC;
+  --brand:#B5122B;--brand-2:#7A0019;--gold:#E8A317;--good:#137A45;--goodbg:#E2F4E9;--bad:#C21D2F;--badbg:#FDE9EB;
+  --shadow:0 1px 0 rgba(122,0,25,.03),0 10px 24px -14px rgba(122,0,25,.28);--r:20px;
+  --font:"Hind Siliguri","Inter",system-ui,-apple-system,sans-serif;--display:"Tiro Bangla","Hind Siliguri",Georgia,serif;
+  --alpana:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='1.3'%3E%3Ccircle cx='60' cy='60' r='7'/%3E%3Ccircle cx='60' cy='60' r='13'/%3E%3Ccircle cx='60' cy='60' r='38' stroke-dasharray='2 5'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(0 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(45 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(90 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(135 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(180 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(225 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(270 60 60)'/%3E%3Cpath d='M60 24c7 9 7 17 0 24c-7-7-7-15 0-24z' transform='rotate(315 60 60)'/%3E%3Ccircle cx='60.0' cy='30.0' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='71.5' cy='32.3' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='81.2' cy='38.8' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='87.7' cy='48.5' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='90.0' cy='60.0' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='87.7' cy='71.5' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='81.2' cy='81.2' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='71.5' cy='87.7' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='60.0' cy='90.0' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='48.5' cy='87.7' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='38.8' cy='81.2' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='32.3' cy='71.5' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='30.0' cy='60.0' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='32.3' cy='48.5' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='38.8' cy='38.8' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Ccircle cx='48.5' cy='32.3' r='1.6' fill='%23fff' fill-opacity='.22' stroke='none'/%3E%3Cpath d='M0 -7l7 7-7 7-7-7z'/%3E%3Cpath d='M120 -7l7 7-7 7-7-7z'/%3E%3Cpath d='M0 113l7 7-7 7-7-7z'/%3E%3Cpath d='M120 113l7 7-7 7-7-7z'/%3E%3C/g%3E%3C/svg%3E")}
+[data-theme="dark"]{--bg:#160B0E;--surface:#21131A;--surface2:#2C1B22;--ink:#F8EDEA;--muted:#B8A2A7;--line:#3A252D;--goodbg:#10301F;--badbg:#3A1219;--good:#5AD08E;--bad:#FF7A85;--shadow:0 1px 0 rgba(255,255,255,.03)}
+body{font-family:var(--font);letter-spacing:.005em}
+/* header: alpana + saree border */
+.top{background:var(--alpana) 0 0/120px 120px,linear-gradient(165deg,#C2142F 0%,#8E0A22 55%,#5B0A1A 100%);padding-top:28px}
+.top::after{display:none}
+.top::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;z-index:3;
+  background:radial-gradient(circle at 8px 6px,#F6C453 2.1px,transparent 2.6px) 0 0/16px 12px repeat-x,
+             linear-gradient(#F6C453 0 1.5px,#5B0A1A 1.5px 10.5px,#F6C453 10.5px 12px)}
+.top.has-banner{background:linear-gradient(180deg,rgba(91,10,26,.30),rgba(91,10,26,.82)),var(--banner) center/cover no-repeat}
+.top h1{font-family:var(--display);font-weight:400;font-size:clamp(26px,6.4vw,38px);letter-spacing:0;line-height:1.1}
+.top .sub{font-size:clamp(13px,3.4vw,15px);opacity:.92}
+.logo{border:2px solid #F6C453;box-shadow:0 0 0 4px rgba(246,196,83,.18),0 8px 20px rgba(0,0,0,.25)}
+.icon-btn{background:rgba(255,255,255,.12);border-color:rgba(246,196,83,.45);border-radius:14px}
+.cd{background:rgba(255,255,255,.10);border:1px solid rgba(246,196,83,.35);border-radius:16px}
+.cd b{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.1}
+.cd span{letter-spacing:.02em}
+/* type */
+.card h2,.sheet h3,.vd-hero h2{font-family:var(--display);font-weight:400;letter-spacing:0}
+.card h2{font-size:20px;line-height:1.25}
+.sheet h3{font-size:22px}
+.kv strong,.vd-total b,.vcard .tot,.ring .c b,.donut .c b,.pv-big b,.sumgrid strong{font-family:var(--display);font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:0}
+.kv strong{font-size:clamp(18px,4.6vw,24px)}
+.vcard .tot{font-size:28px}
+.vd-total b{font-size:42px}
+.item .amt,.qitem .p,.cmp .row>span:last-child{font-variant-numeric:tabular-nums}
+/* surfaces: quiet cards, hierarchy by radius */
+.card{border:1px solid var(--line);box-shadow:var(--shadow);border-radius:22px}
+.kv div,.sumgrid div,.terms-grid div{background:var(--surface2);border-radius:14px}
+.item,.rem,.sitem,.vcard,.dtile,.pv-item{border-radius:14px;border-color:var(--line)}
+.vcard{padding:16px}
+.vcard.win{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,163,23,.18)}
+.pill.gold{background:rgba(232,163,23,.16);color:#8A5A00}
+details.sec{border-radius:14px}details.sec summary{background:var(--surface2);font-weight:600}
+.best-mix{background:linear-gradient(135deg,rgba(232,163,23,.16),rgba(181,18,43,.06));border:1px solid rgba(232,163,23,.35)}
+/* hero card on home gets the saree edge */
+#tab-home>.card:first-child{position:relative;overflow:hidden;padding-top:22px}
+#tab-home>.card:first-child::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(#B5122B 0 4px,#E8A317 4px 6px)}
+/* ring colours */
+.track .a{background:linear-gradient(90deg,#E8A317,#F6C453);opacity:.6}
+.track .p{background:linear-gradient(90deg,#B5122B,#7A0019)}
+/* buttons */
+.btn{border-radius:12px;font-weight:600;background:var(--brand);box-shadow:0 6px 14px -8px rgba(181,18,43,.7)}
+.btn.soft{background:var(--surface2);color:var(--ink);box-shadow:none}
+.btn.line{box-shadow:none}
+.btn.wa{background:#1FAF5A;color:#fff;box-shadow:0 6px 14px -8px rgba(31,175,90,.7)}
+.btn:focus-visible,.chip:focus-visible,nav.bottom button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.chip{border-radius:999px;border-color:var(--line);font-weight:500}
+.chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.qchips .chip{box-shadow:0 4px 12px -8px rgba(122,0,25,.35)}
+.fab{background:linear-gradient(140deg,#F6C453,#E8A317);color:#5B0A1A;border-radius:20px;box-shadow:0 12px 26px -10px rgba(232,163,23,.9)}
+/* bottom nav: maroon with marigold active */
+nav.bottom{background:#5B0A1A;border-top:2px solid #E8A317;backdrop-filter:none}
+nav.bottom button,nav.bottom a{color:rgba(255,236,226,.72)}
+nav.bottom button.on{background:#E8A317;color:#3D0711;font-weight:700}
+[data-theme="dark"] nav.bottom button.on{color:#3D0711}
+@media(min-width:900px){nav.bottom{border:1.5px solid #E8A317;border-top-width:1.5px;padding:6px;bottom:16px;box-shadow:0 18px 40px -18px rgba(91,10,26,.8)}}
+/* detail heroes match the header */
+.vd-hero{background:var(--alpana) 0 0/120px 120px,linear-gradient(165deg,#C2142F 0%,#8E0A22 55%,#5B0A1A 100%)}
+.vd-hero .vd-tags span,.vd-tags span{border-color:rgba(246,196,83,.4)}
+.sv-tag span{background:rgba(255,255,255,.12);border:1px solid rgba(246,196,83,.4);padding:4px 11px;border-radius:99px;font-size:12.5px;color:#fff}
+/* dialogs */
+dialog{border-radius:26px 26px 0 0}
+@media(min-width:700px){dialog{border-radius:26px}}
+.sheet .grab{background:var(--gold);opacity:.6}
+label.f input,label.f select,label.f textarea{border-radius:12px}
+.toast{background:#3D0711;color:#FFF3E6;border:1px solid rgba(246,196,83,.5)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{nav.bottom,.fab,.top .icon-btn,.tools,.x,.btn{display:none!important}section.tab{display:block!important}body{padding:0}}
 </style>
 </head>
@@ -375,7 +477,7 @@ a.btn{text-decoration:none}
         <div class="sub" id="brandSub">২৫–২৭ জানুয়ারি ২০২৭ · হানুয়া অধিকারী পাড়া</div>
       </div>
     </div>
-    <div style="display:flex;gap:8px"><button class="icon-btn" id="syncBtn" title="GitHub sync">☁️</button><button class="icon-btn" id="themeBtn" title="Theme">🌙</button></div>
+    <div style="display:flex;gap:8px"><button class="icon-btn bell" id="bellBtn" title="Reminders">🔔</button><button class="icon-btn" id="syncBtn" title="GitHub sync">☁️</button><button class="icon-btn" id="themeBtn" title="Theme">🌙</button></div>
   </div>
   <div class="countdown" id="countdown"></div>
   <div class="vd-tags sv-tag" id="svTag"></div>
@@ -391,6 +493,7 @@ a.btn{text-decoration:none}
       </div>
       <div id="proj" class="best-mix" style="margin-top:14px"></div>
     </div>
+    <div class="card" id="remCard"></div>
     <div class="two">
       <div class="card">
         <div class="head"><h2>Spending by category</h2><span class="muted">gold = cost · red = paid</span></div>
@@ -521,7 +624,7 @@ a.btn{text-decoration:none}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-e</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-h</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -646,6 +749,7 @@ function migrate(){
   if(!S.groups)S.groups=[];
   if(!S.shop)S.shop=mkShop();
   if(!S.files)S.files=[];
+  if(!S.rem)S.rem=[];
   DEFAULT_GROUPS.forEach(dg=>{if(!S.groups.some(x=>x.id===dg.id))S.groups.splice(DEFAULT_GROUPS.indexOf(dg),0,{...dg});});
   if(!S.items.some(i=>!i.g&&i.name===PACKAGE_ITEM))S.items.push({id:uid(),sec:'অন্যান্য',name:PACKAGE_ITEM,skip:true});
   if(!S.items.some(i=>i.g==='photo'))S.items.push(...mkItems(PHOTO_ITEMS,'photo'));
@@ -653,7 +757,7 @@ function migrate(){
 }
 migrate();
 const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){toast('⚠️ Storage full — download a backup and remove some old screenshots');return false;}};
-const save=()=>{S.updatedAt=Date.now();const ok=saveLocal();if(typeof markDirty==='function')markDirty();return ok;};
+const save=()=>{S.updatedAt=Date.now();const ok=saveLocal();if(typeof markDirty==='function')markDirty();if(typeof feedSchedule==='function')setTimeout(feedSchedule,0);return ok;};
 saveLocal();
 
 /* ================= HELPERS ================= */
@@ -809,7 +913,7 @@ function renderQuote(g){
       <div style="display:flex;gap:10px;align-items:center"><div class="av" style="background:${colorFor(v.name)}">${esc(initials(v.name))}</div><div style="min-width:0"><div class="nm" style="font-weight:600">${esc(v.name)}</div><div class="muted">${n} items priced${bm.wins[v.id]?` · cheapest on ${bm.wins[v.id]}`:''}</div></div></div>
       <div class="tot">${inr(t)}</div>
       <div class="muted">${v.phone?`📞 ${esc(v.phone)} · `:''}${tm.adv?`Advance ${inr(tm.adv)} · `:''}${tm.gst&&tm.gst!=='?'?`Transport/GST incl: ${esc(tm.gst)}`:'Terms not added'}${tm.dates?` · ${esc(tm.dates)}`:''}${tm.note?` · ${esc(tm.note)}`:''}${docCount('v:'+v.id)?` · 📎 ${docCount('v:'+v.id)}`:''}</div>
-      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm" data-openv="${v.id}">📄 Details</button><button class="btn sm wa" data-shv="${v.id}" title="Share this quotation on WhatsApp">🟢 Share</button><button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
+      <div class="act">${v.phone?`<a class="btn sm soft" href="tel:${esc(v.phone)}">📞</a><a class="btn sm soft" target="_blank" href="https://wa.me/91${esc(String(v.phone).replace(/\D/g,'').slice(-10))}">💬</a>`:''}<button class="btn sm soft" data-openv="${v.id}">📄 Details</button><button class="btn sm wa" data-shv="${v.id}" title="Share this quotation on WhatsApp">🟢 Share</button><button class="btn sm soft" data-terms="${v.id}">Terms</button><button class="btn sm" data-book="${v.id}">Book</button><button class="x" data-delv="${v.id}" title="Remove">✕</button></div>
     </div>`;}).join(''):`<div class="empty"><b>${G.icon}</b>No ${esc(G.title.toLowerCase())} vendors yet.<br><br><button class="btn" data-addv="${g}">+ Add first vendor</button></div>`;
   el.querySelector('[data-mix]').innerHTML=V.length>1&&bm.sum?`<div class="best-mix"><div><b>✨ Best mix: ${inr(bm.sum)}</b><div class="muted">If you picked the cheapest vendor for every item${ranked.length&&ranked[0].t-bm.sum>0?` · saves ${inr(ranked[0].t-bm.sum)} vs the cheapest single vendor`:''}</div></div></div>`:'';
 
@@ -1318,6 +1422,172 @@ $('pvdlg').addEventListener('close',()=>{/* stays unlocked briefly for convenien
 /* hidden entrance: tap the logo 5 times quickly */
 (()=>{let n=0,t0=0;$('logoImg').addEventListener('click',()=>{const now=Date.now();if(now-t0>2000)n=0;t0=now;if(++n>=5){n=0;openPrivate();}});})();
 
+/* ================= REMINDERS ================= */
+const ALERTS=[{v:0,t:'At the time'},{v:15,t:'15 min before'},{v:60,t:'1 hour before'},{v:180,t:'3 hours before'},{v:1440,t:'1 day before'},{v:2880,t:'2 days before'}];
+const REPEATS=[{v:'none',t:'Does not repeat'},{v:'daily',t:'Every day'},{v:'weekly',t:'Every week'}];
+const NOTI_KEY=KEY+'-notified';let NOTIFIED={};try{NOTIFIED=JSON.parse(localStorage.getItem(NOTI_KEY))||{};}catch(e){}
+const saveNoti=()=>{try{localStorage.setItem(NOTI_KEY,JSON.stringify(NOTIFIED));}catch(e){}};
+const remDate=r=>new Date(r.at);
+const localISO=d=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+const WED=new Date('2027-01-25T10:00');
+const atDays=(base,days,h=10,m=0)=>{const d=new Date(base);d.setDate(d.getDate()+days);d.setHours(h,m,0,0);return localISO(d);};
+function quickTimes(){const n=new Date(),q=[];
+  const in1=new Date(n.getTime()+36e5);in1.setSeconds(0,0);q.push(['In 1 hour',localISO(in1)]);
+  const t8=new Date(n);t8.setHours(20,0,0,0);if(t8>n)q.push(['Tonight 8 PM',localISO(t8)]);
+  q.push(['Tomorrow 9 AM',atDays(n,1,9)]);
+  const mon=new Date(n);mon.setDate(n.getDate()+((8-n.getDay())%7||7));q.push(['Next Monday',atDays(mon,0,10)]);
+  [[-7,'1 week before wedding'],[-3,'3 days before'],[-1,'Day before wedding']].forEach(([d,t])=>{const x=atDays(WED,d);if(new Date(x)>n)q.push([t,x]);});
+  return q;}
+function relWhen(r){const d=remDate(r),now=new Date(),ms=d-now,day=864e5;
+  const t=d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const same=(a,b)=>a.toDateString()===b.toDateString();
+  let label=same(d,now)?`Today ${t}`:same(d,new Date(now.getTime()+day))?`Tomorrow ${t}`:same(d,new Date(now.getTime()-day))?`Yesterday ${t}`:d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' '+t;
+  if(ms<0&&!r.done){const m=Math.round(-ms/6e4);label+=` · ${m<60?m+' min':m<1440?Math.round(m/60)+' h':Math.round(m/1440)+' days'} overdue`;}
+  else if(ms>0&&ms<36e5)label+=` · in ${Math.max(1,Math.round(ms/6e4))} min`;
+  return label;}
+function remGroup(r){if(r.done)return 'Done';const d=remDate(r),n=new Date();if(d<n)return 'Overdue';
+  const sod=x=>{const y=new Date(x);y.setHours(0,0,0,0);return y;};const diff=Math.round((sod(d)-sod(n))/864e5);
+  return diff===0?'Today':diff===1?'Tomorrow':diff<7?'This week':'Later';}
+const dueCount=()=>(S.rem||[]).filter(r=>!r.done&&(remDate(r)<new Date()||remGroup(r)==='Today')).length;
+let SHOW_DONE=false,SHOW_ALL=false;
+/* ---- smart suggestions ---- */
+function suggestions(){
+  const out=[],has=t=>(S.rem||[]).some(r=>r.title.toLowerCase()===t.toLowerCase()),dis=S.remDismiss||[],now=new Date();
+  S.bookings.forEach(b=>{const bal=b.amt-paidFor(b.id);if(bal>0&&b.due&&!(S.rem||[]).some(r=>r.title.includes(b.name))){const at=b.due+'T10:00';if(new Date(at)>now)out.push({k:'b'+b.id,title:`Pay ${inr(bal)} to ${b.name}`,at,alert:1440,pri:'high',why:`Balance due ${fmtDate(b.due)}`});}});
+  [['Confirm final guest count with the cook',-7,'Cook needs the headcount a week ahead'],['Pay decorator advance & confirm setup date',-10,'Setup starts 24 Jan'],['Collect clothes, topor & jewellery',-3,'Keep 2 days spare'],['Check generator, lights & sound',-1,'Day before setup ends'],['Arrange bor jatri bus & cars',-5,'Bor jatri leaves 26 Jan']].forEach(([t,d,why])=>{const at=atDays(WED,d);if(new Date(at)>now&&!has(t))out.push({k:'w'+d,title:t,at,alert:1440,pri:'normal',why});});
+  S.shop.lists.forEach(l=>{const left=S.shop.items.filter(i=>i.list===l.id&&!i.done).length;const t=`Finish shopping: ${l.title}`;if(left&&!(S.rem||[]).some(r=>r.title.startsWith(t))){const at=atDays(WED,-6,11);if(new Date(at)>now)out.push({k:'s'+l.id,title:t,at,alert:1440,pri:'normal',why:`${left} item${left>1?'s':''} still to buy`});}});
+  return out.filter(x=>!dis.includes(x.k));
+}
+function renderRem(){
+  const el=$('remCard');updateBell();if(!el)return;
+  const all=[...(S.rem||[])].sort((a,b)=>a.at.localeCompare(b.at)),open=all.filter(r=>!r.done),done=all.filter(r=>r.done);
+  const groups=['Overdue','Today','Tomorrow','This week','Later'];
+  const row=r=>{const g=remGroup(r);const cls=r.done?'done':g==='Overdue'?'late':g==='Today'?'soon':'';
+    return `<div class="rem ${cls} ${r.pri==='high'?'urgent':''}"><input type="checkbox" class="chk" data-remdone="${r.id}" ${r.done?'checked':''} aria-label="Mark done">
+      <div class="grow"><div class="nm">${r.pri==='high'?'<span class="pri">Urgent</span>':''}${esc(r.title)}</div>
+        <div class="when">${relWhen(r)}${r.rep&&r.rep!=='none'?` · 🔁 ${r.rep==='daily'?'daily':'weekly'}`:''}${r.alert?` · alert ${ALERTS.find(a=>a.v==r.alert)?.t}`:''}${r.note?' · '+esc(r.note):''}</div></div>
+      <div class="acts">${!r.done&&(g==='Overdue'||g==='Today')?`<button class="x" data-remsnz="${r.id}" title="Snooze">💤</button>`:''}${S.calFeed?'':`<button class="x" data-remcal="${r.id}" title="Add to phone calendar">📅</button>`}<button class="x" data-remedit="${r.id}" title="Edit">✎</button><button class="x" data-remdel="${r.id}" title="Delete">✕</button></div></div>`;};
+  let shown=0;const LIMIT=SHOW_ALL?999:6;
+  const body=groups.map(g=>{const rs=open.filter(r=>remGroup(r)===g);if(!rs.length||shown>=LIMIT)return '';const take=rs.slice(0,LIMIT-shown);shown+=take.length;
+    return `<div class="rgrp"><div class="rgh ${g==='Overdue'?'neg':''}">${g} <span>${rs.length}</span></div><div class="list">${take.map(row).join('')}</div></div>`;}).join('');
+  const sug=suggestions().slice(0,3);
+  const late=open.filter(r=>remGroup(r)==='Overdue').length,today=open.filter(r=>remGroup(r)==='Today').length;
+  el.innerHTML=`<div class="head"><div><h2>⏰ Reminders</h2><div class="muted">${open.length?`${open.length} upcoming${today?` · ${today} today`:''}${late?` · <span class="neg">${late} overdue</span>`:''}`:'Nothing pending'}</div></div>
+      <div class="tools"><button class="btn sm" data-remadd>+ Reminder</button></div></div>
+    ${feedBox()}
+    ${body||'<div class="empty" style="padding:14px"><b>🔔</b>Add reminders for urgent things — paying vendors, calling the cook, collecting the saree.</div>'}
+    ${open.length>shown?`<button class="btn sm line" data-remmore style="margin-top:8px">Show all ${open.length}</button>`:SHOW_ALL&&open.length>6?`<button class="btn sm line" data-remmore style="margin-top:8px">Show less</button>`:''}
+    ${sug.length?`<div class="rsug"><div class="rgh">✨ Suggested</div>${sug.map(x=>`<div class="sugrow"><div class="grow"><div class="nm">${esc(x.title)}</div><div class="when">${relWhen({at:x.at})} · ${esc(x.why)}</div></div><button class="btn sm" data-sugadd="${x.k}">Add</button><button class="x" data-sugdis="${x.k}" title="Dismiss">✕</button></div>`).join('')}</div>`:''}
+    ${done.length?`<button class="btn sm line" data-remshowdone style="margin-top:10px">${SHOW_DONE?'Hide':'Show'} completed (${done.length})</button>${SHOW_DONE?`<div class="list" style="margin-top:8px">${done.slice(-20).reverse().map(row).join('')}</div>`:''}`:''}`;
+}
+function feedBox(){
+  if(S.calFeed)return `<div class="feedbox ok"><div class="grow"><b>🔄 Phone calendar sync is on</b><div class="when">Every change updates your subscribed calendar automatically${FEED_STATE?` · ${FEED_STATE}`:''}</div></div><button class="btn sm soft" data-feedinfo>Subscribe / help</button></div>`;
+  return `<div class="feedbox"><div class="grow"><b>📲 Get alerts even when the planner is closed</b><div class="when">Subscribe once in your phone calendar — reminders and their alarms update by themselves.</div></div><button class="btn sm" data-feedon>Turn on</button></div>`;
+}
+function updateBell(){const b=$('bellBtn');if(!b)return;const n=dueCount();b.dataset.count=n||'';b.classList.toggle('has',n>0);b.title=n?`${n} reminder${n>1?'s':''} due`:'Reminders';}
+function remSheet(id,pre={}){
+  const r=id?S.rem.find(x=>x.id===id):{title:pre.title||'',at:pre.at||quickTimes()[0][1],alert:pre.alert??60,note:pre.note||'',pri:pre.pri||'normal',rep:'none'};
+  const qt=quickTimes();
+  openSheet(id?'Edit reminder':'⏰ New reminder',field('title','What to do','text',r.title,{full:1,req:1,ph:'e.g. Pay decorator advance'})+
+    `<div class="full"><div class="qchips2">${qt.map(([t,v])=>`<button type="button" class="chip" data-qt="${v}">${t}</button>`).join('')}</div></div>`+
+    field('at','When','datetime-local',r.at,{req:1})+field('alert','Alert','select',r.alert,{options:ALERTS})+field('rep','Repeat','select',r.rep||'none',{options:REPEATS})+field('pri','Priority','select',r.pri||'normal',{options:[{v:'normal',t:'Normal'},{v:'high',t:'🔴 Urgent'}]})+field('note','Note','text',r.note,{full:1,ph:'Phone number, amount, address…'}),
+  d=>{if(!d.at){toast('Pick a date & time');return false;}const o={title:d.title.trim(),at:d.at,alert:+d.alert,note:d.note.trim(),pri:d.pri,rep:d.rep};
+    let rr;if(id){rr=r;Object.assign(r,o);delete NOTIFIED[r.id];saveNoti();}else{rr={id:uid(),done:false,...o};S.rem.push(rr);}save();renderRem();
+    if(!S.calFeed)setTimeout(()=>calSheet([rr],true),250);else toast('Saved — your phone calendar will update');});
+  $('sheet').querySelectorAll('[data-qt]').forEach(b=>b.onclick=()=>{$('sheet').querySelector('[name=at]').value=b.dataset.qt;$('sheet').querySelectorAll('[data-qt]').forEach(x=>x.classList.toggle('on',x===b));});
+}
+function snoozeSheet(id){const r=S.rem.find(x=>x.id===id);const n=new Date();
+  const opts=[['10 minutes',new Date(n.getTime()+6e5)],['1 hour',new Date(n.getTime()+36e5)],['3 hours',new Date(n.getTime()+108e5)],['Tonight 8 PM',(()=>{const d=new Date(n);d.setHours(20,0,0,0);return d>n?d:null;})()],['Tomorrow 9 AM',new Date(atDays(n,1,9))]].filter(o=>o[1]);
+  openSheet('💤 Snooze',`<div class="full"><p class="muted" style="margin:0 0 10px">${esc(r.title)}</p><div class="qchips2">${opts.map(([t,d])=>`<button type="button" class="chip" data-snz="${localISO(d)}">${t}</button>`).join('')}</div></div>`,()=>{},'Close');
+  $('sheet').querySelectorAll('[data-snz]').forEach(b=>b.onclick=()=>{r.at=b.dataset.snz;delete NOTIFIED[r.id];saveNoti();save();renderRem();$('dlg').close();toast('Snoozed until '+relWhen(r));});
+}
+function completeRem(r,val){
+  if(val&&r.rep&&r.rep!=='none'){const d=remDate(r);const step=r.rep==='daily'?1:7;do{d.setDate(d.getDate()+step);}while(d<new Date());r.at=localISO(d);delete NOTIFIED[r.id];saveNoti();toast('Done ✓ — next one '+relWhen(r));}
+  else{r.done=val;if(val){r.doneAt=Date.now();toast('Done ✓');}}
+  save();setTimeout(renderRem,0);
+}
+/* ---- calendar file (one-off) ---- */
+function icsEsc(t){return String(t||'').replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
+const icsLocal=d=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}00`;
+const icsUTC=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+function buildICS(list,name){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//WedPlanner//Reminders//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',`X-WR-CALNAME:${icsEsc(name||WTITLE()+' reminders')}`,'X-PUBLISHED-TTL:PT15M','REFRESH-INTERVAL;VALUE=DURATION:PT15M'];
+  list.forEach(r=>{const d=remDate(r),e=new Date(d.getTime()+30*6e4);
+    L.push('BEGIN:VEVENT',`UID:${r.id}@wedplanner`,`DTSTAMP:${icsUTC(new Date())}`,`DTSTART:${icsLocal(d)}`,`DTEND:${icsLocal(e)}`,`SUMMARY:${icsEsc((r.pri==='high'?'🔴 ':'⏰ ')+r.title)}`,`DESCRIPTION:${icsEsc((r.note?r.note+'\n':'')+'From '+WTITLE())}`);
+    if(r.rep==='daily')L.push('RRULE:FREQ=DAILY');if(r.rep==='weekly')L.push('RRULE:FREQ=WEEKLY');
+    L.push('BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(r.title)}`,`TRIGGER:-PT${r.alert||0}M`,'END:VALARM');
+    if(r.alert)L.push('BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(r.title)}`,'TRIGGER:PT0M','END:VALARM');
+    L.push('END:VEVENT');});
+  L.push('END:VCALENDAR');return L.join('\r\n');}
+function gcalLink(r){const d=remDate(r),e=new Date(d.getTime()+30*6e4);return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('⏰ '+r.title)+'&dates='+icsUTC(d)+'/'+icsUTC(e)+'&details='+encodeURIComponent((r.note?r.note+'\n':'')+'From '+WTITLE());}
+function downloadICS(list){const blob=new Blob([buildICS(list)],{type:'text/calendar;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=list.length===1?`reminder-${list[0].title.replace(/[^\w]+/g,'-').slice(0,30)}.ics`:'wedding-reminders.ics';document.body.appendChild(a);a.click();a.remove();}
+function calSheet(list,justSaved){
+  const one=list.length===1?list[0]:null;
+  openSheet(justSaved?'✅ Reminder saved':'📅 Add to phone calendar',`<div class="full">
+    <p style="margin:0 0 10px">${justSaved?'Add it to your phone calendar so it alerts you even when the planner is closed:':`${list.length} reminder${list.length>1?'s':''} with alerts.`}</p>
+    <div class="tools"><button type="button" class="btn" id="calIcs">📅 Phone calendar</button>${one?`<a class="btn soft" target="_blank" rel="noopener" href="${gcalLink(one)}">Google Calendar</a>`:''}</div>
+    <p class="muted" style="margin:10px 0 0">Tired of doing this each time? Turn on <b>Phone calendar sync</b> in the Reminders card — then every reminder appears on your phone by itself.</p></div>`,()=>{},justSaved?'Later':'Done');
+  $('calIcs').onclick=()=>{downloadICS(list);list.forEach(r=>r.cal=true);save();toast('Calendar file created');};
+}
+/* ---- live calendar feed (secret gist) ---- */
+const FEED_FILE='wedplanner-reminders.ics';let FEED_STATE='',FEED_T=null,FEED_HASH='';
+const feedURL=()=>S.calFeed?`https://gist.githubusercontent.com/${S.calFeed.login}/${S.calFeed.id}/raw/${FEED_FILE}`:'';
+function feedICS(){const cut=Date.now()-7*864e5;return buildICS((S.rem||[]).filter(r=>!r.done&&(remDate(r).getTime()>cut||(r.rep&&r.rep!=='none'))),WTITLE()+' — reminders');}
+async function feedOn(){
+  if(!syOn())return openSheet('📲 Phone calendar sync',`<p class="full" style="margin:0">First connect GitHub auto-save (More → ☁️ Auto-save to GitHub). Calendar sync uses the same key.</p>`,()=>{},'OK');
+  toast('Setting up calendar sync…');
+  try{const r=await fetch('https://api.github.com/gists',{method:'POST',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({description:'WedPlanner reminders (private calendar feed)',public:false,files:{[FEED_FILE]:{content:feedICS()}}})});
+    if(!r.ok){return openSheet('📲 One more permission needed',`<div class="full"><p style="margin:0 0 8px">Your GitHub key isn't allowed to create the private calendar feed yet (error ${r.status}).</p><ol style="margin:0;padding-left:18px;line-height:1.6"><li>Open <b>github.com/settings/personal-access-tokens</b> → your wedplanner token → <b>Edit</b>.</li><li>Under <b>Account permissions</b> set <b>Gists</b> to <b>Read and write</b> → <b>Update</b>.</li><li>Come back and tap <b>Turn on</b> again.</li></ol></div>`,()=>{},'OK');}
+    const j=await r.json();S.calFeed={id:j.id,login:j.owner&&j.owner.login||SY.owner};FEED_HASH=hashRem();save();renderRem();feedHelp();
+  }catch(e){toast('Could not reach GitHub — try again');}
+}
+const hashRem=()=>JSON.stringify((S.rem||[]).map(r=>[r.id,r.at,r.title,r.alert,r.done,r.rep,r.pri,r.note]));
+function feedSchedule(){if(!S.calFeed||!syOn())return;const h=hashRem();if(h===FEED_HASH)return;clearTimeout(FEED_T);FEED_T=setTimeout(feedPush,2500);}
+async function feedPush(){const h=hashRem();try{const r=await fetch(`https://api.github.com/gists/${S.calFeed.id}`,{method:'PATCH',headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify({files:{[FEED_FILE]:{content:feedICS()}}})});
+  if(r.ok){FEED_HASH=h;FEED_STATE='updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}else FEED_STATE='⚠️ update failed ('+r.status+')';}catch(e){FEED_STATE='⚠️ offline — will retry';}
+  if($('remCard'))renderRem();}
+function feedHelp(){const u=feedURL(),wc=u.replace(/^https:/,'webcal:');
+  openSheet('📲 Subscribe on your phone',`<div class="full">
+    <p style="margin:0 0 10px">Do this <b>once on each phone</b>. After that, reminders and their alarms appear and update by themselves.</p>
+    <div class="tools" style="margin-bottom:10px"><a class="btn" href="${wc}">📱 iPhone / Mac: Subscribe</a><a class="btn soft" target="_blank" rel="noopener" href="https://calendar.google.com/calendar/r?cid=${encodeURIComponent(wc)}">Google Calendar</a><button type="button" class="btn soft" id="feedCopy">📋 Copy link</button></div>
+    <details class="sec"><summary><span>iPhone tips</span></summary><div style="padding:10px 14px;font-size:13.5px;line-height:1.6">Tap <b>Subscribe</b> → <b>Subscribe</b> again → make sure <b>Remove Alerts is OFF</b> → Add. For faster updates: Settings → Calendar → Accounts → Fetch New Data → every 15 minutes.</div></details>
+    <details class="sec"><summary><span>Android / Google Calendar tips</span></summary><div style="padding:10px 14px;font-size:13.5px;line-height:1.6">Add by URL (button above, on a computer if needed). Google refreshes subscribed calendars every few hours and uses its own alert settings: open the calendar's settings → <b>Event notifications</b> → add one (e.g. 1 hour). For urgent same-day reminders also keep the planner's pop-up alerts on.</div></details>
+    <p class="muted" style="margin:10px 0 0">The feed is a secret (unlisted) link — only people you give it to can see it. Turn off sync any time: <a href="#" data-feedoff>Stop calendar sync</a>.</p></div>`,()=>{},'Done');
+  $('feedCopy').onclick=async()=>{try{await navigator.clipboard.writeText(u);toast('Link copied');}catch(e){prompt('Copy',u);}};
+}
+/* ---- events ---- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-remadd],[data-remedit],[data-remdel],[data-remcal],[data-remshowdone],[data-remmore],[data-remperm],[data-brem],[data-remsnz],[data-sugadd],[data-sugdis],[data-feedon],[data-feedinfo],[data-feedoff]');if(!t)return;const d=t.dataset;
+  if(d.remadd!==undefined)return remSheet();
+  if(d.remedit)return remSheet(d.remedit);
+  if(d.remdel){const id=d.remdel;return ask('Delete this reminder?').then(()=>{S.rem=S.rem.filter(r=>r.id!==id);save();renderRem();});}
+  if(d.remcal)return calSheet([S.rem.find(r=>r.id===d.remcal)]);
+  if(d.remsnz)return snoozeSheet(d.remsnz);
+  if(d.remmore!==undefined){SHOW_ALL=!SHOW_ALL;return renderRem();}
+  if(d.remshowdone!==undefined){SHOW_DONE=!SHOW_DONE;return renderRem();}
+  if(d.remperm!==undefined){e.preventDefault();Notification.requestPermission().then(()=>renderRem());return;}
+  if(d.sugadd){const x=suggestions().find(s=>s.k===d.sugadd);if(x){S.rem.push({id:uid(),done:false,title:x.title,at:x.at,alert:x.alert,pri:x.pri,rep:'none',note:''});save();renderRem();toast('Reminder added');}return;}
+  if(d.sugdis){S.remDismiss=[...(S.remDismiss||[]),d.sugdis];save();return renderRem();}
+  if(d.feedon!==undefined)return feedOn();
+  if(d.feedinfo!==undefined)return feedHelp();
+  if(d.feedoff!==undefined){e.preventDefault();return ask('Stop syncing reminders to your phone calendar? Subscribed calendars will stop updating.','Stop sync').then(()=>{delete S.calFeed;save();renderRem();});}
+  if(d.brem){const b=S.bookings.find(x=>x.id===d.brem);const bal=b.amt-paidFor(b.id);return remSheet(null,{title:`Pay ${inr(bal)} to ${b.name}`,at:(b.due||new Date().toISOString().slice(0,10))+'T10:00',alert:1440,pri:'high',note:b.phone?'☎ '+b.phone:''});}
+});
+document.addEventListener('change',e=>{if(e.target.dataset.remdone){const r=S.rem.find(x=>x.id===e.target.dataset.remdone);completeRem(r,e.target.checked);}});
+function checkReminders(){
+  const now=Date.now();let changed=false;
+  (S.rem||[]).forEach(r=>{if(r.done)return;const key=r.id+'@'+r.at;if(NOTIFIED[key])return;const fire=remDate(r).getTime()-(r.alert||0)*6e4;
+    if(now>=fire&&now-remDate(r).getTime()<864e5){NOTIFIED[key]=now;changed=true;
+      toast((r.pri==='high'?'🔴 ':'⏰ ')+r.title);try{navigator.vibrate&&navigator.vibrate([120,80,120]);}catch(e){}
+      try{if('Notification' in window&&Notification.permission==='granted')new Notification((r.pri==='high'?'🔴 ':'⏰ ')+r.title,{body:relWhen(r)+(r.note?' · '+r.note:''),tag:key,requireInteraction:r.pri==='high'});}catch(e){}}});
+  if(changed)saveNoti();
+  if(!document.body.classList.contains('viewmode'))renderRem();
+  feedSchedule();
+}
+setInterval(checkReminders,30000);setTimeout(checkReminders,2000);
+$('bellBtn').onclick=()=>{document.querySelector('#nav [data-tab="home"]').click();setTimeout(()=>$('remCard').scrollIntoView({behavior:'smooth',block:'start'}),150);
+  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();};
+
 /* ================= SHOPPING ================= */
 function renderShop(){
   const L=S.shop.lists;if(!L.some(l=>l.id===UI.sl))UI.sl=L[0]&&L[0].id;
@@ -1355,7 +1625,7 @@ function renderPay(){
   $('bookList').innerHTML=S.bookings.length?S.bookings.map(b=>{const pd=paidFor(b.id),bal=b.amt-pd,pc=b.amt?Math.min(100,pd/b.amt*100):0,late=bal>0&&b.due&&b.due<today();
     return`<div class="item" style="flex-wrap:wrap"><div class="av" style="background:${colorFor(b.cat)}">${esc(initials(b.name))}</div><div class="grow"><div class="nm">${esc(b.name)}</div><div class="meta">${esc(b.cat)}${b.phone?` · <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a>`:''}${b.due?` · ${late?'<span class="neg">overdue</span>':'due'} ${fmtDate(b.due)}`:''}</div></div>
       <div class="amt">${bal<=0?'<span class="pill ok">✓ Paid</span>':`<span class="pill due">${inr(bal)} due</span>`}<div class="muted">${inr(pd)} / ${inr(b.amt)}</div></div>
-      <div style="flex-basis:100%"><div class="track" style="margin:4px 0 8px"><i class="p" style="width:${pc}%"></i></div><div class="tools">${bal>0?`<button class="btn sm" data-pay="${b.id}">+ Pay</button>`:''}<button class="btn sm soft" data-bdocs="${b.id}">📎 Docs${docCount(bookOwn(b))?` (${docCount(bookOwn(b))})`:''}</button><button class="btn sm wa" data-shb="${b.id}">🟢 Share</button><button class="btn sm soft" data-editbook="${b.id}">Edit</button><button class="x" data-delbook="${b.id}">✕</button></div></div></div>`;}).join(''):`<div class="empty"><b>🤝</b>No bookings yet. Press "Book" on a vendor in a quotation tab, or add one here, e.g. photographer, makeup or clothes.</div>`;
+      <div style="flex-basis:100%"><div class="track" style="margin:4px 0 8px"><i class="p" style="width:${pc}%"></i></div><div class="tools">${bal>0?`<button class="btn sm" data-pay="${b.id}">+ Pay</button>`:''}<button class="btn sm soft" data-bdocs="${b.id}">📎 Docs${docCount(bookOwn(b))?` (${docCount(bookOwn(b))})`:''}</button>${bal>0?`<button class="btn sm soft" data-brem="${b.id}">⏰ Remind me</button>`:''}<button class="btn sm wa" data-shb="${b.id}">🟢 Share</button><button class="btn sm soft" data-editbook="${b.id}">Edit</button><button class="x" data-delbook="${b.id}">✕</button></div></div></div>`;}).join(''):`<div class="empty"><b>🤝</b>No bookings yet. Press "Book" on a vendor in a quotation tab, or add one here, e.g. photographer, makeup or clothes.</div>`;
 
   const cats=['All','📎 With proof','⚠️ No proof',...new Set(S.payments.map(p=>p.cat))];
   if(!cats.includes(UI.payFilter))UI.payFilter='All';
@@ -1612,7 +1882,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 setInterval(()=>{if(document.visibilityState==='visible'&&syOn()&&!syBusy&&!SY.dirty)syPull();},60000);
 
 /* ================= RENDER ================= */
-function render(){applyBrand();if(typeof pvRefreshIfChanged==='function')pvRefreshIfChanged();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
+function render(){applyBrand();if(typeof renderRem==='function')renderRem();if(typeof pvRefreshIfChanged==='function')pvRefreshIfChanged();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
 render();
 (function(){
   if(/^#(v|s)=/.test(location.hash)){openSharedHash();if(syOn())syPull();else setSyncStatus('off');return;}
