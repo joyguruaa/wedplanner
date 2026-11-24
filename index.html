@@ -519,6 +519,15 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
   body.viewmode .tb-nav,body.viewmode .tb-act{visibility:hidden}
   body.viewmode .tb-brand{opacity:1;pointer-events:none}
 }
+/* banner photo: never covered by the first card */
+body.with-banner .top{padding-bottom:30px}
+body.with-banner main{margin-top:16px}
+body.with-banner #shareView{margin-top:16px}
+.top.has-banner{background:linear-gradient(180deg,rgba(91,10,26,.20) 0%,rgba(91,10,26,.15) 45%,rgba(91,10,26,.75) 100%),var(--banner) center 28%/cover no-repeat}
+body.with-banner .top{min-height:300px;display:flex;flex-direction:column;justify-content:flex-end}
+body.with-banner .top>*{width:100%;max-width:1100px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+body.with-banner .countdown,body.with-banner .planbar{justify-content:flex-start}
+@media(min-width:900px){body.with-banner .top{min-height:min(52vh,460px);padding-bottom:36px}body.with-banner .top>*{max-width:1200px}}
 @media print{nav.bottom,.fab,.top .icon-btn,.tools,.x,.btn{display:none!important}section.tab{display:block!important}body{padding:0}}
 </style>
 </head>
@@ -694,7 +703,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-d</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-e</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -1930,7 +1939,7 @@ function applyBrand(){
   $('logoImg').src=logo;$('favicon').href=logo;
   $('brandTitle').textContent=SVB?SVB.title:(B.title||DEFAULT_TITLE);$('brandSub').textContent=SVB?SVB.sub:(B.sub||(PLAN.id==='groom'?DEFAULT_SUB:'২৫–২৭ জানুয়ারি ২০২৭ · '+(PLAN.id==='bride'?'কনে পক্ষ':PLAN.name)));
   if(!SVB)document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
-  const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}
+  const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}document.body.classList.toggle('with-banner',!!banner);
   $('bPrev').style.backgroundImage=banner?`linear-gradient(180deg,transparent,rgba(0,0,0,.55)),url("${banner}")`:'linear-gradient(135deg,#c2410c,#9f1d22)';
   $('bPrev').innerHTML=`<img src="${logo}" alt=""><b style="text-shadow:0 1px 4px rgba(0,0,0,.4)">${esc(B.title||DEFAULT_TITLE)}</b>`;
   if(document.activeElement!==$('bTitle'))$('bTitle').value=B.title||'';
