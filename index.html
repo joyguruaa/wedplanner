@@ -354,6 +354,8 @@ details.dd summary::-webkit-details-marker{display:none}
 details.dd .its{padding:4px 12px 10px;background:var(--surface2)}
 details.dd .its div{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)}
 details.dd .its div:last-child{border-bottom:0}
+#logoImg,#brandTitle,#brandSub{cursor:pointer}
+body.viewmode #logoImg,body.viewmode #brandTitle,body.viewmode #brandSub{cursor:default}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -657,7 +659,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-b</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-c</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -1487,6 +1489,11 @@ $('pvdlg').addEventListener('click',async e=>{
   if(d.pvwipe!==undefined)return ask('Delete the private page and ALL private entries permanently?','Yes, delete everything').then(()=>{delete S.vault;save();pvLock();toast('Private page deleted');});
 });
 $('pvdlg').addEventListener('close',()=>{/* stays unlocked briefly for convenience; idle timer still applies */});
+/* logo / title -> Home */
+function goHome(){if(document.body.classList.contains('viewmode'))return;if($('dlg').open)$('dlg').close();if($('vdlg').open)$('vdlg').close();document.querySelector('#nav [data-tab="home"]').click();window.scrollTo({top:0,behavior:'smooth'});}
+$('logoImg').addEventListener('click',goHome);
+$('brandTitle').addEventListener('click',goHome);$('brandSub').addEventListener('click',goHome);
+[$('logoImg'),$('brandTitle')].forEach(el=>{el.setAttribute('role','link');el.setAttribute('tabindex','0');el.setAttribute('title','Home');el.addEventListener('keydown',e=>{if(e.key==='Enter')goHome();});});
 /* hidden entrance: tap the logo 5 times quickly */
 (()=>{let n=0,t0=0;$('logoImg').addEventListener('click',()=>{const now=Date.now();if(now-t0>2000)n=0;t0=now;if(++n>=5){n=0;openPrivate();}});})();
 
