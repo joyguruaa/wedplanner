@@ -331,6 +331,29 @@ body.viewmode .bell{display:none}
 .plan.add{padding:6px 11px}
 body.viewmode .planbar{display:none}
 @media(min-width:900px){.planbar{max-width:1200px}}
+.kv .tile,.sumgrid .tile{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface2);border-radius:14px;padding:10px 12px;position:relative;display:block;min-width:0;transition:background .15s,box-shadow .15s}
+.sumgrid .tile{text-align:center;padding:10px}
+.kv .tile:hover,.sumgrid .tile:hover{background:color-mix(in srgb,var(--gold) 14%,var(--surface2))}
+.kv .tile:focus-visible,.sumgrid .tile:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.kv .tile::after,.sumgrid .tile::after{content:"›";position:absolute;right:10px;top:8px;color:var(--muted);font-size:16px}
+.kv .tile small,.sumgrid .tile small{display:block;color:var(--muted);font-size:11.5px}
+.kv .tile strong{display:block}
+#dlg{max-height:92vh;overflow:auto}
+.dd-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.dd-row:last-child{border-bottom:0}
+.dd-row .track{grid-column:1/-1;height:7px}
+.dd-row .nm{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-row .sub{font-size:12px;color:var(--muted);grid-column:1/-1;margin-top:-2px}
+.dd-row b{font-variant-numeric:tabular-nums}
+.dd-sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;background:var(--surface2);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.dd-sum .tot{border-top:1px solid var(--line);padding-top:6px;font-weight:700}
+.dd-h{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 4px}
+details.dd{border:1px solid var(--line);border-radius:12px;margin-top:8px;overflow:hidden}
+details.dd summary{list-style:none;cursor:pointer;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:var(--surface)}
+details.dd summary::-webkit-details-marker{display:none}
+details.dd .its{padding:4px 12px 10px;background:var(--surface2)}
+details.dd .its div{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)}
+details.dd .its div:last-child{border-bottom:0}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -634,7 +657,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-a</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-b</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -867,7 +890,7 @@ function field(name,label,type='text',val='',opts={}){
   return`<label class="${cls}"><span>${label}</span><input name="${name}" type="${type}" value="${esc(val)}" ${type==='number'?'inputmode="numeric"':''} ${opts.list?`list="${opts.list}"`:''} placeholder="${esc(opts.ph||'')}" ${opts.req?'required':''}></label>`;
 }
 function openSheet(title,fields,onSubmit,submitLabel='Save'){
-  $('sheet').innerHTML=`<div class="grab"></div><h3>${title}</h3><div class="fgrid">${fields}</div><div class="acts"><button type="button" class="btn line" data-close>Cancel</button><button class="btn" value="ok">${submitLabel}</button></div>`;
+  $('sheet').innerHTML=`<div class="grab"></div><h3>${title}</h3><div class="fgrid">${fields}</div><div class="acts">${['Close','Done','OK'].includes(submitLabel)?'':'<button type="button" class="btn line" data-close>Cancel</button>'}<button class="btn" value="ok">${submitLabel}</button></div>`;
   sheetSubmit=onSubmit;$('dlg').showModal();
   const first=$('sheet').querySelector('input,select');if(first&&first.type!=='date')setTimeout(()=>first.focus(),50);
 }
@@ -905,7 +928,7 @@ function renderCountdown(){
 function renderHome(){
   const T=totals(),pct=S.budget?Math.min(1,T.cost/S.budget):0,ppct=S.budget?Math.min(1,T.paid/S.budget):0,C=2*Math.PI*42;
   $('ring').innerHTML=`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface2)" stroke-width="10"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--gold)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*pct} ${C}" opacity=".7"/><circle cx="50" cy="50" r="42" fill="none" stroke="${T.left<0?'var(--bad)':'var(--brand)'}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*ppct} ${C}"/></svg><div class="c"><div><b>${Math.round(pct*100)}%</b><span>of budget used</span></div></div>`;
-  $('kv').innerHTML=`<div><small>Budget</small><strong>${inr(S.budget)}</strong></div><div><small>Committed</small><strong>${inr(T.cost)}</strong></div><div><small>Paid</small><strong class="pos">${inr(T.paid)}</strong></div><div><small>${T.left>=0?'Left in budget':'Over budget'}</small><strong class="${T.left>=0?'pos':'neg'}">${inr(Math.abs(T.left))}</strong></div>`;
+  $('kv').innerHTML=`<button class="tile" data-drill="budget"><small>Budget</small><strong>${inr(S.budget)}</strong></button><button class="tile" data-drill="committed"><small>Committed</small><strong>${inr(T.cost)}</strong></button><button class="tile" data-drill="paid"><small>Paid</small><strong class="pos">${inr(T.paid)}</strong></button><button class="tile" data-drill="left"><small>${T.left>=0?'Left in budget':'Over budget'}</small><strong class="${T.left>=0?'pos':'neg'}">${inr(Math.abs(T.left))}</strong></button>`;
 
   $('proj').innerHTML=`<div><b>🛍️ Shopping still to buy (estimated): ${inr(T.shopLeft)}</b><div class="muted">Projected total when everything is bought: <b class="${T.projected>S.budget?'neg':''}">${inr(T.projected)}</b>${T.projected>S.budget?` · ${inr(T.projected-S.budget)} over budget`:` · ${inr(S.budget-T.projected)} margin`}</div></div>`;
   const rows=allCats().map(c=>{const cost=S.bookings.filter(b=>b.cat===c).reduce((a,b)=>a+b.amt,0)+S.payments.filter(p=>p.cat===c&&!S.bookings.some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);const pd=S.payments.filter(p=>p.cat===c).reduce((a,p)=>a+p.amt,0)+shopSpentCat(c);return{c,cost,pd};}).filter(r=>r.cost||r.pd).sort((a,b)=>b.cost-a.cost);
@@ -1671,11 +1694,61 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-plan],[dat
   if(d.plancopy){try{const c=JSON.parse(localStorage.getItem(keyFor(d.plancopy)+'-sync'));$('syOwner').value=c.owner;$('syRepo').value=c.repo;$('syToken').value=c.token;syConnect();}catch(e){toast('Could not copy the connection');}}
 });
 
+/* ================= SUMMARY DRILL-DOWNS ================= */
+function ddBar(v,max,cls='p'){return `<div class="track"><i class="${cls}" style="width:${max?Math.min(100,v/max*100):0}%"></i></div>`;}
+function ddRows(rows,max){return rows.map(r=>`<div class="dd-row"><span class="nm">${r.icon?r.icon+' ':''}${esc(r.name)}</span><b>${inr(r.v)}</b>${r.sub?`<span class="sub">${r.sub}</span>`:''}${ddBar(r.v,max,r.cls||'p')}</div>`).join('');}
+function catCost(){const m={};const add=(c,v,src)=>{if(!v)return;(m[c]=m[c]||{v:0,items:[]}).v+=v;m[c].items.push(src);};
+  S.bookings.forEach(b=>add(b.cat,b.amt,{n:b.name,v:b.amt,t:'Booking',paid:paidFor(b.id)}));
+  S.payments.filter(p=>!S.bookings.some(b=>b.id===p.to)).forEach(p=>add(p.cat,p.amt,{n:p.note||p.cat,v:p.amt,t:'Payment '+fmtDate(p.date)}));
+  S.shop.items.filter(i=>i.done).forEach(i=>{const l=listOf(i);add(l.cat||'Misc',+i.act||+i.est||0,{n:i.name,v:+i.act||+i.est||0,t:'Bought · '+(l.title||'')});});
+  return Object.entries(m).map(([c,o])=>({c,...o})).sort((a,b)=>b.v-a.v);}
+function drill(kind){
+  const T=totals();
+  if(kind==='budget'){const cc=catCost();
+    return openSheet('💰 Budget',`<label class="f full"><span>Total budget (₹)</span><input name="b" type="number" inputmode="numeric" value="${S.budget}" required></label>
+      <div class="full"><div class="dd-sum"><span>Committed so far</span><b>${inr(T.cost)} · ${S.budget?Math.round(T.cost/S.budget*100):0}%</b><span>Shopping still to buy</span><b>${inr(T.shopLeft)}</b><span class="tot">Projected total</span><b class="tot ${T.projected>S.budget?'neg':''}">${inr(T.projected)}</b></div>
+      ${cc.length?`<div class="dd-h">Share of budget by category</div>${ddRows(cc.map(x=>({name:x.c,v:x.v,sub:`${S.budget?(x.v/S.budget*100).toFixed(1):0}% of budget · ${x.items.length} item${x.items.length>1?'s':''}`})),S.budget)}`:''}</div>`,
+      d=>{S.budget=+d.b||0;save();render();toast('Budget updated');},'Save budget');}
+  if(kind==='committed'){const cc=catCost();const max=Math.max(1,...cc.map(x=>x.v));
+    return openSheet(`🧾 Committed · ${inr(T.cost)}`,`<div class="full">
+      <div class="dd-sum"><span>Bookings (agreed amounts)</span><b>${inr(S.bookings.reduce((a,b)=>a+b.amt,0))}</b><span>Other payments</span><b>${inr(S.payments.filter(p=>!S.bookings.some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0))}</b><span>Shopping bought</span><b>${inr(T.shopSpent)}</b><span class="tot">Total committed</span><b class="tot">${inr(T.cost)}</b></div>
+      ${cc.length?cc.map(x=>`<details class="dd"><summary><span class="nm" style="font-weight:600">${esc(x.c)}</span><b>${inr(x.v)}</b><span class="muted" style="font-size:12px">${x.items.length} item${x.items.length>1?'s':''} · ${T.cost?Math.round(x.v/T.cost*100):0}% of committed</span>${ddBar(x.v,max)}</summary><div class="its">${x.items.sort((a,b)=>b.v-a.v).map(i=>`<div><span>${esc(i.n)} <span class="muted">· ${esc(i.t)}${i.paid!==undefined?` · paid ${inr(i.paid)}`:''}</span></span><b>${inr(i.v)}</b></div>`).join('')}</div></details>`).join(''):'<div class="empty">Nothing committed yet. Book vendors or record payments.</div>'}</div>`,()=>{},'Close');}
+  if(kind==='paid'){const ps=[...S.payments].sort((a,b)=>(b.date||'').localeCompare(a.date||''));const bought=S.shop.items.filter(i=>i.done);
+    const byMode={};ps.forEach(p=>byMode[p.mode]=(byMode[p.mode]||0)+p.amt);
+    return openSheet(`✅ Paid · ${inr(T.paid)}`,`<div class="full">
+      <div class="dd-sum"><span>Payments recorded</span><b>${inr(ps.reduce((a,p)=>a+p.amt,0))}</b><span>Shopping bought</span><b>${inr(T.shopSpent)}</b><span class="tot">Total paid</span><b class="tot pos">${inr(T.paid)}</b><span>Still to pay on bookings</span><b class="neg">${inr(T.due)}</b></div>
+      ${Object.keys(byMode).length?`<div class="dd-h">By payment mode</div>${ddRows(Object.entries(byMode).sort((a,b)=>b[1]-a[1]).map(([m,v])=>({name:m,v})),Math.max(...Object.values(byMode)))}`:''}
+      <div class="dd-h">Payments (${ps.length})</div>${ps.length?ps.map(p=>{const b=S.bookings.find(x=>x.id===p.to);return `<div class="dd-row"><span class="nm">${esc(b?b.name:(p.note||p.cat))}</span><b>${inr(p.amt)}</b><span class="sub">${fmtDate(p.date)} · ${esc(p.mode)}${p.by?' · '+esc(p.by):''}${p.img||p.imgRef?' · 📎':''}</span></div>`;}).join(''):'<div class="muted">No payments yet.</div>'}
+      ${bought.length?`<div class="dd-h">Shopping bought (${bought.length})</div>${bought.map(i=>`<div class="dd-row"><span class="nm">${esc(i.name)}</span><b>${inr(+i.act||+i.est||0)}</b><span class="sub">${esc(listOf(i).title||'')}${!+i.act?' · estimate (no actual price yet)':''}</span></div>`).join('')}`:''}</div>`,()=>{},'Close');}
+  if(kind==='left'){const left=S.budget-T.cost,end=S.budget-T.projected;
+    return openSheet(left>=0?`🟢 Left in budget · ${inr(left)}`:`🔴 Over budget · ${inr(-left)}`,`<div class="full">
+      <div class="dd-sum"><span>Budget</span><b>${inr(S.budget)}</b><span>− Committed</span><b>${inr(T.cost)}</b><span class="tot">Left now</span><b class="tot ${left>=0?'pos':'neg'}">${inr(left)}</b><span>− Shopping still to buy (est.)</span><b>${inr(T.shopLeft)}</b><span class="tot">Left at the end</span><b class="tot ${end>=0?'pos':'neg'}">${inr(end)}</b></div>
+      <div class="dd-h">Where the budget stands</div>
+      <div class="track" style="height:14px;margin:6px 0"><i class="a" style="width:${S.budget?Math.min(100,T.projected/S.budget*100):0}%;opacity:1"></i><i class="p" style="width:${S.budget?Math.min(100,T.cost/S.budget*100):0}%"></i></div>
+      <p class="muted" style="margin:4px 0 0">Red = committed (${S.budget?Math.round(T.cost/S.budget*100):0}%) · gold = including shopping still to buy (${S.budget?Math.round(T.projected/S.budget*100):0}%)</p>
+      ${T.due?`<p style="margin:12px 0 0">You still owe <b class="neg">${inr(T.due)}</b> on bookings — see Payments.</p>`:''}
+      ${end<0?`<p style="margin:8px 0 0">⚠️ Projected to go over by <b class="neg">${inr(-end)}</b>. Trim shopping estimates or compare cheaper quotes.</p>`:''}</div>`,()=>{},'Close');}
+  if(kind==='sest'||kind==='sspent'||kind==='sleft'){
+    const val=i=>kind==='sest'?(+i.est||0):kind==='sspent'?(i.done?(+i.act||+i.est||0):0):(!i.done?(+i.est||0):0);
+    const title=kind==='sest'?'🛍️ Estimated shopping':kind==='sspent'?'✅ Shopping spent':'🛒 Still to buy';
+    const lists=S.shop.lists.map(l=>{const its=S.shop.items.filter(i=>i.list===l.id&&(kind==='sest'||kind==='sspent'?(kind==='sspent'?i.done:true):!i.done));return{l,its,v:its.reduce((a,i)=>a+val(i),0)};}).filter(x=>x.its.length).sort((a,b)=>b.v-a.v);
+    const tot=lists.reduce((a,x)=>a+x.v,0),max=Math.max(1,...lists.map(x=>x.v));
+    const noEst=kind!=='sspent'?S.shop.items.filter(i=>(kind==='sest'||!i.done)&&!+i.est).length:0;
+    const diff=kind==='sspent'?S.shop.items.filter(i=>i.done&&+i.act&&+i.est).reduce((a,i)=>a+(+i.act-+i.est),0):0;
+    return openSheet(`${title} · ${inr(tot)}`,`<div class="full">
+      <div class="dd-sum"><span>${kind==='sspent'?'Items bought':kind==='sleft'?'Items still to buy':'Items on all lists'}</span><b>${lists.reduce((a,x)=>a+x.its.length,0)}</b>
+        ${noEst?`<span>Items without an estimate</span><b class="neg">${noEst}</b>`:''}
+        ${kind==='sspent'?`<span>Actual vs estimate (bought items)</span><b class="${diff>0?'neg':'pos'}">${diff>0?'+'+inr(diff)+' over':diff<0?'−'+inr(-diff)+' saved':'on estimate'}</b>`:''}
+        <span class="tot">Total</span><b class="tot">${inr(tot)}</b></div>
+      ${lists.length?lists.map(x=>`<details class="dd"><summary><span class="nm" style="font-weight:600">${x.l.icon} ${esc(x.l.title)}</span><b>${inr(x.v)}</b><span class="muted" style="font-size:12px">${x.its.length} item${x.its.length>1?'s':''} · ${tot?Math.round(x.v/tot*100):0}%</span>${ddBar(x.v,max,kind==='sest'?'a':'p')}</summary><div class="its">${x.its.sort((a,b)=>val(b)-val(a)).map(i=>`<div><span>${i.done?'✅':'⬜'} ${esc(i.name)}${i.qty?` <span class="muted">· ${esc(i.qty)}</span>`:''}</span><b>${val(i)?inr(val(i)):'<span class="muted">—</span>'}</b></div>`).join('')}</div></details>`).join(''):'<div class="empty">Nothing here yet.</div>'}</div>`,()=>{},'Close');}
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-drill]');if(t)drill(t.dataset.drill);});
+
 /* ================= SHOPPING ================= */
 function renderShop(){
   const L=S.shop.lists;if(!L.some(l=>l.id===UI.sl))UI.sl=L[0]&&L[0].id;
   const all=S.shop.items,T=totals(),est=all.reduce((a,i)=>a+(+i.est||0),0);
-  $('shopSum').innerHTML=`<div><small>Estimated</small><strong>${inr(est)}</strong></div><div><small>Spent</small><strong class="pos">${inr(T.shopSpent)}</strong></div><div><small>To buy (est.)</small><strong>${inr(T.shopLeft)}</strong></div>`;
+  $('shopSum').innerHTML=`<button class="tile" data-drill="sest"><small>Estimated</small><strong>${inr(est)}</strong></button><button class="tile" data-drill="sspent"><small>Spent</small><strong class="pos">${inr(T.shopSpent)}</strong></button><button class="tile" data-drill="sleft"><small>To buy (est.)</small><strong>${inr(T.shopLeft)}</strong></button>`;
   $('shopChips').innerHTML=L.map(l=>{const it=all.filter(i=>i.list===l.id);return`<button class="chip ${l.id===UI.sl?'on':''}" data-sl="${l.id}">${l.icon} ${esc(l.title)}<span class="n">${it.filter(i=>i.done).length}/${it.length}</span></button>`;}).join('')+`<button class="chip" data-newlist>➕ New list</button>`;
   const l=L.find(x=>x.id===UI.sl);
   if(!l){$('shopBody').innerHTML='<div class="card empty"><b>🛍️</b>No lists. Add one with “➕ New list”.</div>';return;}
