@@ -324,6 +324,13 @@ body.viewmode .bell{display:none}
 .sugrow .grow{flex:1;min-width:0}
 .qchips2{display:flex;gap:6px;flex-wrap:wrap}
 .qchips2 .chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.planbar{display:flex;gap:6px;margin:14px auto 0;max-width:1100px;position:relative;z-index:1;overflow-x:auto;scrollbar-width:none}
+.planbar::-webkit-scrollbar{display:none}
+.plan{border:1px solid rgba(246,196,83,.45);background:rgba(255,255,255,.10);color:#fff;border-radius:99px;padding:6px 14px;font-size:13.5px;white-space:nowrap}
+.plan.on{background:#F6C453;color:#5B0A1A;border-color:#F6C453;font-weight:700}
+.plan.add{padding:6px 11px}
+body.viewmode .planbar{display:none}
+@media(min-width:900px){.planbar{max-width:1200px}}
 .toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}
@@ -479,6 +486,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
     </div>
     <div style="display:flex;gap:8px"><button class="icon-btn bell" id="bellBtn" title="Reminders">🔔</button><button class="icon-btn" id="syncBtn" title="GitHub sync">☁️</button><button class="icon-btn" id="themeBtn" title="Theme">🌙</button></div>
   </div>
+  <div class="planbar" id="planBar"></div>
   <div class="countdown" id="countdown"></div>
   <div class="vd-tags sv-tag" id="svTag"></div>
 </header>
@@ -493,6 +501,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
       </div>
       <div id="proj" class="best-mix" style="margin-top:14px"></div>
     </div>
+    <div class="card" id="bothCard" style="display:none"></div>
     <div class="card" id="remCard"></div>
     <div class="two">
       <div class="card">
@@ -558,6 +567,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
       <p class="hint">Total amount you plan to spend.</p>
       <label class="f"><span>Budget (₹)</span><input type="number" id="budget" inputmode="numeric"></label>
     </div>
+    <div class="card" id="plansCard"></div>
     <div class="card" id="syncCard">
       <div class="head"><h2>☁️ Auto-save to GitHub</h2><span class="pill" id="syPill">Off</span></div>
       <p class="hint">Every change (quotes, payments, screenshots, shopping, logo) saves automatically to a <b>private</b> GitHub repo, so all your devices show the same data.</p>
@@ -624,7 +634,7 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
     </div>
     <div class="card">
       <h2>Reset</h2>
-      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.22-h</b></p>
+      <p class="muted" style="margin:0 0 8px">Planner version: <b>2026.11.24-a</b></p>
       <p class="hint">Deletes everything and starts again with the default item list.</p>
       <button class="btn line" id="reset">Reset all data</button>
     </div>
@@ -651,7 +661,17 @@ label.f input,label.f select,label.f textarea{border-radius:12px}
 
 <script>
 /* ================= DATA ================= */
-const KEY='wedding-tracker-v2';
+/* ---- plans (groom side / bride side / …) ---- */
+const PLANS_KEY='wedplanner-plans';
+function loadPlans(){let P=null;try{P=JSON.parse(localStorage.getItem(PLANS_KEY));}catch(e){}if(!P||!P.list||!P.list.length)P={list:[{id:'groom',name:'Groom side',icon:'🤵',tpl:'groom'}],active:'groom'};return P;}
+let PLANS=loadPlans();
+const PLAN=PLANS.list.find(p=>p.id===PLANS.active)||PLANS.list[0];
+const savePlans=()=>{try{localStorage.setItem(PLANS_KEY,JSON.stringify(PLANS));}catch(e){}};
+const keyFor=id=>id==='groom'?'wedding-tracker-v2':'wedding-tracker-v2-'+id;
+const KEY=keyFor(PLAN.id);
+const DATA_FILE=PLAN.id==='groom'?'data.json':`data-${PLAN.id}.json`;
+function switchPlan(id,keepHash){PLANS.active=id;savePlans();if(!keepHash)history.replaceState(null,'',location.pathname);location.reload();}
+function ensurePlan(id,name,icon,tpl){if(!PLANS.list.some(p=>p.id===id)){PLANS.list.push({id,name:name||id,icon:icon||'👥',tpl:tpl||'groom'});savePlans();}}
 const WEDDING=new Date('2027-01-25T00:00:00+05:30');
 const CATS=['Decoration','Event management','Cook / রাঁধুনি','Groceries / বাজার','Vegetables, fish & meat','Sweets','Gifts','Photo / Video','Makeup','Clothes','Jewellery','Tattva / তত্ত্ব','Transport','Invitation cards','Priest / Puja','Guest stay','Misc'];
 const CAT_COLORS=['#9f1d22','#c2410c','#d4a03a','#15803d','#0e7490','#7c3aed','#db2777','#a16207','#4d7c0f','#2563eb','#9333ea','#b45309','#0f766e','#6b7280'];
@@ -671,6 +691,31 @@ const MAKEUP_ITEMS=[
  ['কনের সাজ','বৌভাতের কনের মেকআপ + হেয়ারস্টাইল (২৭ তারিখ)'],['কনের সাজ','চন্দন সাজ / কনের সাজ'],['কনের সাজ','শাড়ি পরানো ও গয়না সেট করা'],['কনের সাজ','ফুলের সাজ (খোঁপা / মালা)'],['কনের সাজ','বিয়ের দিনের কনের মেকআপ (কনের বাড়ি করলে বাদ দিন)',1],
  ['বরের সাজ','বরের সাজ — বিয়ের দিন (টোপর, চন্দন)'],['বরের সাজ','বরের সাজ — রিসেপশন'],
  ['অন্যান্য','পরিবারের সদস্যদের মেকআপ (প্রতি জন × সংখ্যা)'],['অন্যান্য','ট্রায়াল মেকআপ',1],['অন্যান্য','যাতায়াত খরচ'],['অন্যান্য','পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)',1]];
+const BRIDE_ITEMS=[
+ ['১. প্যান্ডেল','বিয়ের রাতের খাবার প্যান্ডেল (সাইড কভার সহ)'],['১. প্যান্ডেল','রান্নার প্যান্ডেল'],['১. প্যান্ডেল','প্যান্ডেলের ভেতরের সাজ + লাইট'],
+ ['২. ছাদনাতলা','ছাদনাতলা সাজানো (কলাগাছ, আলপনা, ফুল)'],['২. ছাদনাতলা','বিয়ের পিঁড়ি, ঘট ও বসার জায়গা'],['২. ছাদনাতলা','মালাবদল ও শুভদৃষ্টির জায়গা'],
+ ['৩. বরকে বরণ','মেন গেট (ফুল + লাইট)'],['৩. বরকে বরণ','বর বরণের জায়গা ও বরণডালা সাজ'],['৩. বরকে বরণ','বরযাত্রীদের বসার জায়গা ও সোফা'],
+ ['৪. চেয়ার-টেবিল','খাওয়ার চেয়ার + টেবিল (কভার সহ)'],['৪. চেয়ার-টেবিল','অতিথিদের বসার চেয়ার'],
+ ['৫. বাসর ঘর','বাসর ঘর সাজানো (আসল ফুল)'],
+ ['৬. লাইটিং ও সাউন্ড','বাড়ি ও রাস্তার লাইটিং'],['৬. লাইটিং ও সাউন্ড','সাউন্ড + সানাই'],['৬. লাইটিং ও সাউন্ড','জেনারেটর (ডিজেল সহ)'],['৬. লাইটিং ও সাউন্ড','ইলেকট্রিশিয়ান'],
+ ['৭. পরিষ্কার','হাত ধোয়ার জায়গা, ডাস্টবিন, পরিষ্কার'],['৭. পরিষ্কার','খাবার জলের জার'],
+ ['৮. রান্না','রাঁধুনি + হেল্পার — শুধু লেবার'],['৮. রান্না','বাসনপত্র ও উনুন ভাড়া'],['৮. রান্না','গ্যাস সিলিন্ডার'],
+ ['৯. পরিবেশন','পরিবেশনের লোক (বিয়ের রাত)'],['৯. পরিবেশন','প্লেট, গ্লাস, জলের বোতল'],
+ ['১০. বিয়ের রাতের খাবার','বাজার সহ মোট দাম (প্লেট প্রতি × অতিথি)',1],
+ ['১১. থাকার ব্যবস্থা','বরযাত্রী ও আত্মীয়দের থাকার জায়গা, বিছানা'],
+ ['অন্যান্য','মাল আনা-নেওয়া / লেবার / GST (আলাদা হলে)']];
+const BRIDE_MAKEUP=[['কনের সাজ','বিয়ের রাতের কনের মেকআপ + চন্দন'],['কনের সাজ','গায়ে হলুদের সাজ'],['কনের সাজ','শাড়ি পরানো ও গয়না সেট'],['কনের সাজ','ফুলের সাজ (খোঁপা, মালা)'],['কনের সাজ','ট্রায়াল মেকআপ',1],['অন্যান্য','পরিবারের সদস্যদের মেকআপ (প্রতি জন × সংখ্যা)'],['অন্যান্য','যাতায়াত খরচ'],['অন্যান্য','পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)',1]];
+const BRIDE_SHOP=[
+ {title:'কনের পোশাক',icon:'👰',cat:'Clothes',items:['বিয়ের বেনারসি','গায়ে হলুদের শাড়ি','বৌভাতে যাওয়ার শাড়ি','ব্লাউজ সেলাই','জুতো ও ব্যাগ','বাবা-মা ও ভাই-বোনদের পোশাক']},
+ {title:'সোনা ও গয়না',icon:'💍',cat:'Jewellery',items:['কনের গয়নার সেট','শাঁখা-পলা','টোপর ও মুকুট','বরের আংটি / উপহার']},
+ {title:'তত্ত্ব (বরের বাড়ি)',icon:'🎁',cat:'Tattva / তত্ত্ব',items:['গায়ে হলুদের তত্ত্ব','বরের ধুতি-পাঞ্জাবি','মিষ্টি ও দই','প্রসাধনী','তত্ত্ব সাজানোর ডালা ও প্যাকিং']},
+ {title:'মুদি বাজার',icon:'🛒',cat:'Groceries / বাজার',items:['চাল','পোলাওয়ের চাল','ডাল','তেল ও ঘি','মশলা','চিনি, নুন','মিনারেল জল']},
+ {title:'সবজি, মাছ ও মাংস',icon:'🥬',cat:'Vegetables, fish & meat',items:['সবজি','মাছ','মাংস','পনির','দই']},
+ {title:'পুজো ও দশকর্মা',icon:'🪔',cat:'Priest / Puja',items:['পুরোহিতের দক্ষিণা','দশকর্মা ভাণ্ডারের জিনিস','ফুল ও মালা','বরণডালা','ঘট ও আমপল্লব']},
+ {title:'মিষ্টি',icon:'🍬',cat:'Sweets',items:['রসগোল্লা / মিষ্টি (বিয়ের রাত)','মিষ্টি দই','পান']},
+ {title:'নিমন্ত্রণ',icon:'💌',cat:'Invitation cards',items:['কার্ড ছাপানো','খাম','ডিজিটাল কার্ড']},
+ {title:'গাড়ি ও যাতায়াত',icon:'🚌',cat:'Transport',items:['আত্মীয়দের গাড়ি','কনে বিদায়ের গাড়ি']},
+ {title:'উপহার ও অন্যান্য',icon:'🎀',cat:'Gifts',items:['আত্মীয়দের উপহার','ডিসপোজেবল প্লেট-গ্লাস','টর্চ, ব্যাটারি, এক্সটেনশন বোর্ড','ফার্স্ট এইড বক্স']}];
 const SHOP_DEFAULT=[
  {title:'পোশাক',icon:'👗',cat:'Clothes',items:['বরের ধুতি-পাঞ্জাবি (বিয়ে)','টোপর ও বরের সাজের জিনিস','বরের রিসেপশনের পোশাক','বরের জুতো','কনের ভাত-কাপড়ের শাড়ি','কনের রিসেপশনের শাড়ি','বাবা-মায়ের পোশাক','ভাই-বোনদের পোশাক','আত্মীয়দের দেওয়ার শাড়ি / জামা','অনুষ্ঠানের জন্য নতুন গামছা / কাপড়']},
  {title:'মুদি বাজার',icon:'🛒',cat:'Groceries / বাজার',items:['চাল (সাদা ভাত)','গোবিন্দভোগ / বাসমতী চাল (পোলাও)','মুগ ডাল','অন্যান্য ডাল','সর্ষের তেল','সাদা তেল / রিফাইন্ড','ঘি','মশলা (জিরে, ধনে, হলুদ, লঙ্কা, গরম মশলা)','চিনি','নুন','ময়দা / বেসন','পাঁপড়','কাজু-কিশমিশ','চা / কফি','মিনারেল জল']},
@@ -683,7 +728,7 @@ const SHOP_DEFAULT=[
  {title:'নিমন্ত্রণ',icon:'💌',cat:'Invitation cards',items:['কার্ড ছাপানো','খাম','ডিজিটাল কার্ড','কার্ড বিলির খরচ']},
  {title:'উপহার ও অন্যান্য',icon:'🎀',cat:'Gifts',items:['আত্মীয়দের উপহার','ফুলশয্যায় কনেকে উপহার','নতুন বেডশিট ও বালিশের কভার','ডিসপোজেবল প্লেট-গ্লাস (বাকি দিন)','টিস্যু ও পরিষ্কারের জিনিস','টর্চ, ব্যাটারি, এক্সটেনশন বোর্ড','ফার্স্ট এইড বক্স']}
 ];
-const mkShop=()=>{const lists=[],items=[];SHOP_DEFAULT.forEach(L=>{const id=uid();lists.push({id,title:L.title,icon:L.icon,cat:L.cat});L.items.forEach(n=>items.push({id:uid(),list:id,name:n,qty:'',est:'',act:'',shop:'',by:'',done:false}));});return{lists,items};};
+const mkShop=(def=SHOP_DEFAULT)=>{const lists=[],items=[];def.forEach(L=>{const id=uid();lists.push({id,title:L.title,icon:L.icon,cat:L.cat});L.items.forEach(n=>items.push({id:uid(),list:id,name:n,qty:'',est:'',act:'',shop:'',by:'',done:false}));});return{lists,items};};
 const mkItems=(arr,g)=>arr.map(([sec,name,skip])=>({id:uid(),sec,name,skip:!!skip,...(g?{g}:{})}));
 const ikey=g=>(g==='dec'||g==='evt')?'plan':g;
 const PACKAGE_ITEM='পুরো প্যাকেজের মোট দাম (একসাথে দাম দিলে)';
@@ -740,10 +785,10 @@ const initials=s=>String(s||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).joi
 const colorFor=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return CAT_COLORS[Math.abs(h)%CAT_COLORS.length];};
 const fmtDate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
 
-function fresh(){return{budget:400000,shop:mkShop(),vendors:[],groups:DEFAULT_GROUPS.map(g=>({...g})),items:[...mkItems(DEFAULT_ITEMS),...mkItems(PHOTO_ITEMS,'photo'),...mkItems(MAKEUP_ITEMS,'makeup')],quotes:{},terms:{},bookings:[],payments:[]};}
+function fresh(tpl=PLAN.tpl){const br=tpl==='bride',empty=tpl==='empty';return{budget:400000,shop:empty?{lists:[],items:[]}:mkShop(br?BRIDE_SHOP:SHOP_DEFAULT),vendors:[],groups:DEFAULT_GROUPS.map(g=>({...g})),items:empty?[...mkItems(PHOTO_ITEMS,'photo')]:[...mkItems(br?BRIDE_ITEMS:DEFAULT_ITEMS),...mkItems(PHOTO_ITEMS,'photo'),...mkItems(br?BRIDE_MAKEUP:MAKEUP_ITEMS,'makeup')],quotes:{},terms:{},bookings:[],payments:[]};}
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY));}catch(e){S=null;}
-if(!S){S=fresh();try{const o=JSON.parse(localStorage.getItem('wedding-tracker-v1'));if(o){S.budget=o.budget??S.budget;S.vendors=o.vendors||[];S.terms=o.terms||{};S.bookings=o.bookings||[];S.payments=o.payments||[];}}catch(e){}}
+if(!S){S=fresh();if(PLAN.id==='groom')try{const o=JSON.parse(localStorage.getItem('wedding-tracker-v1'));if(o){S.budget=o.budget??S.budget;S.vendors=o.vendors||[];S.terms=o.terms||{};S.bookings=o.bookings||[];S.payments=o.payments||[];}}catch(e){}}
 function migrate(){
   S.vendors.forEach(v=>{if(!v.group)v.group=v.type==='Event management'?'evt':'dec';});
   if(!S.groups)S.groups=[];
@@ -1588,6 +1633,44 @@ setInterval(checkReminders,30000);setTimeout(checkReminders,2000);
 $('bellBtn').onclick=()=>{document.querySelector('#nav [data-tab="home"]').click();setTimeout(()=>$('remCard').scrollIntoView({behavior:'smooth',block:'start'}),150);
   if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();};
 
+/* ================= PLANS UI ================= */
+function planCalc(id){let D=null;try{D=JSON.parse(localStorage.getItem(keyFor(id)));}catch(e){}if(!D)return null;
+  const paidFor2=bid=>(D.payments||[]).filter(p=>p.to===bid).reduce((a,p)=>a+p.amt,0);
+  const committed=(D.bookings||[]).reduce((a,b)=>a+b.amt,0),loose=(D.payments||[]).filter(p=>!(D.bookings||[]).some(b=>b.id===p.to)).reduce((a,p)=>a+p.amt,0);
+  const shop=((D.shop&&D.shop.items)||[]).filter(i=>i.done).reduce((a,i)=>a+(+i.act||+i.est||0),0);
+  const cost=committed+loose+shop,paid=(D.payments||[]).reduce((a,p)=>a+p.amt,0)+shop;
+  return{budget:D.budget||0,cost,paid,due:Math.max(0,cost-paid),at:D.updatedAt||0};}
+function renderPlans(){
+  $('planBar').innerHTML=PLANS.list.map(p=>`<button class="plan ${p.id===PLAN.id?'on':''}" data-plan="${p.id}">${p.icon} ${esc(p.name)}</button>`).join('')+`<button class="plan add" data-planadd title="Add a plan">＋</button>`;
+  const others=PLANS.list.filter(p=>p.id!==PLAN.id);
+  const otherSync=others.map(p=>{try{const c=JSON.parse(localStorage.getItem(keyFor(p.id)+'-sync'));return c&&c.token?{p,c}:null;}catch(e){return null;}}).filter(Boolean);
+  $('plansCard').innerHTML=`<div class="head"><h2>👥 Plans</h2><button class="btn sm" data-planadd>+ Add plan</button></div>
+    <p class="hint">Each plan is a complete, separate planner — its own budget, quotes, shopping, payments, documents, reminders and private page. You are in <b>${PLAN.icon} ${esc(PLAN.name)}</b>.</p>
+    <div class="list">${PLANS.list.map(p=>{const c=planCalc(p.id);return `<div class="item"><div class="av" style="background:var(--surface2);font-size:20px">${p.icon}</div><div class="grow"><div class="nm">${esc(p.name)}${p.id===PLAN.id?' <span class="pill ok">open</span>':''}</div><div class="meta">${c?`${inr(c.cost)} of ${inr(c.budget)} · saves to ${p.id==='groom'?'data.json':'data-'+p.id+'.json'}`:'Not opened on this device yet'}</div></div>
+      <div class="tools">${p.id!==PLAN.id?`<button class="btn sm soft" data-plan="${p.id}">Open</button>`:''}<button class="x" data-planren="${p.id}" title="Rename">✎</button>${p.id!==PLAN.id&&p.id!=='groom'?`<button class="x" data-plandel="${p.id}" title="Remove from this device">✕</button>`:''}</div></div>`;}).join('')}</div>
+    ${!syOn()&&otherSync.length?`<div class="feedbox" style="margin-top:12px"><div class="grow"><b>Connect this plan to GitHub</b><div class="when">Use the same GitHub as ${otherSync.map(o=>esc(o.p.name)).join(', ')} — this plan saves to its own file. Anyone with that connection can open both plans.</div></div><button class="btn sm" data-plancopy="${otherSync[0].p.id}">Use same GitHub</button></div>`:''}
+    <details class="sec" style="margin-top:12px"><summary><span>Keep the bride's and groom's plans private from each other</span></summary><div style="padding:12px 14px;font-size:13.5px;line-height:1.6">Devices paired with the same GitHub connection can open both plans. For full privacy the other family creates <b>their own</b> GitHub account, a private repo (e.g. <b>wedplanner-data</b>) and a token, then in their plan uses <b>More → Auto-save to GitHub</b> with their own details. Share links still work across both.</div></details>`;
+  const mine=planCalc(PLAN.id);const rows=PLANS.list.map(p=>({p,c:p.id===PLAN.id?{...totals(),budget:S.budget}:planCalc(p.id)})).filter(x=>x.c);
+  const bc=$('bothCard');
+  if(rows.length>1){const T={budget:0,cost:0,paid:0};rows.forEach(r=>{T.budget+=r.c.budget;T.cost+=r.c.cost;T.paid+=r.c.paid;});
+    bc.style.display='';bc.innerHTML=`<div class="head"><h2>👥 Both sides together</h2><span class="muted">${rows.length} plans</span></div>
+      <div class="list">${rows.map(r=>`<div class="item"><div class="av" style="background:var(--surface2);font-size:20px">${r.p.icon}</div><div class="grow"><div class="nm">${esc(r.p.name)}</div><div class="track" style="margin-top:6px"><i class="a" style="width:${r.c.budget?Math.min(100,r.c.cost/r.c.budget*100):0}%"></i><i class="p" style="width:${r.c.budget?Math.min(100,r.c.paid/r.c.budget*100):0}%"></i></div></div><div class="amt">${inr(r.c.cost)}<br><span class="muted" style="font-weight:400;font-size:12px">of ${inr(r.c.budget)}</span></div></div>`).join('')}</div>
+      <div class="kv" style="margin-top:12px"><div><small>Combined budget</small><strong>${inr(T.budget)}</strong></div><div><small>Combined spent / committed</small><strong>${inr(T.cost)}</strong></div><div><small>Combined paid</small><strong class="pos">${inr(T.paid)}</strong></div><div><small>Combined left</small><strong class="${T.budget-T.cost>=0?'pos':'neg'}">${inr(Math.abs(T.budget-T.cost))}</strong></div></div>
+      <p class="muted" style="margin:8px 0 0">Other plans show their figures from the last time they were opened on this device.</p>`;}
+  else bc.style.display='none';
+}
+function planAddSheet(){
+  const has=id=>PLANS.list.some(p=>p.id===id);
+  openSheet('➕ Add a plan',field('name','Plan name','text',has('bride')?'':'Bride side',{full:1,req:1,ph:'e.g. Bride side'})+field('icon','Icon','select',has('bride')?'👥':'👰',{options:['👰','🤵','👥','💍','🏠','🎊']})+field('tpl','Start with','select',has('bride')?'empty':'bride',{full:1,options:[{v:'bride',t:'Bride-side lists (wedding night at bride’s home)'},{v:'groom',t:'Groom-side lists (bou bhaat at groom’s home)'},{v:'empty',t:'Empty — I’ll add my own'}]}),
+  d=>{const base=(d.name.trim().toLowerCase().includes('bride')&&!has('bride'))?'bride':'p'+uid().slice(0,5);PLANS.list.push({id:base,name:d.name.trim(),icon:d.icon,tpl:d.tpl});savePlans();toast('Plan created — opening it');setTimeout(()=>switchPlan(base),400);},'Create & open');}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-plan],[data-planadd],[data-planren],[data-plandel],[data-plancopy]');if(!t)return;const d=t.dataset;
+  if(d.plan){if(d.plan!==PLAN.id)switchPlan(d.plan);return;}
+  if(d.planadd!==undefined)return planAddSheet();
+  if(d.planren){const p=PLANS.list.find(x=>x.id===d.planren);return openSheet('Rename plan',field('name','Name','text',p.name,{full:1,req:1})+field('icon','Icon','select',p.icon,{options:['👰','🤵','👥','💍','🏠','🎊']}),f=>{p.name=f.name.trim();p.icon=f.icon;savePlans();renderPlans();},'Save');}
+  if(d.plandel){const p=PLANS.list.find(x=>x.id===d.plandel);return ask(`Remove “${p.name}” from this device? Its data stays on GitHub (if connected) and on other devices.`,'Remove').then(()=>{PLANS.list=PLANS.list.filter(x=>x.id!==p.id);savePlans();try{localStorage.removeItem(keyFor(p.id));}catch(e){}renderPlans();});}
+  if(d.plancopy){try{const c=JSON.parse(localStorage.getItem(keyFor(d.plancopy)+'-sync'));$('syOwner').value=c.owner;$('syRepo').value=c.repo;$('syToken').value=c.token;syConnect();}catch(e){toast('Could not copy the connection');}}
+});
+
 /* ================= SHOPPING ================= */
 function renderShop(){
   const L=S.shop.lists;if(!L.some(l=>l.id===UI.sl))UI.sl=L[0]&&L[0].id;
@@ -1695,8 +1778,8 @@ function summaryText(){const T=totals();return `*${WTITLE()}* — budget summary
 $('shareWa').addEventListener('click',e=>{e.preventDefault();shareFlow(summaryText(),summaryPayload());});
 
 /* theme */
-const setTheme=t=>{document.documentElement.dataset.theme=t;$('themeBtn').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(KEY+'-theme',t);}catch(e){}};
-let th='light';try{th=localStorage.getItem(KEY+'-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}
+const setTheme=t=>{document.documentElement.dataset.theme=t;$('themeBtn').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem('wedplanner-theme',t);}catch(e){}};
+let th='light';try{th=localStorage.getItem('wedplanner-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}
 setTheme(th);$('themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
 /* backup */
@@ -1721,7 +1804,7 @@ function applyBrand(){
   if(B.logoRef&&!B.logo)loadRef(B.logoRef);if(B.bannerRef&&!B.banner)loadRef(B.bannerRef);
   const logo=B.logo||IMG[B.logoRef]||REPO.logo||DEFAULT_LOGO, banner=B.banner||IMG[B.bannerRef]||REPO.banner||'';
   $('logoImg').src=logo;$('favicon').href=logo;
-  $('brandTitle').textContent=SVB?SVB.title:(B.title||DEFAULT_TITLE);$('brandSub').textContent=SVB?SVB.sub:(B.sub||DEFAULT_SUB);
+  $('brandTitle').textContent=SVB?SVB.title:(B.title||DEFAULT_TITLE);$('brandSub').textContent=SVB?SVB.sub:(B.sub||(PLAN.id==='groom'?DEFAULT_SUB:'২৫–২৭ জানুয়ারি ২০২৭ · '+(PLAN.id==='bride'?'কনে পক্ষ':PLAN.name)));
   if(!SVB)document.title=(B.title||DEFAULT_TITLE)+' — Wedding Planner';
   const top=$('top');if(banner){top.style.setProperty('--banner',`url("${banner}")`);top.classList.add('has-banner');}else{top.classList.remove('has-banner');top.style.removeProperty('--banner');}
   $('bPrev').style.backgroundImage=banner?`linear-gradient(180deg,transparent,rgba(0,0,0,.55)),url("${banner}")`:'linear-gradient(135deg,#c2410c,#9f1d22)';
@@ -1790,7 +1873,7 @@ async function syPush(){
     await uploadImages();
     await uploadFiles();
     const body={message:'Update wedding data',content:b64enc(JSON.stringify(stripped()))};if(SY.sha)body.sha=SY.sha;
-    const r=await gh('PUT','data.json',body);
+    const r=await gh('PUT',DATA_FILE,body);
     if(r.status===409||r.status===422){syBusy=false;if(++syConflicts>3){setSyncStatus('err','Could not save — data changed on another device. Tap “Sync now”.');return;}await syPull();return;}
     if(!r.ok)throw new Error(r.status===401?'Token invalid or expired':r.status===403||r.status===404?'No access to the data repo — check token permissions':'GitHub error '+r.status);
     const j=await r.json();SY.sha=j.content.sha;SY.dirty=false;SY.last=Date.now();syConflicts=0;saveSync();setSyncStatus('ok');
@@ -1801,12 +1884,12 @@ async function syPull(){
   if(!syOn())return;
   setSyncStatus('sync');
   try{
-    const r=await gh('GET','data.json');
+    const r=await gh('GET',DATA_FILE);
     if(r.status===404){syReady=true;SY.sha=null;SY.dirty=true;saveSync();return syPush();}
     if(!r.ok)throw new Error(r.status===401?'Token invalid or expired':'Cannot read data ('+r.status+')');
     const meta=await r.json();
     if(meta.sha===SY.sha){syReady=true;return SY.dirty?syPush():setSyncStatus('ok');}
-    const text=meta.content?b64dec(meta.content):await (await gh('GET','data.json',null,true)).text();
+    const text=meta.content?b64dec(meta.content):await (await gh('GET',DATA_FILE,null,true)).text();
     const remote=JSON.parse(text);
     if(SY.dirty){S=mergeVal(remote,S);}
     else{const keep={};S.payments.forEach(p=>{if(p.img&&p.imgRef)keep[p.imgRef]=p.img;});const ob=S.brand||{};
@@ -1828,7 +1911,7 @@ async function syConnect(){
     const info=await r.json();
     if(!info.private){SY.token='';saveSync();throw new Error('This repo is PUBLIC — anyone could read your payments. Make it private (Settings → General → Danger Zone → Change visibility) and connect again.');}
     SY.sha=null;syReady=false;saveSync();$('syToken').value='';
-    const m=await gh('GET','data.json');
+    const m=await gh('GET',DATA_FILE);
     if(m.status===404){syReady=true;SY.dirty=true;saveSync();toast('Connected — uploading your data');return syPush();}
     const meta=await m.json();
     if(hasUserData()){
@@ -1838,7 +1921,7 @@ async function syConnect(){
   }catch(e){setSyncStatus('err',e.message||String(e));}
 }
 $('syConnect').onclick=syConnect;
-function pairLink(){const j=btoa(JSON.stringify({o:SY.owner,r:SY.repo,t:SY.token})).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');return location.origin+location.pathname+'#pair='+j;}
+function pairLink(){const j=b64enc(new TextEncoder().encode(JSON.stringify({o:SY.owner,r:SY.repo,t:SY.token,p:PLAN.id,pn:PLAN.name,pi:PLAN.icon,pt:PLAN.tpl}))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');return location.origin+location.pathname+'#pair='+j;}
 function loadQRLib(){return new Promise((res,rej)=>{if(window.QRCode)return res();const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc);});}
 async function showPair(){
   if(!syOn())return toast('Connect this device first');
@@ -1882,14 +1965,15 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 setInterval(()=>{if(document.visibilityState==='visible'&&syOn()&&!syBusy&&!SY.dirty)syPull();},60000);
 
 /* ================= RENDER ================= */
-function render(){applyBrand();if(typeof renderRem==='function')renderRem();if(typeof pvRefreshIfChanged==='function')pvRefreshIfChanged();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
+function render(){applyBrand();if(typeof renderPlans==='function')renderPlans();if(typeof renderRem==='function')renderRem();if(typeof pvRefreshIfChanged==='function')pvRefreshIfChanged();$('budget').value=S.budget;renderCountdown();renderHome();renderQuotes();renderShop();renderPay();}
 render();
 (function(){
   if(/^#(v|s)=/.test(location.hash)){openSharedHash();if(syOn())syPull();else setSyncStatus('off');return;}
   const m=location.hash.match(/^#pair=([A-Za-z0-9_-]+)/);
   if(m){
-    history.replaceState(null,'',location.pathname+location.search);
-    try{const j=JSON.parse(atob(m[1].replace(/-/g,'+').replace(/_/g,'/')));
+    try{const raw=atob(m[1].replace(/-/g,'+').replace(/_/g,'/'));const j=JSON.parse(new TextDecoder().decode(Uint8Array.from(raw,c=>c.charCodeAt(0))));
+      if(j.p&&j.p!==PLAN.id){ensurePlan(j.p,j.pn,j.pi,j.pt);PLANS.active=j.p;savePlans();location.reload();return;}
+      history.replaceState(null,'',location.pathname+location.search);
       $('syOwner').value=j.o;$('syRepo').value=j.r;$('syToken').value=j.t;
       document.querySelector('#nav [data-tab="home"]').click();
       syConnect().then(()=>{if(syOn())toast('This device is now connected ✓');});
